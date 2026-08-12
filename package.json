@@ -1,0 +1,37 @@
+{
+  "name": "utter-office",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -C apps/mobile dev",
+    "dev:mobile": "pnpm -C apps/mobile dev",
+    "dev:mobile:staging": "pnpm -C apps/mobile dev:staging",
+    "dev:mobile:prod": "pnpm -C apps/mobile dev:prod",
+    "ios": "pnpm -C apps/mobile ios",
+    "ios:staging": "pnpm -C apps/mobile ios:staging",
+    "ios:prod": "pnpm -C apps/mobile ios:prod",
+    "ios:device": "pnpm -C apps/mobile ios:device",
+    "ios:device:staging": "pnpm -C apps/mobile ios:device:staging",
+    "ios:device:staging:release": "pnpm -C apps/mobile ios:device:staging:release",
+    "ios:device:prod": "pnpm -C apps/mobile ios:device:prod",
+    "ios:device:prod:release": "pnpm -C apps/mobile ios:device:prod:release",
+    "typecheck": "turbo typecheck",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "build": "pnpm -C apps/mobile build",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "core-js",
+      "unrs-resolver"
+    ]
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "catalog:"
+  }
+}
