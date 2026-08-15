@@ -12,5 +12,5 @@ import { useWorkspaceStore } from "@/data/workspace-store";
 
 export default function VoiceStub() {
   const slug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
-  return <Redirect href={slug ? `/${slug}/inbox` : "/select-workspace"} />;
+  return <Redirect href={slug ? `/${slug}/home` : "/select-workspace"} />;
 }

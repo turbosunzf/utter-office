@@ -30,7 +30,7 @@ import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 import { deduplicateInboxItems } from "@/lib/inbox-display";
 
-export default function Inbox() {
+export default function Home() {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
   const wsSlug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
   const { colorScheme } = useColorScheme();
@@ -115,7 +115,7 @@ export default function Inbox() {
   return (
     <View className="flex-1 bg-background">
       <Header
-        title="Inbox"
+        title="首页"
         right={
           <>
             <IconButton

@@ -1,30 +1,27 @@
 /**
  * Bottom tab bar — JS `<Tabs>` from expo-router (react-navigation under the
- * hood). We tried NativeTabs first but its `canPreventDefault: false`
- * constraint makes "tap More → open something" impossible. JS Tabs
- * supports `listeners.tabPress + e.preventDefault()`, the canonical RN
- * pattern for tab-as-action.
+ * hood). Five slots, reordered for the AI秘书 redesign:
+ * 首页 - 看板 - 录音(central) - 聊天 - 我的.
  *
- * The "More" tab is **not a navigation target** — its press opens a
- * DropdownMenu popover anchored above the tab. The popover is rendered
- * by `<MoreTabDropdownAnchor />` as a sibling of `<Tabs>`, NOT as a
- * `tabBarButton` replacement: keeping the real tab button intact means
- * the icon + "More" label render identically to the other three tabs.
- * We just open the dropdown imperatively from `listeners.tabPress` via
- * the exposed `TriggerRef.open()`.
+ * The central Voice tab is NOT a navigation target. Its custom
+ * `tabBarButton` (RecordButton) owns the interaction — a <2s tap opens a
+ * bottom sheet, a ≥2s hold enters a recording state and sends "你好" on
+ * release — and `listeners.tabPress` preventDefault()s so the underlying
+ * (tabs)/voice.tsx stub is never navigated to (same tab-as-action pattern
+ * the old More/Voice dropdowns used).
  *
- * The stub (tabs)/more.tsx file still exists only because expo-router
- * requires every Tabs.Screen to have a backing route file — the press
- * is preventDefault'd so we never actually navigate to it.
+ * RecordButton and VoiceOverlay coordinate through `useVoiceStore`: the
+ * button lives inside <Tabs> (as a tabBarButton) while the full-screen
+ * sheet/ripple overlays render as siblings here so they stack above the
+ * bar. See components/voice/record-button.tsx + voice-overlay.tsx.
  *
- * Active / inactive tint colors are derived from the current colour
- * scheme via THEME so dark mode picks contrasting values automatically.
+ * Active tint is brand blue per spec §1 (#3B6FFF); inactive uses the theme
+ * token so dark mode picks a contrasting value automatically.
  */
-import { useRef } from "react";
 import { Tabs } from "expo-router";
 import { Image } from "expo-image";
 import { View } from "react-native";
-import type { TriggerRef } from "@rn-primitives/dropdown-menu";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
@@ -32,21 +29,27 @@ import {
   useInboxUnreadCount,
   useChatUnreadMessageCount,
 } from "@/lib/unread-counts";
-import { MoreTabDropdownAnchor } from "@/components/nav/more-tab-dropdown";
-import { VoiceTabDropdownAnchor } from "@/components/nav/voice-tab-dropdown";
+import { RecordButton } from "@/components/voice/record-button";
+import { VoiceOverlay } from "@/components/voice/voice-overlay";
 
 // Only override backgroundColor — @react-navigation/elements Badge internally
 // sets borderRadius = size/2, height = size, minWidth = size, so a single
-// character renders as a perfect circle. Overriding minWidth/fontSize here
-// breaks that geometry. Text color is auto-derived from backgroundColor
-// luminance by Badge itself (white on brand blue).
+// character renders as a perfect circle. Text color is auto-derived from the
+// backgroundColor luminance by Badge itself (white on brand blue).
 const BADGE_STYLE = {
   backgroundColor: THEME.light.brand,
 };
 
+// The central record button is 58×58 and must not protrude (spec §1), so the
+// tab bar's content band is raised from the default 49px to 60px — button
+// sits vertically centred with 1px breathing room top and bottom. The
+// safe-area inset is added as the bar's bottom padding by React Navigation.
+const TAB_BAR_CONTENT_HEIGHT = 60;
+
 export default function TabsLayout() {
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
+  const insets = useSafeAreaInsets();
 
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
   const inboxUnread = useInboxUnreadCount(wsId);
@@ -59,32 +62,29 @@ export default function TabsLayout() {
   const chatBadge =
     chatUnread > 0 ? (chatUnread > 99 ? "99+" : String(chatUnread)) : undefined;
 
-  // Imperative handle into the More tab's dropdown — listeners.tabPress
-  // calls .open(); the @rn-primitives Trigger measures itself inside
-  // open() so the popover anchors to MoreTabDropdownAnchor's rect.
-  const moreTriggerRef = useRef<TriggerRef>(null);
-  const voiceTriggerRef = useRef<TriggerRef>(null);
-
   return (
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: t.foreground,
+          tabBarActiveTintColor: t.brand,
           tabBarInactiveTintColor: t.mutedForeground,
-          tabBarStyle: { backgroundColor: t.background },
-          tabBarLabelStyle: { fontSize: 11 },
+          tabBarStyle: {
+            backgroundColor: t.background,
+            height: TAB_BAR_CONTENT_HEIGHT + insets.bottom,
+          },
+          tabBarLabelStyle: { fontSize: 10 },
         }}
       >
         <Tabs.Screen
-          name="inbox"
+          name="home"
           options={{
-            title: "Inbox",
+            title: "首页",
             tabBarBadge: inboxBadge,
             tabBarBadgeStyle: BADGE_STYLE,
             tabBarIcon: ({ color, size, focused }) => (
               <Image
-                source={focused ? "sf:tray.fill" : "sf:tray"}
+                source={focused ? "sf:house.fill" : "sf:house"}
                 tintColor={color}
                 style={{ width: size, height: size }}
               />
@@ -92,22 +92,39 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="my-issues"
+          name="board"
           options={{
-            title: "My Issues",
+            title: "看板",
             tabBarIcon: ({ color, size, focused }) => (
               <Image
-                source={focused ? "sf:checklist" : "sf:checklist.unchecked"}
+                source={
+                  focused ? "sf:square.grid.2x2.fill" : "sf:square.grid.2x2"
+                }
                 tintColor={color}
                 style={{ width: size, height: size }}
               />
             ),
           }}
+        />
+        <Tabs.Screen
+          name="voice"
+          options={{
+            title: "录音",
+            tabBarButton: () => <RecordButton />,
+          }}
+          listeners={() => ({
+            tabPress: (e) => {
+              // Voice tab is not a navigation target — the RecordButton
+              // owns the tap/hold interaction (same tab-as-action pattern
+              // the old Voice dropdown used).
+              e.preventDefault();
+            },
+          })}
         />
         <Tabs.Screen
           name="chat"
           options={{
-            title: "Chat",
+            title: "聊天",
             tabBarBadge: chatBadge,
             tabBarBadgeStyle: BADGE_STYLE,
             tabBarIcon: ({ color, size, focused }) => (
@@ -120,53 +137,21 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="voice"
+          name="mine"
           options={{
-            title: "Voice",
+            title: "我的",
             tabBarIcon: ({ color, size, focused }) => (
               <Image
-                source={focused ? "sf:mic.fill" : "sf:mic"}
+                source={focused ? "sf:person.fill" : "sf:person"}
                 tintColor={color}
                 style={{ width: size, height: size }}
               />
             ),
           }}
-          listeners={() => ({
-            tabPress: (e) => {
-              // Voice tab is not a navigation target — open the dropdown
-              // popover instead (same tab-as-action pattern as More).
-              e.preventDefault();
-              voiceTriggerRef.current?.open();
-            },
-          })}
-        />
-        <Tabs.Screen
-          name="more"
-          options={{
-            title: "More",
-            tabBarIcon: ({ color, size }) => (
-              <Image
-                source="sf:ellipsis"
-                tintColor={color}
-                style={{ width: size, height: size }}
-              />
-            ),
-          }}
-          listeners={() => ({
-            tabPress: (e) => {
-              // Don't navigate to the (stub) /more screen — open the
-              // dropdown popover instead. The trigger is invisible and
-              // mounted in MoreTabDropdownAnchor below; ref.open() also
-              // measures its rect so the popover anchors correctly.
-              e.preventDefault();
-              moreTriggerRef.current?.open();
-            },
-          })}
         />
       </Tabs>
 
-      <MoreTabDropdownAnchor triggerRef={moreTriggerRef} />
-      <VoiceTabDropdownAnchor triggerRef={voiceTriggerRef} />
+      <VoiceOverlay />
     </View>
   );
 }
