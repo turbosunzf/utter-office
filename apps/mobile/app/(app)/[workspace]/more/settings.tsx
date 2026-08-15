@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NavRow } from "@/components/ui/nav-row";
+import { SectionGroup } from "@/components/ui/section-group";
 import { workspaceListOptions } from "@/data/queries/workspaces";
 import { useAuthStore } from "@/data/auth-store";
 import { useWorkspaceStore } from "@/data/workspace-store";
@@ -30,7 +32,6 @@ import {
   type ThemePreference,
 } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
-import { cn } from "@/lib/utils";
 
 const THEME_OPTIONS: Array<{ value: ThemePreference; label: string }> = [
   { value: "light", label: "Light" },
@@ -62,7 +63,7 @@ export default function SettingsPage() {
   const onSwitch = async (ws: Workspace) => {
     if (ws.slug === currentSlug) return;
     await setCurrentWorkspace(ws.id, ws.slug);
-    router.replace(`/${ws.slug}/inbox`);
+    router.replace(`/${ws.slug}/home`);
   };
 
   const onSignOut = () => {
@@ -190,59 +191,6 @@ export default function SettingsPage() {
         </Button>
       </View>
     </ScrollView>
-  );
-}
-
-function NavRow({
-  onPress,
-  leading,
-  title,
-  subtitle,
-  chevronColor,
-}: {
-  onPress: () => void;
-  leading?: React.ReactNode;
-  title: string;
-  subtitle?: string;
-  chevronColor: string;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      className={cn(
-        "flex-row items-center px-4 py-3.5 active:bg-secondary gap-3",
-      )}
-    >
-      {leading}
-      <View className="flex-1">
-        <Text className="text-base font-medium text-foreground">{title}</Text>
-        {subtitle ? (
-          <Text className="text-sm text-muted-foreground mt-0.5">
-            {subtitle}
-          </Text>
-        ) : null}
-      </View>
-      <Ionicons name="chevron-forward" size={18} color={chevronColor} />
-    </Pressable>
-  );
-}
-
-function SectionGroup({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <View className="gap-2">
-      <Text className="text-xs uppercase tracking-wider text-muted-foreground px-1">
-        {title}
-      </Text>
-      <View className="rounded-md border border-border bg-card overflow-hidden">
-        {children}
-      </View>
-    </View>
   );
 }
 
