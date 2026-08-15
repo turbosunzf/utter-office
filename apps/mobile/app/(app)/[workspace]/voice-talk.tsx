@@ -1,84 +1,115 @@
 /**
- * voice-talk — "长按发语音" MVP (hold-to-talk simulation).
+ * voice-talk — 「长按发语音」page（meet-think 结构，纯 UI 交互）。
  *
- * Press and hold the mic to enter a "recording" state; release ends the
- * recording and sends a hard-coded "你好" to the current chat. Real voice
- * capture / ASR / audio message protocol are out of scope (follow-up
- * issues) — this screen proves the push-to-talk interaction + the chat
- * send channel end-to-end on device.
+ * Hold the mic ≥2s to enter the recording state (haptic + EQ animation);
+ * release ends recording, sends a hard-coded "你好" to the current chat via
+ * `useSendVoiceMessage`, then switches to the Chat tab. A short (<2s) press
+ * is a no-op — the on-screen hint tells the user to hold. Real voice capture
+ * / ASR / audio message protocol are out of scope (follow-up issues); this
+ * screen proves the push-to-talk interaction + the chat send channel.
  *
- * Send path deliberately reuses the API client + chat query keys instead
- * of importing the chat tab's component-local `handleSend` (which is
- * coupled to that screen's session/agent state). We resolve the first
- * non-archived agent + first non-archived session (creating one if none),
- * POST the message, then invalidate the chat caches so the Chat tab
- * refetches and shows it.
+ * The 2s-threshold state machine mirrors the central RecordButton
+ * (components/voice/record-button.tsx): a `longPressFiredRef` (not component
+ * state) drives the pressOut adjudication because the handler must read the
+ * value captured when the finger landed — component state would be a stale
+ * closure after `setRecording` re-renders the button mid-press.
  */
-import { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Animated, Easing, Pressable, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import { Text } from "@/components/ui/text";
-import { api } from "@/data/api";
 import { useWorkspaceStore } from "@/data/workspace-store";
-import { agentListOptions } from "@/data/queries/agents";
-import { chatKeys, chatSessionsOptions } from "@/data/queries/chat";
+import { useSendVoiceMessage } from "@/lib/use-send-voice-message";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 
-// Static waveform bars — placeholder for the future live audio level meter.
-const WAVE_BARS = [14, 24, 34, 20, 40, 26, 16];
+const LONG_PRESS_MS = 2000;
+const EQ_BAR_COUNT = 4;
 
 export default function VoiceTalkPage() {
-  const qc = useQueryClient();
-  const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
+  const slug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
+  const { send, sending } = useSendVoiceMessage();
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
 
-  const { data: agents = [] } = useQuery(agentListOptions(wsId));
-  const { data: sessions = [] } = useQuery(chatSessionsOptions(wsId));
-
   const [recording, setRecording] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [pressed, setPressed] = useState(false);
 
-  const availableAgents = agents.filter((a) => !a.archived_at);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressFiredRef = useRef(false);
+  const recordingRef = useRef(false);
 
-  const sendHello = useCallback(async () => {
-    const agent = availableAgents[0];
-    if (!agent) {
-      Alert.alert("无可用 agent", "该工作区暂无可用 agent，无法发送消息。");
+  // EQ bars — Animated.loop + Animated.stagger (scaleY → native driver),
+  // same 900ms cycle / 150ms phase offset as the central RecordButton.
+  const eqBars = useRef<Animated.Value[]>(
+    Array.from({ length: EQ_BAR_COUNT }, () => new Animated.Value(0)),
+  ).current;
+
+  useEffect(() => {
+    if (!recording) {
+      eqBars.forEach((v) => v.setValue(0));
       return;
     }
+    const loops = eqBars.map((v) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(v, {
+            toValue: 1,
+            duration: 450,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(v, {
+            toValue: 0,
+            duration: 450,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ]),
+      ),
+    );
+    const composite = Animated.stagger(150, loops);
+    composite.start();
+    return () => composite.stop();
+  }, [recording, eqBars]);
 
-    setSending(true);
-    setSent(false);
-    try {
-      const existing =
-        sessions.find((s) => s.status !== "archived") ?? sessions[0];
-      let sessionId = existing?.id ?? null;
-      if (!sessionId) {
-        const session = await api.createChatSession({
-          agent_id: agent.id,
-          title: "你好",
-        });
-        sessionId = session.id;
-      }
-      await api.sendChatMessage(sessionId, "你好");
-      qc.invalidateQueries({ queryKey: chatKeys.sessions(wsId) });
-      qc.invalidateQueries({ queryKey: chatKeys.messages(sessionId) });
-      setSent(true);
-    } catch (err) {
-      Alert.alert(
-        "发送失败",
-        err instanceof Error ? err.message : "未知错误",
-      );
-    } finally {
-      setSending(false);
+  const onPressIn = useCallback(() => {
+    if (recordingRef.current) return; // ignore re-press while recording
+    longPressFiredRef.current = false;
+    setPressed(true);
+    timer.current = setTimeout(() => {
+      longPressFiredRef.current = true;
+      recordingRef.current = true;
+      setRecording(true);
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      timer.current = null;
+    }, LONG_PRESS_MS);
+  }, []);
+
+  const onPressOut = useCallback(() => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
     }
-  }, [availableAgents, sessions, wsId, qc]);
 
-  const micColor = recording ? "#FFFFFF" : t.foreground;
+    setPressed(false);
+
+    if (longPressFiredRef.current) {
+      // Ended a ≥2s hold — finish recording, send to chat, switch to Chat tab.
+      longPressFiredRef.current = false;
+      recordingRef.current = false;
+      setRecording(false);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void send("你好");
+      if (slug) router.navigate(`/${slug}/chat`);
+      return;
+    }
+    // Short press — no send; the hint below tells the user to hold ≥2s.
+  }, [send, slug]);
+
+  const micTint = recording ? "#FFFFFF" : t.foreground;
 
   return (
     <View className="flex-1 bg-background items-center justify-center px-8">
@@ -87,21 +118,15 @@ export default function VoiceTalkPage() {
           ? "正在录音，松开结束并发送"
           : sending
             ? "发送中…"
-            : "按住说话，松开发送到当前聊天"}
+            : "按住 2 秒说话，松开发送到当前聊天"}
       </Text>
 
       <Pressable
-        onPressIn={() => {
-          setRecording(true);
-          setSent(false);
-        }}
-        onPressOut={() => {
-          setRecording(false);
-          void sendHello();
-        }}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
         disabled={sending}
         accessibilityLabel="长按说话"
-        accessibilityHint="松开发送「你好」到当前聊天"
+        accessibilityHint="长按 2 秒进入录音，松开发送「你好」到当前聊天"
         style={{
           width: 160,
           height: 160,
@@ -110,42 +135,63 @@ export default function VoiceTalkPage() {
           justifyContent: "center",
           backgroundColor: recording ? t.brand : t.secondary,
           gap: 8,
+          overflow: "hidden",
         }}
       >
-        <Image
-          source="sf:mic.fill"
-          tintColor={micColor}
-          style={{ width: 40, height: 40 }}
-        />
         {recording ? (
-          <View className="flex-row items-end gap-1 h-10">
-            {WAVE_BARS.map((h, i) => (
-              <View
+          <View style={styles.eqRow}>
+            {eqBars.map((v, i) => (
+              <Animated.View
                 key={i}
-                className="w-1 rounded-full bg-white"
-                style={{ height: h }}
+                style={[
+                  styles.eqBar,
+                  {
+                    transform: [
+                      {
+                        scaleY: v.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0.33, 1],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
               />
             ))}
           </View>
-        ) : sending ? (
-          <ActivityIndicator color={t.foreground} />
         ) : (
-          <Text className="text-xs font-medium text-muted-foreground">
-            长按说话
-          </Text>
+          <Image
+            source="sf:mic.fill"
+            tintColor={micTint}
+            style={{ width: 40, height: 40 }}
+          />
         )}
+        {pressed && !recording ? <View style={styles.pressedScrim} /> : null}
       </Pressable>
 
-      {sent ? (
-        <View className="mt-6 items-center gap-1">
-          <Text className="text-sm font-medium text-foreground">
-            已发送：你好
-          </Text>
-          <Text className="text-xs text-muted-foreground">
-            切到「聊天」标签页即可查看
-          </Text>
-        </View>
-      ) : null}
+      <Text className="mt-6 text-xs text-muted-foreground text-center">
+        松开后自动切到「聊天」并发送「你好」
+      </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  eqRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 4,
+    height: 40,
+  },
+  eqBar: {
+    width: 5,
+    height: 40,
+    borderRadius: 2.5,
+    backgroundColor: "#FFFFFF",
+    transformOrigin: "bottom",
+  },
+  pressedScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.10)",
+  },
+});
