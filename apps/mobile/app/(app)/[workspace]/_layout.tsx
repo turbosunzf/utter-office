@@ -293,6 +293,12 @@ export default function WorkspaceLayout() {
           name="more/issues"
           options={{ title: "Issues", headerBackTitle: "Back" }}
         />
+        {/* 我的待办 — full assigned-to-me issues list, pushed from the home
+            tab's "全部待办" footer (step ③). */}
+        <Stack.Screen
+          name="my-issues"
+          options={{ title: "待办", headerBackTitle: "Back" }}
+        />
         <Stack.Screen
           name="more/projects"
           options={{ title: "Projects", headerBackTitle: "Back" }}
