@@ -33,6 +33,7 @@ import {
   useChatUnreadMessageCount,
 } from "@/lib/unread-counts";
 import { MoreTabDropdownAnchor } from "@/components/nav/more-tab-dropdown";
+import { VoiceTabDropdownAnchor } from "@/components/nav/voice-tab-dropdown";
 
 // Only override backgroundColor — @react-navigation/elements Badge internally
 // sets borderRadius = size/2, height = size, minWidth = size, so a single
@@ -62,6 +63,7 @@ export default function TabsLayout() {
   // calls .open(); the @rn-primitives Trigger measures itself inside
   // open() so the popover anchors to MoreTabDropdownAnchor's rect.
   const moreTriggerRef = useRef<TriggerRef>(null);
+  const voiceTriggerRef = useRef<TriggerRef>(null);
 
   return (
     <View style={{ flex: 1 }}>
@@ -118,6 +120,27 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+          name="voice"
+          options={{
+            title: "Voice",
+            tabBarIcon: ({ color, size, focused }) => (
+              <Image
+                source={focused ? "sf:mic.fill" : "sf:mic"}
+                tintColor={color}
+                style={{ width: size, height: size }}
+              />
+            ),
+          }}
+          listeners={() => ({
+            tabPress: (e) => {
+              // Voice tab is not a navigation target — open the dropdown
+              // popover instead (same tab-as-action pattern as More).
+              e.preventDefault();
+              voiceTriggerRef.current?.open();
+            },
+          })}
+        />
+        <Tabs.Screen
           name="more"
           options={{
             title: "More",
@@ -143,6 +166,7 @@ export default function TabsLayout() {
       </Tabs>
 
       <MoreTabDropdownAnchor triggerRef={moreTriggerRef} />
+      <VoiceTabDropdownAnchor triggerRef={voiceTriggerRef} />
     </View>
   );
 }

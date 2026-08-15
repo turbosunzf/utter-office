@@ -317,6 +317,19 @@ export default function WorkspaceLayout() {
           name="more/settings/notifications"
           options={{ title: "Notifications", headerBackTitle: "Settings" }}
         />
+        {/* Voice MVP entry routes — pushed from the Voice tab popover. */}
+        <Stack.Screen
+          name="voice-record"
+          options={{ title: "录音", headerBackTitle: "Back" }}
+        />
+        <Stack.Screen
+          name="voice-translate"
+          options={{ title: "翻译", headerBackTitle: "Back" }}
+        />
+        <Stack.Screen
+          name="voice-talk"
+          options={{ title: "长按发语音", headerBackTitle: "Back" }}
+        />
         <Stack.Screen
           name="new-issue"
           options={{
