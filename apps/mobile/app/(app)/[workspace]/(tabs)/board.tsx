@@ -60,7 +60,7 @@ const SCOPES: { value: MyIssuesScope; label: string }[] = [
 
 type IssueSection = { status: IssueStatus; data: Issue[] };
 
-export default function MyIssues() {
+export default function Board() {
   const isFocused = useIsFocused();
   const userId = useAuthStore((s) => s.user?.id ?? null);
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
@@ -128,7 +128,7 @@ export default function MyIssues() {
 
   return (
     <View className="flex-1 bg-background">
-      <Header title="My Issues" right={<HeaderActions />} />
+      <Header title="看板" right={<HeaderActions />} />
       <ScopeToolbar
         scopes={SCOPES}
         scope={scope}
