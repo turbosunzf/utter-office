@@ -25,6 +25,12 @@ import type {
   CreateLabelRequest,
   CreateProjectRequest,
   CreateProjectResourceRequest,
+  DashboardAgentRunTime,
+  DashboardFailureByAgent,
+  DashboardFailureDaily,
+  DashboardRunTimeDaily,
+  DashboardUsageByAgent,
+  DashboardUsageDaily,
   InboxItem,
   Issue,
   IssueLabelsResponse,
@@ -58,6 +64,12 @@ import type {
   Workspace,
 } from "@multica/core/types";
 import {
+  DashboardAgentRunTimeListSchema,
+  DashboardFailureByAgentListSchema,
+  DashboardFailureDailyListSchema,
+  DashboardRunTimeDailyListSchema,
+  DashboardUsageByAgentListSchema,
+  DashboardUsageDailyListSchema,
   EMPTY_LIST_ISSUES_RESPONSE,
   EMPTY_TIMELINE_ENTRIES,
   IssueSchema,
@@ -684,6 +696,114 @@ class ApiClient {
       AgentTaskListSchema,
       EMPTY_AGENT_TASK_LIST,
       { ...opts, endpoint: "GET /api/issues/:id/task-runs" },
+    );
+  }
+
+  // --- Workspace dashboard ---
+  // Six rollups powering the 看板 (board) tab. Mirrors
+  // packages/core/api/client.ts:1723-1828 — same paths, params, and response
+  // schemas — but routed through mobile's fetch wrapper so auth, slug header,
+  // timeout, and X-Request-ID all apply. Each optional `project_id` narrows
+  // the rollup to one project server-side (unused by the board for now).
+  async getDashboardUsageDaily(
+    params: { days?: number; project_id?: string | null; tz?: string } = {},
+    opts?: { signal?: AbortSignal },
+  ): Promise<DashboardUsageDaily[]> {
+    const search = new URLSearchParams();
+    if (params.days) search.set("days", String(params.days));
+    if (params.project_id) search.set("project_id", params.project_id);
+    if (params.tz) search.set("tz", params.tz);
+    return this.fetchValidated(
+      `/api/dashboard/usage/daily?${search}`,
+      DashboardUsageDailyListSchema,
+      [],
+      { ...opts, endpoint: "GET /api/dashboard/usage/daily" },
+    );
+  }
+
+  async getDashboardUsageByAgent(
+    params: { days?: number; project_id?: string | null; tz?: string } = {},
+    opts?: { signal?: AbortSignal },
+  ): Promise<DashboardUsageByAgent[]> {
+    const search = new URLSearchParams();
+    if (params.days) search.set("days", String(params.days));
+    if (params.project_id) search.set("project_id", params.project_id);
+    if (params.tz) search.set("tz", params.tz);
+    return this.fetchValidated(
+      `/api/dashboard/usage/by-agent?${search}`,
+      DashboardUsageByAgentListSchema,
+      [],
+      { ...opts, endpoint: "GET /api/dashboard/usage/by-agent" },
+    );
+  }
+
+  async getDashboardAgentRunTime(
+    params: { days?: number; project_id?: string | null; tz?: string } = {},
+    opts?: { signal?: AbortSignal },
+  ): Promise<DashboardAgentRunTime[]> {
+    const search = new URLSearchParams();
+    if (params.days) search.set("days", String(params.days));
+    if (params.project_id) search.set("project_id", params.project_id);
+    // `tz` aligns the "last N days" cutoff with the viewer's calendar,
+    // matching the per-agent token card.
+    if (params.tz) search.set("tz", params.tz);
+    return this.fetchValidated(
+      `/api/dashboard/agent-runtime?${search}`,
+      DashboardAgentRunTimeListSchema,
+      [],
+      { ...opts, endpoint: "GET /api/dashboard/agent-runtime" },
+    );
+  }
+
+  async getDashboardRunTimeDaily(
+    params: { days?: number; project_id?: string | null; tz?: string } = {},
+    opts?: { signal?: AbortSignal },
+  ): Promise<DashboardRunTimeDaily[]> {
+    const search = new URLSearchParams();
+    if (params.days) search.set("days", String(params.days));
+    if (params.project_id) search.set("project_id", params.project_id);
+    // `tz` cuts the day buckets in the viewer's calendar so the counts
+    // align with the other rollups.
+    if (params.tz) search.set("tz", params.tz);
+    return this.fetchValidated(
+      `/api/dashboard/runtime/daily?${search}`,
+      DashboardRunTimeDailyListSchema,
+      [],
+      { ...opts, endpoint: "GET /api/dashboard/runtime/daily" },
+    );
+  }
+
+  async getDashboardFailuresDaily(
+    params: { days?: number; project_id?: string | null; tz?: string } = {},
+    opts?: { signal?: AbortSignal },
+  ): Promise<DashboardFailureDaily[]> {
+    const search = new URLSearchParams();
+    if (params.days) search.set("days", String(params.days));
+    if (params.project_id) search.set("project_id", params.project_id);
+    // `tz` cuts the day buckets in the viewer's calendar so the Errors
+    // chart shares an x-axis with the other metrics.
+    if (params.tz) search.set("tz", params.tz);
+    return this.fetchValidated(
+      `/api/dashboard/failures/daily?${search}`,
+      DashboardFailureDailyListSchema,
+      [],
+      { ...opts, endpoint: "GET /api/dashboard/failures/daily" },
+    );
+  }
+
+  async getDashboardFailuresByAgent(
+    params: { days?: number; project_id?: string | null; tz?: string } = {},
+    opts?: { signal?: AbortSignal },
+  ): Promise<DashboardFailureByAgent[]> {
+    const search = new URLSearchParams();
+    if (params.days) search.set("days", String(params.days));
+    if (params.project_id) search.set("project_id", params.project_id);
+    if (params.tz) search.set("tz", params.tz);
+    return this.fetchValidated(
+      `/api/dashboard/failures/by-agent?${search}`,
+      DashboardFailureByAgentListSchema,
+      [],
+      { ...opts, endpoint: "GET /api/dashboard/failures/by-agent" },
     );
   }
 

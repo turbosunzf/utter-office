@@ -290,6 +290,10 @@ export default function WorkspaceLayout() {
             WorkspaceCard. Two-step (pick → iOS Alert confirm → switch). */}
         <Stack.Screen name="switch-workspace" options={SHEET_OPTIONS} />
         <Stack.Screen
+          name="my-issues"
+          options={{ title: "我的事项", headerBackTitle: "返回" }}
+        />
+        <Stack.Screen
           name="more/issues"
           options={{ title: "Issues", headerBackTitle: "Back" }}
         />

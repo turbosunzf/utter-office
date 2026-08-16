@@ -39,6 +39,7 @@ interface NavItem {
 }
 
 const WORK_ITEMS: NavItem[] = [
+  { label: "我的事项", icon: "person.text.rectangle", path: "/my-issues" },
   { label: "置顶", icon: "pin", path: "/more/pins" },
   { label: "事项", icon: "list.bullet", path: "/more/issues" },
   { label: "项目", icon: "square.stack", path: "/more/projects" },
