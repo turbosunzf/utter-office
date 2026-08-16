@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Text } from "@/components/ui/text";
+import { Button } from "@/components/ui/button";
 import { SectionGroup } from "@/components/ui/section-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -39,19 +40,42 @@ const FAILURE_CLASS_LABEL: Record<FailureClass, string> = {
  * Names resolve through `useActorLookup()` so a row shows the agent's real
  * name rather than a bare id.
  */
-export function AgentUsage({ days }: { days: number }) {
+export function AgentUsage({
+  days,
+  tz,
+}: {
+  days: number;
+  tz: string;
+}) {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
   const { getName } = useActorLookup();
 
-  const { data: runtimes = [], isLoading } = useQuery(
-    dashboardAgentRunTimeOptions(wsId, days),
-  );
-  const { data: usage = [] } = useQuery(dashboardUsageByAgentOptions(wsId, days));
-  const { data: failures = [] } = useQuery(
-    dashboardFailuresByAgentOptions(wsId, days),
-  );
+  const {
+    data: runtimes = [],
+    isLoading,
+    error: runtimesError,
+    refetch: refetchRuntimes,
+  } = useQuery(dashboardAgentRunTimeOptions(wsId, days, null, tz));
+  const {
+    data: usage = [],
+    error: usageError,
+    refetch: refetchUsage,
+  } = useQuery(dashboardUsageByAgentOptions(wsId, days, null, tz));
+  const {
+    data: failures = [],
+    error: failuresError,
+    refetch: refetchFailures,
+  } = useQuery(dashboardFailuresByAgentOptions(wsId, days, null, tz));
+
+  // 任一 rollup 失败即渲染错误 + 重试，而不是把失败伪装成「暂无」空态。
+  const agentError = runtimesError ?? usageError ?? failuresError;
+  const retryAgentUsage = () => {
+    void refetchRuntimes();
+    void refetchUsage();
+    void refetchFailures();
+  };
 
   const tokensByAgent = useMemo(() => {
     const m = new Map<string, number>();
@@ -98,6 +122,16 @@ export function AgentUsage({ days }: { days: number }) {
       <View className="p-4 gap-4">
         {isLoading ? (
           <Skeleton className="h-24 w-full" />
+        ) : agentError ? (
+          <View className="gap-3">
+            <Text className="text-sm text-destructive">
+              运行数据加载失败：{" "}
+              {agentError instanceof Error ? agentError.message : "未知错误"}
+            </Text>
+            <Button variant="outline" onPress={retryAgentUsage}>
+              <Text>重试</Text>
+            </Button>
+          </View>
         ) : rows.length === 0 ? (
           <Text className="text-sm text-muted-foreground">
             近 {days} 天暂无智能体运行记录。

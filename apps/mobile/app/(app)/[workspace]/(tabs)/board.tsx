@@ -12,9 +12,9 @@
  * the issue's "简单条形图" constraint. Empty states (no tasks / no agents /
  * no report) render inline placeholders.
  */
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
@@ -25,9 +25,11 @@ import { AgentUsage } from "@/components/board/agent-usage";
 import { ReportCard } from "@/components/board/report-card";
 import { formatCompact } from "@/components/board/format";
 import {
+  dashboardKeys,
   dashboardRunTimeDailyOptions,
   dashboardUsageDailyOptions,
   dashboardFailuresDailyOptions,
+  localTimezone,
 } from "@/data/queries/dashboard";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { formatElapsedSecs } from "@/lib/format-elapsed";
@@ -40,17 +42,27 @@ const RANGES = [
 
 export default function Board() {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
+  const queryClient = useQueryClient();
   const [days, setDays] = useState<number>(7);
+  // 日桶按查看者时区切割，与 web `packages/core/dashboard/queries.ts` 同构
+  // （P1 修复）。Hermes 支持 Intl，localTimezone 内已有兜底。
+  const tz = localTimezone();
 
-  const { data: runTimeDaily = [], isLoading: runTimeLoading } = useQuery(
-    dashboardRunTimeDailyOptions(wsId, days),
-  );
-  const { data: usageDaily = [], isLoading: usageLoading } = useQuery(
-    dashboardUsageDailyOptions(wsId, days),
-  );
-  const { data: failuresDaily = [], isLoading: failuresLoading } = useQuery(
-    dashboardFailuresDailyOptions(wsId, days),
-  );
+  const {
+    data: runTimeDaily = [],
+    isLoading: runTimeLoading,
+    error: runTimeError,
+  } = useQuery(dashboardRunTimeDailyOptions(wsId, days, null, tz));
+  const {
+    data: usageDaily = [],
+    isLoading: usageLoading,
+    error: usageError,
+  } = useQuery(dashboardUsageDailyOptions(wsId, days, null, tz));
+  const {
+    data: failuresDaily = [],
+    isLoading: failuresLoading,
+    error: failuresError,
+  } = useQuery(dashboardFailuresDailyOptions(wsId, days, null, tz));
 
   const hero = useMemo(() => {
     let tasks = 0;
@@ -72,6 +84,12 @@ export default function Board() {
   }, [runTimeDaily, usageDaily, failuresDaily]);
 
   const loading = runTimeLoading || usageLoading || failuresLoading;
+  // 三个 dashboard 查询任一失败即渲染错误横幅 + 重试，而不是把失败渲染成
+  // 全 0 / 空态（P2 修复，对齐 inbox / issues 页既有模式）。
+  const dashboardError = runTimeError ?? usageError ?? failuresError;
+  const retryDashboard = useCallback(() => {
+    void queryClient.refetchQueries({ queryKey: dashboardKeys.all(wsId) });
+  }, [queryClient, wsId]);
 
   return (
     <View className="flex-1 bg-background">
@@ -81,6 +99,20 @@ export default function Board() {
         showsVerticalScrollIndicator={false}
       >
         <RangeSelector value={days} onChange={setDays} />
+
+        {dashboardError ? (
+          <View className="px-4 gap-3 py-1">
+            <Text className="text-sm text-destructive">
+              看板统计接口加载失败：{" "}
+              {dashboardError instanceof Error
+                ? dashboardError.message
+                : "未知错误"}
+            </Text>
+            <Button variant="outline" onPress={retryDashboard}>
+              <Text>重试</Text>
+            </Button>
+          </View>
+        ) : null}
 
         <View className="flex-row flex-wrap gap-2">
           <HeroCard
@@ -101,8 +133,8 @@ export default function Board() {
           />
         </View>
 
-        <TaskProgress days={days} />
-        <AgentUsage days={days} />
+        <TaskProgress days={days} tz={tz} />
+        <AgentUsage days={days} tz={tz} />
         <ReportCard />
       </ScrollView>
     </View>

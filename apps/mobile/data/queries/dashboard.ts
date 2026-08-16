@@ -6,6 +6,11 @@
  * own `data/api.ts` wrapper so auth / X-Workspace-Slug / timeout / signal
  * cancellation all flow through the mobile client.
  *
+ * Every rollup carries the viewer's IANA `tz` (see `localTimezone`): the
+ * server cuts each day bucket in that timezone, so the "last N days" window
+ * and per-day totals agree with web for non-UTC users. `tz` participates in
+ * every cache key so a timezone change repoints the cache.
+ *
  * The 5-minute polling cadence is inherited from the core dashboard: the
  * server materializes these rollups on that cadence, so polling faster only
  * re-reads an unchanged rollup. The short staleTime keeps re-entering the
@@ -16,32 +21,56 @@ import { api } from "@/data/api";
 
 export const dashboardKeys = {
   all: (wsId: string | null) => ["dashboard", wsId] as const,
-  daily: (wsId: string | null, days: number, projectId: string | null) =>
-    [...dashboardKeys.all(wsId), "daily", days, projectId] as const,
-  byAgent: (wsId: string | null, days: number, projectId: string | null) =>
-    [...dashboardKeys.all(wsId), "by-agent", days, projectId] as const,
+  daily: (
+    wsId: string | null,
+    days: number,
+    projectId: string | null,
+    tz: string,
+  ) => [...dashboardKeys.all(wsId), "daily", days, projectId, tz] as const,
+  byAgent: (
+    wsId: string | null,
+    days: number,
+    projectId: string | null,
+    tz: string,
+  ) => [...dashboardKeys.all(wsId), "by-agent", days, projectId, tz] as const,
   agentRuntime: (
     wsId: string | null,
     days: number,
     projectId: string | null,
-  ) => [...dashboardKeys.all(wsId), "agent-runtime", days, projectId] as const,
+    tz: string,
+  ) =>
+    [...dashboardKeys.all(wsId), "agent-runtime", days, projectId, tz] as const,
   runTimeDaily: (
     wsId: string | null,
     days: number,
     projectId: string | null,
-  ) => [...dashboardKeys.all(wsId), "runtime-daily", days, projectId] as const,
+    tz: string,
+  ) => [...dashboardKeys.all(wsId), "runtime-daily", days, projectId, tz] as const,
   failuresDaily: (
     wsId: string | null,
     days: number,
     projectId: string | null,
-  ) => [...dashboardKeys.all(wsId), "failures-daily", days, projectId] as const,
+    tz: string,
+  ) => [...dashboardKeys.all(wsId), "failures-daily", days, projectId, tz] as const,
   failuresByAgent: (
     wsId: string | null,
     days: number,
     projectId: string | null,
+    tz: string,
   ) =>
-    [...dashboardKeys.all(wsId), "failures-by-agent", days, projectId] as const,
+    [...dashboardKeys.all(wsId), "failures-by-agent", days, projectId, tz] as const,
 };
+
+/** Viewer-local IANA timezone for dashboard day-bucket alignment. Hermes
+ *  supports `Intl` on Expo SDK 55; the try/catch keeps a fallback so a build
+ *  without ICU data still produces a valid string. */
+export function localTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
+  }
+}
 
 const STALE_TIME = 60 * 1000;
 const REFETCH_INTERVAL = 5 * 60 * 1000;
@@ -68,13 +97,14 @@ function rollup<T>(
 export function dashboardUsageDailyOptions(
   wsId: string | null,
   days: number,
-  projectId: string | null = null,
+  projectId: string | null,
+  tz: string,
 ) {
   return rollup(
-    dashboardKeys.daily(wsId, days, projectId),
+    dashboardKeys.daily(wsId, days, projectId, tz),
     (signal) =>
       api.getDashboardUsageDaily(
-        { days, project_id: projectId ?? undefined },
+        { days, project_id: projectId ?? undefined, tz },
         { signal },
       ),
     wsId,
@@ -84,13 +114,14 @@ export function dashboardUsageDailyOptions(
 export function dashboardUsageByAgentOptions(
   wsId: string | null,
   days: number,
-  projectId: string | null = null,
+  projectId: string | null,
+  tz: string,
 ) {
   return rollup(
-    dashboardKeys.byAgent(wsId, days, projectId),
+    dashboardKeys.byAgent(wsId, days, projectId, tz),
     (signal) =>
       api.getDashboardUsageByAgent(
-        { days, project_id: projectId ?? undefined },
+        { days, project_id: projectId ?? undefined, tz },
         { signal },
       ),
     wsId,
@@ -100,13 +131,14 @@ export function dashboardUsageByAgentOptions(
 export function dashboardAgentRunTimeOptions(
   wsId: string | null,
   days: number,
-  projectId: string | null = null,
+  projectId: string | null,
+  tz: string,
 ) {
   return rollup(
-    dashboardKeys.agentRuntime(wsId, days, projectId),
+    dashboardKeys.agentRuntime(wsId, days, projectId, tz),
     (signal) =>
       api.getDashboardAgentRunTime(
-        { days, project_id: projectId ?? undefined },
+        { days, project_id: projectId ?? undefined, tz },
         { signal },
       ),
     wsId,
@@ -116,13 +148,14 @@ export function dashboardAgentRunTimeOptions(
 export function dashboardRunTimeDailyOptions(
   wsId: string | null,
   days: number,
-  projectId: string | null = null,
+  projectId: string | null,
+  tz: string,
 ) {
   return rollup(
-    dashboardKeys.runTimeDaily(wsId, days, projectId),
+    dashboardKeys.runTimeDaily(wsId, days, projectId, tz),
     (signal) =>
       api.getDashboardRunTimeDaily(
-        { days, project_id: projectId ?? undefined },
+        { days, project_id: projectId ?? undefined, tz },
         { signal },
       ),
     wsId,
@@ -132,13 +165,14 @@ export function dashboardRunTimeDailyOptions(
 export function dashboardFailuresDailyOptions(
   wsId: string | null,
   days: number,
-  projectId: string | null = null,
+  projectId: string | null,
+  tz: string,
 ) {
   return rollup(
-    dashboardKeys.failuresDaily(wsId, days, projectId),
+    dashboardKeys.failuresDaily(wsId, days, projectId, tz),
     (signal) =>
       api.getDashboardFailuresDaily(
-        { days, project_id: projectId ?? undefined },
+        { days, project_id: projectId ?? undefined, tz },
         { signal },
       ),
     wsId,
@@ -148,13 +182,14 @@ export function dashboardFailuresDailyOptions(
 export function dashboardFailuresByAgentOptions(
   wsId: string | null,
   days: number,
-  projectId: string | null = null,
+  projectId: string | null,
+  tz: string,
 ) {
   return rollup(
-    dashboardKeys.failuresByAgent(wsId, days, projectId),
+    dashboardKeys.failuresByAgent(wsId, days, projectId, tz),
     (signal) =>
       api.getDashboardFailuresByAgent(
-        { days, project_id: projectId ?? undefined },
+        { days, project_id: projectId ?? undefined, tz },
         { signal },
       ),
     wsId,

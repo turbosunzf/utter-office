@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import type { IssueStatus } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
+import { Button } from "@/components/ui/button";
 import { SectionGroup } from "@/components/ui/section-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IssueRow } from "@/components/issue/issue-row";
@@ -23,20 +24,32 @@ import { BOARD_STATUSES } from "@/lib/issue-status";
  * The "进行中的事项" list is workspace-scoped open issues (all BOARD_STATUSES
  * except `done`) — rows tap through to the issue detail screen, which is the
  * "可点进 issue" acceptance criterion.
+ *
+ * `tz` 从 Board 传入（`localTimezone()`），与 hero 同一时区口径（P1 修复）。
+ * 查询失败渲染错误 + 重试，而不是把失败伪装成「暂无」空态（P2 修复）。
  */
 // Explicit `IssueStatus[]` widens the narrowed filter result back out so
 // `.includes(issue.status)` accepts every status value.
 const OPEN_STATUSES: IssueStatus[] = BOARD_STATUSES.filter((s) => s !== "done");
 
-export function TaskProgress({ days }: { days: number }) {
+export function TaskProgress({
+  days,
+  tz,
+}: {
+  days: number;
+  tz: string;
+}) {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
   const wsSlug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
 
-  const { data: daily = [], isLoading } = useQuery(
-    dashboardRunTimeDailyOptions(wsId, days),
-  );
+  const {
+    data: daily = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery(dashboardRunTimeDailyOptions(wsId, days, null, tz));
   const { data: issues = [] } = useQuery(issueListOptions(wsId));
 
   const totals = useMemo(() => {
@@ -66,6 +79,16 @@ export function TaskProgress({ days }: { days: number }) {
       <View className="p-4 gap-3">
         {isLoading ? (
           <Skeleton className="h-16 w-full" />
+        ) : error ? (
+          <View className="gap-3">
+            <Text className="text-sm text-destructive">
+              任务进度加载失败：{" "}
+              {error instanceof Error ? error.message : "未知错误"}
+            </Text>
+            <Button variant="outline" onPress={() => refetch()}>
+              <Text>重试</Text>
+            </Button>
+          </View>
         ) : totals.total === 0 ? (
           <Text className="text-sm text-muted-foreground">
             近 {days} 天暂无已结束的任务。
