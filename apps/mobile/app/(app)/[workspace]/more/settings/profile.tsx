@@ -1,8 +1,10 @@
 /**
  * Profile edit subscreen — name + avatar.
  *
- * Avatar tap opens an iOS native ActionSheet (Take Photo / Choose from Library
- * / Remove). Mirrors the avatar upload flow in
+ * Avatar tap opens an iOS native ActionSheet (Choose from Library / Remove).
+ * Camera is intentionally NOT offered — app.config.ts sets
+ * `cameraPermission: false` (product rule: avatars come only from the photo
+ * library). Mirrors the avatar upload flow in
  * packages/views/settings/components/account-tab.tsx but the picker uses
  * native APIs per CLAUDE.md "iOS native > RNR > discuss" waterfall.
  *
@@ -59,39 +61,24 @@ export default function ProfileSettingsScreen() {
   const dirty = name.trim() !== (user?.name ?? "") && name.trim().length > 0;
 
   const handleAvatarPick = () => {
-    const options = ["Take Photo", "Choose from Library", "Remove Photo", "Cancel"];
-    const removeIndex = user?.avatar_url ? 2 : -1;
-    const cancelIndex = user?.avatar_url ? 3 : 2;
-    const visibleOptions = user?.avatar_url ? options : options.filter((_, i) => i !== 2);
+    const options = user?.avatar_url
+      ? ["Choose from Library", "Remove Photo", "Cancel"]
+      : ["Choose from Library", "Cancel"];
+    const removeIndex = user?.avatar_url ? 1 : -1;
+    const cancelIndex = options.length - 1;
 
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: visibleOptions,
+        options,
         cancelButtonIndex: cancelIndex,
         destructiveButtonIndex: removeIndex >= 0 ? removeIndex : undefined,
       },
       async (index) => {
         if (index === cancelIndex) return;
-        if (index === 0) await pickFromCamera();
-        else if (index === 1) await pickFromLibrary();
+        if (index === 0) await pickFromLibrary();
         else if (index === removeIndex) await removeAvatar();
       },
     );
-  };
-
-  const pickFromCamera = async () => {
-    const perm = await ImagePicker.requestCameraPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert("Permission needed", "Camera access is required to take a photo.");
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (!result.canceled) await uploadAvatar(result.assets[0]);
   };
 
   const pickFromLibrary = async () => {
@@ -111,7 +98,7 @@ export default function ProfileSettingsScreen() {
     }
     const fileAsset: FileAsset = {
       uri: asset.uri,
-      // expo-image-picker doesn't always supply a fileName (camera captures);
+      // expo-image-picker doesn't always supply a fileName (some captures);
       // fabricate one from the URI so the multipart upload has a stable name.
       name: asset.fileName ?? `avatar-${Date.now()}.jpg`,
       type: asset.mimeType ?? "image/jpeg",

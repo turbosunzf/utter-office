@@ -4,11 +4,11 @@
  * algorithm so counts and "reacted by me" detection match web exactly —
  * counts-must-agree parity rule from apps/mobile/CLAUDE.md.
  *
- * Empty state: when there are zero reactions the bar renders nothing.
- * Adding a new reaction is intentionally NOT exposed here — that entry
- * point will be a long-press on the comment / issue body in a follow-up.
- * Tapping an existing chip still toggles the current user's reaction
- * (add/remove) via `onToggle`.
+ * Empty state: when there are zero reactions and no `onAdd` affordance the
+ * bar renders nothing. When `onAdd` is provided a trailing "+" chip is
+ * rendered (also when `grouped` is empty) so the caller can always open its
+ * add-reaction entry point. Tapping an existing chip still toggles the
+ * current user's reaction (add/remove) via `onToggle`.
  */
 import { Pressable, View } from "react-native";
 import { Text } from "@/components/ui/text";
@@ -50,6 +50,8 @@ interface Props {
   reactions: ReactionItem[];
   currentUserId: string | undefined;
   onToggle: (emoji: string) => void;
+  /** When set, renders a trailing "+" chip (also with zero reactions). */
+  onAdd?: () => void;
   className?: string;
 }
 
@@ -57,10 +59,12 @@ export function ReactionBar({
   reactions,
   currentUserId,
   onToggle,
+  onAdd,
   className,
 }: Props) {
   const grouped = groupReactions(reactions, currentUserId);
-  if (grouped.length === 0) return null;
+  // No reactions and no add entry point → render nothing (web parity).
+  if (grouped.length === 0 && !onAdd) return null;
 
   return (
     <View
@@ -88,6 +92,14 @@ export function ReactionBar({
           </Text>
         </Pressable>
       ))}
+      {onAdd ? (
+        <Pressable
+          onPress={onAdd}
+          className="flex-row items-center justify-center rounded-full border border-border bg-background px-2 py-0.5"
+        >
+          <Text className="text-xs text-muted-foreground">+</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }

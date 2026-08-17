@@ -535,10 +535,10 @@ class ApiClient {
   }
 
   // Workspace-wide active agent tasks + each agent's most recent terminal —
-  // feeds the workload dimension of presence (currently unused in the mobile
-  // dot; reserved for the P1 long-press peek sheet). Listed here now so the
-  // realtime invalidation path can be wired in one PR. Backend route at
-  // server/cmd/server/router.go:539 (GET /api/agent-task-snapshot).
+  // feeds the workload dimension of presence via `use-workspace-presence-prefetch`
+  // and `use-agent-presence` (lib/use-agent-presence.ts). Kept fresh by task
+  // lifecycle invalidations in `data/realtime/use-presence-realtime.ts`.
+  // Backend route at server/cmd/server/router.go:539 (GET /api/agent-task-snapshot).
   async listAgentTaskSnapshot(
     opts?: { signal?: AbortSignal },
   ): Promise<AgentTask[]> {
@@ -704,7 +704,8 @@ class ApiClient {
   // packages/core/api/client.ts:1723-1828 — same paths, params, and response
   // schemas — but routed through mobile's fetch wrapper so auth, slug header,
   // timeout, and X-Request-ID all apply. Each optional `project_id` narrows
-  // the rollup to one project server-side (unused by the board for now).
+  // the rollup to one project server-side; `data/queries/dashboard.ts` forwards
+  // it, but the board tab currently passes none.
   async getDashboardUsageDaily(
     params: { days?: number; project_id?: string | null; tz?: string } = {},
     opts?: { signal?: AbortSignal },

@@ -165,22 +165,22 @@
 
 ---
 
-## 十二、B 线新增（未合入 `main`）
+## 十二、看板（dashboard，已合入 `main`）
 
-### ④ 看板（分支 `agent/mmsan/4376479f`）
+### ④ 看板（commit `1aec912` / `75f15bf` 已合入）
 
-6 个 `/api/dashboard/*` 聚合端点，方法定义在**该分支的** `data/api.ts:708-806`，查询工厂在 `data/queries/dashboard.ts`：
+6 个 `/api/dashboard/*` 聚合端点已上线，方法定义在 `data/api.ts:708-806`（行号随改动漂移，以方法名为准），查询工厂在 `data/queries/dashboard.ts`：
 
-| 接口 | 方法 | 状态 | 来源文件（分支内） |
+| 接口 | 方法 | 状态 | 来源文件 |
 |---|---|---|---|
-| `/api/dashboard/usage/daily` | GET | 🚧 | `data/api.ts:708` `getDashboardUsageDaily` |
-| `/api/dashboard/usage/by-agent` | GET | 🚧 | `data/api.ts:724` `getDashboardUsageByAgent` |
-| `/api/dashboard/agent-runtime` | GET | 🚧 | `data/api.ts:740` `getDashboardAgentRunTime` |
-| `/api/dashboard/runtime/daily` | GET | 🚧 | `data/api.ts:758` `getDashboardRunTimeDaily` |
-| `/api/dashboard/failures/daily` | GET | 🚧 | `data/api.ts:776` `getDashboardFailuresDaily` |
-| `/api/dashboard/failures/by-agent` | GET | 🚧 | `data/api.ts:794` `getDashboardFailuresByAgent` |
+| `/api/dashboard/usage/daily` | GET | ✅ | `data/api.ts:708` `getDashboardUsageDaily` |
+| `/api/dashboard/usage/by-agent` | GET | ✅ | `data/api.ts:724` `getDashboardUsageByAgent` |
+| `/api/dashboard/agent-runtime` | GET | ✅ | `data/api.ts:740` `getDashboardAgentRunTime` |
+| `/api/dashboard/runtime/daily` | GET | ✅ | `data/api.ts:758` `getDashboardRunTimeDaily` |
+| `/api/dashboard/failures/daily` | GET | ✅ | `data/api.ts:776` `getDashboardFailuresDaily` |
+| `/api/dashboard/failures/by-agent` | GET | ✅ | `data/api.ts:794` `getDashboardFailuresByAgent` |
 
-> ⚠️ 这 6 个端点是新面：服务端需先上线并加入平台 **API mirror 白名单**，否则真机请求会 404（④ 的两版实现均已标注此待办）。
+> ⚠️ 前置条件：服务端需已上线这些端点并加入平台 **API mirror 白名单**，否则真机请求会 404。
 
 ### ③ 首页（分支 `agent/mmsan/2ec29e87`）
 

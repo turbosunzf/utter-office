@@ -183,13 +183,14 @@ export default function WorkspaceLayout() {
           name="issue/[id]/picker/priority"
           options={SHEET_OPTIONS}
         />
-        {/* Experiment: assignee uses iOS-native nav header + UISearchController
-            instead of the body-rendered header pattern in SHEET_OPTIONS.
-            Eliminates the #3634 overlap class of bugs and the focus-loss
-            footgun of a custom TextInput inside ListHeaderComponent. The
-            route file wires `headerSearchBarOptions` via setOptions. If this
-            proves out, propagate to label / project / other search pickers
-            and update CLAUDE.md Lesson 6 with a carve-out. */}
+        {/* Search-enabled pickers use the iOS-native nav header +
+            UISearchController instead of the body-rendered header pattern in
+            SHEET_OPTIONS. Eliminates the #3634 overlap class of bugs and the
+            focus-loss footgun of a custom TextInput inside
+            ListHeaderComponent. The route file wires `headerSearchBarOptions`
+            via setOptions. Every picker that calls `useNativeSearchBar` MUST
+            be registered here with `headerShown: true` + a title (assignee /
+            mention / label / project / lead / new-issue project). */}
         <Stack.Screen
           name="issue/[id]/picker/assignee"
           options={{
@@ -200,7 +201,11 @@ export default function WorkspaceLayout() {
         />
         <Stack.Screen
           name="issue/[id]/picker/label"
-          options={SHEET_OPTIONS}
+          options={{
+            ...SHEET_OPTIONS,
+            headerShown: true,
+            title: "Label",
+          }}
         />
         <Stack.Screen
           name="mention-picker"
@@ -212,18 +217,33 @@ export default function WorkspaceLayout() {
         />
         <Stack.Screen
           name="issue/[id]/picker/project"
-          options={SHEET_OPTIONS}
+          options={{
+            ...SHEET_OPTIONS,
+            headerShown: true,
+            title: "Project",
+          }}
         />
         <Stack.Screen
           name="issue/[id]/picker/due-date"
           options={SHEET_OPTIONS}
         />
         <Stack.Screen name="issue/[id]/runs" options={SHEET_OPTIONS} />
+        {/* Per-run transcript — pushed from a terminal row in the runs list. */}
+        <Stack.Screen
+          name="issue/[id]/runs/[taskId]"
+          options={SHEET_OPTIONS}
+        />
         {/* Full emoji picker for a comment reaction. Pushed from the "+"
             button inside the comment long-press tapback row — see
             components/issue/comment-context-menu.tsx. */}
         <Stack.Screen
           name="issue/[id]/comment/[commentId]/emoji-picker"
+          options={SHEET_OPTIONS}
+        />
+        {/* Full emoji picker for an ISSUE reaction — pushed from the "+" chip
+            in IssueReactionRow's ActionSheetIOS "More reactions…". */}
+        <Stack.Screen
+          name="issue/[id]/emoji-picker"
           options={SHEET_OPTIONS}
         />
         {/* Project-detail formSheet pickers. */}
@@ -237,7 +257,11 @@ export default function WorkspaceLayout() {
         />
         <Stack.Screen
           name="project/[id]/picker/lead"
-          options={SHEET_OPTIONS}
+          options={{
+            ...SHEET_OPTIONS,
+            headerShown: true,
+            title: "Lead",
+          }}
         />
         <Stack.Screen
           name="project/[id]/add-resource"
@@ -265,7 +289,11 @@ export default function WorkspaceLayout() {
         />
         <Stack.Screen
           name="new-issue-picker/project"
-          options={SHEET_OPTIONS}
+          options={{
+            ...SHEET_OPTIONS,
+            headerShown: true,
+            title: "Project",
+          }}
         />
         <Stack.Screen
           name="new-issue-picker/due-date"
