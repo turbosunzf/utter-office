@@ -49,9 +49,9 @@ import { THEME } from "@/lib/theme";
 // (`involves_user_id`, MUL-2397) covers owned agents + related squads; the
 // empty state copy still says "agents or squads".
 const SCOPES: { value: MyIssuesScope; label: string }[] = [
-  { value: "assigned", label: "Assigned" },
-  { value: "created", label: "Created" },
-  { value: "agents", label: "Agents" },
+  { value: "assigned", label: "指派给我" },
+  { value: "created", label: "我创建的" },
+  { value: "agents", label: "数字员工" },
 ];
 
 type IssueSection = { status: IssueStatus; data: Issue[] };

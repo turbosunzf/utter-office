@@ -90,7 +90,7 @@ export function ProjectPropertiesSection({
                 : "text-sm text-muted-foreground"
             }
           >
-            {leadName ?? "Unassigned"}
+            {leadName ?? "未指派"}
           </Text>
         }
       />

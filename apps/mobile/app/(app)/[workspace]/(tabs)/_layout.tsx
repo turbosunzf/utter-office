@@ -124,12 +124,14 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="chat"
           options={{
-            title: "聊天",
+            title: "工作台",
             tabBarBadge: chatBadge,
             tabBarBadgeStyle: BADGE_STYLE,
             tabBarIcon: ({ color, size, focused }) => (
               <Image
-                source={focused ? "sf:bubble.left.fill" : "sf:bubble.left"}
+                source={
+                  focused ? "sf:person.2.wave.2.fill" : "sf:person.2.wave.2"
+                }
                 tintColor={color}
                 style={{ width: size, height: size }}
               />

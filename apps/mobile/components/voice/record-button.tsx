@@ -12,7 +12,8 @@
  *                   overlay in VoiceOverlay)
  *   slide up ≥80px while recording → arm the cancel zone (store `slidUp`,
  *                   overlay flips red); release in the zone → cancel (no send)
- *   release (recording, not slid up) → haptic + send "你好" + switch to Chat
+ *   release (recording, not slid up) → haptic + send prototype placeholder
+ *                   + switch to Chat (/workbench in M4)
  *
  * Gesture identity stays stable across the mid-press `setRecording` re-render
  * (useMemo + refs): recreating the Pan while a press is active would tear
@@ -172,8 +173,13 @@ export function RecordButton() {
           void Haptics.notificationAsync(
             Haptics.NotificationFeedbackType.Success,
           );
-          void sendRef.current("你好");
-          if (slugRef.current) router.navigate(`/${slugRef.current}/chat`);
+          void (async () => {
+            await sendRef.current("（语音原型）请稍后补充需求描述");
+            // 无员工时 hook 已 Alert；仍跳工作台（现 /chat），与 PRD 一致。
+            if (slugRef.current) {
+              router.navigate(`/${slugRef.current}/chat`);
+            }
+          })();
         })
         .onFinalize(() => {
           // Cleanup also fires on CANCELLED (system interruption, background,

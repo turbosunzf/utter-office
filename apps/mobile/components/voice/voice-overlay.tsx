@@ -12,7 +12,7 @@
  *   pointerEvents="none" so the finger stays on the record button beneath
  *   it; it only paints the waveform + timer + cancel-zone state (spec §3).
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -23,10 +23,12 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useVoiceStore } from "@/data/stores/voice-store";
+import { agentListOptions } from "@/data/queries/agents";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 
@@ -36,12 +38,19 @@ interface VoiceSheetItem {
   icon: string;
   /** Path under /:slug/ — final href is `/${slug}${path}`. */
   path: string;
+  /** Prototype badge for MVP-only entries (录音 / 翻译). */
+  prototype?: boolean;
 }
 
 // Matches the old voice-tab-dropdown's three entry points (spec §4.1).
 const SHEET_ITEMS: VoiceSheetItem[] = [
-  { label: "录音", icon: "mic", path: "/voice-record" },
-  { label: "翻译", icon: "character.bubble", path: "/voice-translate" },
+  { label: "录音", icon: "mic", path: "/voice-record", prototype: true },
+  {
+    label: "翻译",
+    icon: "character.bubble",
+    path: "/voice-translate",
+    prototype: true,
+  },
   { label: "发送语音", icon: "waveform", path: "/voice-talk" },
 ];
 
@@ -202,6 +211,13 @@ function VoiceSheet({ visible }: { visible: boolean }) {
               <Text className="flex-1 text-base text-foreground">
                 {item.label}
               </Text>
+              {item.prototype ? (
+                <View className="rounded-md bg-secondary px-1.5 py-0.5">
+                  <Text className="text-[10px] font-medium text-muted-foreground">
+                    原型
+                  </Text>
+                </View>
+              ) : null}
               <Image
                 source="sf:chevron.right"
                 tintColor={t.mutedForeground}
@@ -235,10 +251,18 @@ function VoiceSheet({ visible }: { visible: boolean }) {
  * centre, "松开 发送" at the bottom. When the finger slides into the cancel
  * zone (`slidUp` from the store) the mic turns red with an X and the hints
  * flip to "松开手指，取消发送".
+ *
+ * M1: top line shows「将发送给 · {首个可用员工}」until M2 default-agent.
  */
 function RecordingOverlay() {
   const insets = useSafeAreaInsets();
   const slidUp = useVoiceStore((s) => s.slidUp);
+  const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
+  const { data: agents = [] } = useQuery(agentListOptions(wsId));
+  const targetAgent = useMemo(
+    () => agents.find((a) => !a.archived_at) ?? null,
+    [agents],
+  );
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
 
@@ -293,7 +317,7 @@ function RecordingOverlay() {
       pointerEvents="none"
       style={[styles.recordingRoot, { opacity: fade }]}
     >
-      {/* Top hint — the cancel affordance moves here on slide-up. */}
+      {/* Top hint — cancel affordance, else target agent name. */}
       <View style={[styles.recordingTop, { paddingTop: insets.top + 20 }]}>
         {slidUp ? (
           <View className="flex-row items-center gap-2">
@@ -307,7 +331,14 @@ function RecordingOverlay() {
             <Text style={styles.cancelText}>松开手指，取消发送</Text>
           </View>
         ) : (
-          <Text style={styles.recordHint}>手指上滑，取消发送</Text>
+          <View className="items-center gap-1">
+            <Text style={styles.recordHint}>
+              {targetAgent
+                ? `将发送给 · ${targetAgent.name}`
+                : "暂无可用数字员工"}
+            </Text>
+            <Text style={styles.recordHintSub}>手指上滑，取消发送</Text>
+          </View>
         )}
       </View>
 
@@ -389,6 +420,11 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.9)",
     fontSize: 15,
     fontWeight: "500",
+  },
+  recordHintSub: {
+    color: "rgba(255,255,255,0.65)",
+    fontSize: 13,
+    fontWeight: "400",
   },
   cancelBadge: {
     width: 24,

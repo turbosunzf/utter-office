@@ -31,13 +31,13 @@ export const ACTIVE_STATUSES: readonly AgentTask["status"][] = [
 ];
 
 export const STATUS_LABEL: Record<AgentTask["status"], string> = {
-  queued: "Queued",
-  dispatched: "Starting",
-  waiting_local_directory: "Waiting for directory",
-  running: "Running",
-  completed: "Done",
-  failed: "Failed",
-  cancelled: "Cancelled",
+  queued: "排队中",
+  dispatched: "启动中",
+  waiting_local_directory: "等待目录",
+  running: "运行中",
+  completed: "已完成",
+  failed: "失败",
+  cancelled: "已取消",
 };
 
 export const STATUS_CLASS: Record<AgentTask["status"], string> = {

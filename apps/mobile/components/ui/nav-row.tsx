@@ -20,6 +20,7 @@ export function NavRow({
   subtitle,
   chevronColor,
   disabled = false,
+  badge,
 }: {
   onPress: () => void;
   leading?: ReactNode;
@@ -27,6 +28,8 @@ export function NavRow({
   subtitle?: string;
   chevronColor: string;
   disabled?: boolean;
+  /** Unread count — same source as Tab badge when used for inbox. */
+  badge?: number;
 }) {
   return (
     <Pressable
@@ -45,6 +48,13 @@ export function NavRow({
           </Text>
         ) : null}
       </View>
+      {badge != null && badge > 0 ? (
+        <View className="min-w-[20px] h-5 items-center justify-center rounded-full bg-brand px-1.5">
+          <Text className="text-[11px] font-semibold text-white">
+            {badge > 99 ? "99+" : String(badge)}
+          </Text>
+        </View>
+      ) : null}
       {!disabled ? (
         <Ionicons name="chevron-forward" size={18} color={chevronColor} />
       ) : null}

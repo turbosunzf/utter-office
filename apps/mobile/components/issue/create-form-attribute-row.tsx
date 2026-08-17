@@ -55,9 +55,9 @@ export function CreateFormAttributeRow() {
   const { getName } = useActorLookup();
   const assigneeLabel = assignee
     ? getName(assignee.type, assignee.id)
-    : "Assignee";
+    : "负责人";
   const priorityLabel =
-    priority === "none" ? "Priority" : PRIORITY_LABEL[priority];
+    priority === "none" ? "优先级" : PRIORITY_LABEL[priority];
 
   const open = (field: NewIssuePickerField) => {
     if (!wsSlug) return;

@@ -34,7 +34,7 @@ export function useSendVoiceMessage() {
     async (text: string): Promise<boolean> => {
       const agent = availableAgents[0];
       if (!agent) {
-        Alert.alert("无可用 agent", "该工作区暂无可用 agent，无法发送消息。");
+        Alert.alert("暂无可用数字员工", "该工作区暂无可用数字员工，无法发送消息。");
         return false;
       }
 

@@ -184,7 +184,7 @@ export function AssigneePickerBody({ value, query, onChange }: Props) {
           )}
           <Text className="flex-1 text-base text-foreground">
             {item.kind === "unassigned"
-              ? "Unassigned"
+              ? "未指派"
               : item.kind === "member"
                 ? item.member.name
                 : item.kind === "agent"

@@ -1,21 +1,14 @@
 /**
- * 我的 — tab root for the redesigned 5-tab layout (step ②).
+ * 我的 — tab root for the redesigned 5-tab layout.
  *
- * Migrates the old More popover's full capability into a scrollable page:
- *   - identity card (→ more/settings)
- *   - workspace card (→ switch-workspace; disabled for single-workspace users)
- *   - a grouped list pushing the existing more/* routes:
- *       工作: 置顶 / 事项 / 项目 / 智能体
- *       设置: 设置 / 个人资料 / 通知
- *
- * All glyphs are SF Symbols via expo-image (`sf:`), matching the bottom tab
- * bar and the old popover's visual language. Colours route through THEME
- * tokens for automatic dark mode.
+ * M1: 收件箱（角标）/ 我的事项 / 置顶/事项/项目 / 数字员工 → more/agents；
+ * 关于区版本号（expo-constants）。秘书设置属 M2。
  */
 import { useMemo } from "react";
 import { ScrollView, View } from "react-native";
 import { Image as ExpoImage } from "expo-image";
 import { router } from "expo-router";
+import Constants from "expo-constants";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/ui/header";
 import { Text } from "@/components/ui/text";
@@ -27,34 +20,16 @@ import { WorkspaceAvatar } from "@/components/workspace/workspace-avatar";
 import { workspaceListOptions } from "@/data/queries/workspaces";
 import { useAuthStore } from "@/data/auth-store";
 import { useWorkspaceStore } from "@/data/workspace-store";
+import { useInboxUnreadCount } from "@/lib/unread-counts";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 
 interface NavItem {
   label: string;
-  /** SF Symbol name, rendered via expo-image `source: "sf:<name>"`. */
   icon: string;
-  /** Path under /:slug/ — final href is `/${slug}${path}`. */
   path: string;
+  badge?: number;
 }
-
-const WORK_ITEMS: NavItem[] = [
-  { label: "我的事项", icon: "person.text.rectangle", path: "/my-issues" },
-  { label: "置顶", icon: "pin", path: "/more/pins" },
-  { label: "事项", icon: "list.bullet", path: "/more/issues" },
-  { label: "项目", icon: "square.stack", path: "/more/projects" },
-  { label: "智能体", icon: "person.2", path: "/more/agents" },
-];
-
-const SETTINGS_ITEMS: NavItem[] = [
-  { label: "设置", icon: "gearshape", path: "/more/settings" },
-  {
-    label: "个人资料",
-    icon: "person.crop.circle",
-    path: "/more/settings/profile",
-  },
-  { label: "通知", icon: "bell", path: "/more/settings/notifications" },
-];
 
 function initialsOf(name: string | undefined): string {
   if (!name) return "?";
@@ -77,20 +52,58 @@ function SFIcon({ name, color }: { name: string; color: string }) {
   );
 }
 
+function appVersionLabel(): string {
+  const version =
+    Constants.expoConfig?.version ??
+    Constants.nativeAppVersion ??
+    "—";
+  const build =
+    Constants.expoConfig?.ios?.buildNumber ??
+    Constants.nativeBuildVersion;
+  return build ? `${version} (${build})` : String(version);
+}
+
 export default function MinePage() {
   const slug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
+  const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
   const user = useAuthStore((s) => s.user);
   const { data: workspaces } = useQuery(workspaceListOptions());
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
+  const inboxUnread = useInboxUnreadCount(wsId);
 
   const currentWorkspace = useMemo(
     () => (slug ? workspaces?.find((w) => w.slug === slug) : undefined),
     [workspaces, slug],
   );
-  // Single-workspace users can't switch — hide the chevron and disable the
-  // row (mirrors the old popover's WorkspaceCard `canSwitch` guard).
   const canSwitch = (workspaces?.length ?? 0) > 1;
+
+  const workItems: NavItem[] = useMemo(
+    () => [
+      {
+        label: "收件箱",
+        icon: "tray",
+        path: "/inbox",
+        badge: inboxUnread,
+      },
+      { label: "我的事项", icon: "person.text.rectangle", path: "/my-issues" },
+      { label: "置顶", icon: "pin", path: "/more/pins" },
+      { label: "事项", icon: "list.bullet", path: "/more/issues" },
+      { label: "项目", icon: "square.stack", path: "/more/projects" },
+      { label: "数字员工", icon: "person.2", path: "/more/agents" },
+    ],
+    [inboxUnread],
+  );
+
+  const settingsItems: NavItem[] = [
+    { label: "设置", icon: "gearshape", path: "/more/settings" },
+    {
+      label: "个人资料",
+      icon: "person.crop.circle",
+      path: "/more/settings/profile",
+    },
+    { label: "通知", icon: "bell", path: "/more/settings/notifications" },
+  ];
 
   const go = (path: string) => {
     if (slug) router.push(`/${slug}${path}`);
@@ -100,8 +113,6 @@ export default function MinePage() {
     <View className="flex-1 bg-background">
       <Header title="我的" />
       <ScrollView contentContainerClassName="px-4 py-4 gap-6">
-        {/* Identity + workspace card — one bare card (no section label),
-            matching the old popover's UserCard + WorkspaceCard stacking. */}
         <SectionGroup>
           <NavRow
             onPress={() => go("/more/settings")}
@@ -133,26 +144,27 @@ export default function MinePage() {
                 size={32}
               />
             }
-            title={currentWorkspace?.name ?? "Workspace"}
+            title={currentWorkspace?.name ?? "工作区"}
           />
         </SectionGroup>
 
-        <SectionGroup title="工作">
-          {WORK_ITEMS.map((item, idx) => (
+        <SectionGroup title="工作区">
+          {workItems.map((item, idx) => (
             <View key={item.path}>
               <NavRow
                 onPress={() => go(item.path)}
                 chevronColor={t.mutedForeground}
                 leading={<SFIcon name={item.icon} color={t.foreground} />}
                 title={item.label}
+                badge={item.badge}
               />
-              {idx < WORK_ITEMS.length - 1 ? <Separator /> : null}
+              {idx < workItems.length - 1 ? <Separator /> : null}
             </View>
           ))}
         </SectionGroup>
 
         <SectionGroup title="设置">
-          {SETTINGS_ITEMS.map((item, idx) => (
+          {settingsItems.map((item, idx) => (
             <View key={item.path}>
               <NavRow
                 onPress={() => go(item.path)}
@@ -160,9 +172,20 @@ export default function MinePage() {
                 leading={<SFIcon name={item.icon} color={t.foreground} />}
                 title={item.label}
               />
-              {idx < SETTINGS_ITEMS.length - 1 ? <Separator /> : null}
+              {idx < settingsItems.length - 1 ? <Separator /> : null}
             </View>
           ))}
+        </SectionGroup>
+
+        <SectionGroup title="关于">
+          <NavRow
+            onPress={() => {}}
+            disabled
+            chevronColor={t.mutedForeground}
+            leading={<SFIcon name="info.circle" color={t.foreground} />}
+            title="版本"
+            subtitle={appVersionLabel()}
+          />
         </SectionGroup>
       </ScrollView>
     </View>

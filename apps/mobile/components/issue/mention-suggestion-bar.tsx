@@ -191,15 +191,15 @@ export function MentionSuggestionBar({
     const out: Row[] = [];
     if (showAll) out.push({ kind: "all" });
     if (matchedMembers.length > 0) {
-      out.push({ kind: "section", label: "Members" });
+      out.push({ kind: "section", label: "成员" });
       for (const m of matchedMembers) out.push({ kind: "member", member: m });
     }
     if (matchedAgents.length > 0) {
-      out.push({ kind: "section", label: "Agents" });
+      out.push({ kind: "section", label: "数字员工" });
       for (const a of matchedAgents) out.push({ kind: "agent", agent: a });
     }
     if (matchedSquads.length > 0) {
-      out.push({ kind: "section", label: "Squads" });
+      out.push({ kind: "section", label: "小队" });
       for (const s of matchedSquads) out.push({ kind: "squad", squad: s });
     }
     if (out.length === 0) out.push({ kind: "empty" });

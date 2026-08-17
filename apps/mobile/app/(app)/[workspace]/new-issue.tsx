@@ -1,20 +1,11 @@
 /**
  * New issue creation modal — manual only.
  *
- * Layout follows Apple Reminders / Linear iOS / Things 3: one vertical
- * scrolling form (title → description → property chips), no sticky bottom
- * toolbar. Property chips are part of the form, not pinned above keyboard.
- * MentionSuggestionBar floats above keyboard only when the user is mid-@.
- *
- * No markdown toolbar / upload buttons in v1: mobile users creating an
- * issue rarely format markdown, and attachment upload is deferred to a
- * later release (see plan-issue-majestic-rabin.md "skip uploads").
- *
- * Mention pipeline shares `useMentionInput` with `issue/[id]/new-comment.tsx`
- * — both surfaces produce canonical `[@name](mention://type/id)` markdown
- * recognised by util.ParseMentions on the server.
+ * Prefill: `assigneeId` + `assigneeType` URL params (from staff-picker
+ * dispatch) are applied in useLayoutEffect so the assignee chip is set
+ * before the first paint (avoids a flash of「负责人」占位).
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -22,7 +13,8 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
-import { Stack, router } from "expo-router";
+import { Stack, router, useLocalSearchParams } from "expo-router";
+import type { IssueAssigneeType } from "@multica/core/types";
 import { SubmitIssueButton } from "@/components/issue/submit-issue-button";
 import { CreateFormAttributeRow } from "@/components/issue/create-form-attribute-row";
 import { MentionSuggestionBar } from "@/components/issue/mention-suggestion-bar";
@@ -32,27 +24,57 @@ import { useCreateIssue } from "@/data/mutations/issues";
 import { useNewIssueDraftStore } from "@/data/stores/new-issue-draft-store";
 import { useMentionInput } from "@/lib/use-mention-input";
 
+const ASSIGNEE_TYPES: ReadonlySet<IssueAssigneeType> = new Set([
+  "member",
+  "agent",
+  "squad",
+]);
+
+function seedDraftFromParams(
+  assigneeId: string | undefined,
+  assigneeType: string | undefined,
+) {
+  const store = useNewIssueDraftStore.getState();
+  store.reset();
+  if (
+    assigneeId &&
+    assigneeType &&
+    ASSIGNEE_TYPES.has(assigneeType as IssueAssigneeType)
+  ) {
+    store.setAssignee({
+      type: assigneeType as IssueAssigneeType,
+      id: assigneeId,
+    });
+  }
+}
+
 export default function NewIssueModal() {
+  const { assigneeId, assigneeType } = useLocalSearchParams<{
+    assigneeId?: string;
+    assigneeType?: string;
+  }>();
+  // Seed during render (before paint) so CreateFormAttributeRow never
+  // flashes the empty「负责人」placeholder when opened from staff-picker.
+  const seedKey = `${assigneeId ?? ""}:${assigneeType ?? ""}`;
+  const lastSeedKey = useRef<string | null>(null);
+  if (lastSeedKey.current !== seedKey) {
+    lastSeedKey.current = seedKey;
+    seedDraftFromParams(assigneeId, assigneeType);
+  }
+
   const [title, setTitle] = useState("");
   const description = useMentionInput();
-  // Attribute chips (status / priority / assignee / due date / project)
-  // live in `useNewIssueDraftStore` so the new-issue-picker/* formSheet
-  // routes can read and write the same values without a parent-child
-  // React relationship. The store is reset on mount + on unmount so
-  // re-opening the new-issue modal starts clean.
   const status = useNewIssueDraftStore((s) => s.status);
   const priority = useNewIssueDraftStore((s) => s.priority);
   const assignee = useNewIssueDraftStore((s) => s.assignee);
   const dueDate = useNewIssueDraftStore((s) => s.dueDate);
   const project = useNewIssueDraftStore((s) => s.project);
-  const resetDraft = useNewIssueDraftStore((s) => s.reset);
 
-  useEffect(() => {
-    resetDraft();
+  useLayoutEffect(() => {
     return () => {
-      resetDraft();
+      useNewIssueDraftStore.getState().reset();
     };
-  }, [resetDraft]);
+  }, []);
 
   const createIssue = useCreateIssue();
   const isSubmitting = createIssue.isPending;
@@ -78,8 +100,8 @@ export default function NewIssueModal() {
       router.back();
     } catch (err) {
       Alert.alert(
-        "Failed to create issue",
-        err instanceof Error ? err.message : "Unknown error",
+        "创建失败",
+        err instanceof Error ? err.message : "未知错误",
       );
     }
   }, [
@@ -119,7 +141,7 @@ export default function NewIssueModal() {
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Issue title"
+            placeholder="事项标题"
             placeholderTextColor={MOBILE_PLACEHOLDER_COLOR}
             className="text-2xl font-semibold text-foreground py-2"
             autoFocus
@@ -133,9 +155,6 @@ export default function NewIssueModal() {
           <CreateFormAttributeRow />
         </ScrollView>
 
-        {/* Mention suggestions float above the keyboard only when the user
-            types `@`. Self-hides via `if (!visible) return null` so it
-            doesn't take space at rest. */}
         <MentionSuggestionBar {...description.suggestionBar} />
       </KeyboardAvoidingView>
     </>
