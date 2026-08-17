@@ -167,7 +167,7 @@ export default function IssueDetail() {
                    *  common case. See agent-header-badge.tsx. */}
                   <AgentHeaderBadge issueId={id} />
                   <IconButton
-                    name="ellipsis-horizontal"
+                    name="Ellipsis"
                     onPress={onPressMore}
                     accessibilityLabel="Issue actions"
                   />

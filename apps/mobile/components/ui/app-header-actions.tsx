@@ -25,12 +25,12 @@ export function HeaderActions() {
   return (
     <>
       <IconButton
-        name="search"
+        name="Search"
         onPress={onSearch}
         accessibilityLabel="搜索"
       />
       <IconButton
-        name="add"
+        name="Plus"
         iconSize={24}
         onPress={onCreate}
         accessibilityLabel="新建事项"

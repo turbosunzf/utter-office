@@ -13,7 +13,7 @@
 import { useMemo } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useColorScheme } from "nativewind";
 import type { Agent, MemberWithUser } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
@@ -115,11 +115,9 @@ export function ProjectLeadPickerBody({ value, query, onChange }: Props) {
               className="rounded-full border border-dashed border-muted-foreground/40 items-center justify-center"
               style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
             >
-              <Ionicons
-                name="close-circle-outline"
+              <Icon name="XCircle"
                 size={20}
-                color={MOBILE_PLACEHOLDER_COLOR}
-              />
+                color={MOBILE_PLACEHOLDER_COLOR} />
             </View>
           ) : item.kind === "member" ? (
             <ActorAvatar
@@ -151,7 +149,7 @@ export function ProjectLeadPickerBody({ value, query, onChange }: Props) {
             <Text className="text-sm text-muted-foreground">Agent</Text>
           ) : null}
           {isRowSelected(value, item) ? (
-            <Ionicons name="checkmark" size={20} color={checkColor} />
+            <Icon name="Check" size={20} color={checkColor} />
           ) : null}
         </Pressable>
       )}

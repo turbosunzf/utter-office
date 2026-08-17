@@ -17,6 +17,8 @@ import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { useNewIssueDraftResetOnWorkspaceChange } from "@/data/stores/new-issue-draft-store";
 import { useNewProjectDraftResetOnWorkspaceChange } from "@/data/stores/new-project-draft-store";
 import { useChatSessionPickerResetOnWorkspaceChange } from "@/data/stores/chat-session-picker-store";
+import { useHomeViewResetOnWorkspaceChange } from "@/data/stores/home-view-store";
+import { useAssistantHydration } from "@/data/stores/assistant-store";
 
 /**
  * Shared Stack.Screen options for every iOS formSheet-presented sheet route.
@@ -118,6 +120,8 @@ export default function WorkspaceLayout() {
   useNewIssueDraftResetOnWorkspaceChange(matched?.id ?? null);
   useNewProjectDraftResetOnWorkspaceChange(matched?.id ?? null);
   useChatSessionPickerResetOnWorkspaceChange(matched?.id ?? null);
+  useHomeViewResetOnWorkspaceChange(matched?.id ?? null);
+  useAssistantHydration(matched?.id ?? null);
 
   // Wait for the workspaces list before deciding membership — otherwise a
   // valid deep link would briefly redirect away on cold start.
@@ -312,6 +316,14 @@ export default function WorkspaceLayout() {
         {/* Shared filter sheet for My Issues and the workspace Issues page —
             chooses the right view-store via `?scope=my|all` URL param. */}
         <Stack.Screen name="issues-filter" options={SHEET_OPTIONS} />
+        <Stack.Screen
+          name="board-view"
+          options={{
+            ...SHEET_OPTIONS,
+            headerShown: true,
+            title: "筛选",
+          }}
+        />
         {/* Chat session-switch sheet. */}
         <Stack.Screen name="chat-sessions" options={SHEET_OPTIONS} />
         {/* Workspace switcher — reached from the More popover's collapsed
@@ -329,6 +341,7 @@ export default function WorkspaceLayout() {
           name="staff-picker"
           options={{
             ...SHEET_OPTIONS,
+            sheetAllowedDetents: [0.7],
             headerShown: true,
             title: "选择数字员工",
           }}
@@ -340,6 +353,14 @@ export default function WorkspaceLayout() {
         <Stack.Screen
           name="more/projects"
           options={{ title: "项目", headerBackTitle: "返回" }}
+        />
+        <Stack.Screen
+          name="staff"
+          options={{ title: "数字员工", headerBackTitle: "返回" }}
+        />
+        <Stack.Screen
+          name="staff/[id]"
+          options={{ title: "员工档案", headerBackTitle: "名册" }}
         />
         <Stack.Screen
           name="more/agents"
@@ -361,6 +382,18 @@ export default function WorkspaceLayout() {
           name="more/settings/notifications"
           options={{ title: "通知", headerBackTitle: "设置" }}
         />
+        <Stack.Screen
+          name="more/settings/assistant"
+          options={{ title: "秘书设置", headerBackTitle: "返回" }}
+        />
+        <Stack.Screen
+          name="reports"
+          options={{ title: "数据报告", headerBackTitle: "返回" }}
+        />
+        <Stack.Screen
+          name="brief/[id]"
+          options={{ title: "简报", headerBackTitle: "返回" }}
+        />
         {/* Voice MVP entry routes — pushed from the Voice tab popover. */}
         <Stack.Screen
           name="voice-record"
@@ -372,7 +405,7 @@ export default function WorkspaceLayout() {
         />
         <Stack.Screen
           name="voice-talk"
-          options={{ title: "长按发语音", headerBackTitle: "返回" }}
+          options={{ title: "发语音", headerBackTitle: "返回" }}
         />
         <Stack.Screen
           name="new-issue"

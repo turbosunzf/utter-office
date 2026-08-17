@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type { Agent } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { ActorAvatar } from "@/components/ui/actor-avatar";
@@ -22,6 +22,7 @@ import { agentListOptions } from "@/data/queries/agents";
 import { memberListOptions } from "@/data/queries/members";
 import { useAuthStore } from "@/data/auth-store";
 import { useWorkspaceStore } from "@/data/workspace-store";
+import { useAssistantStore } from "@/data/stores/assistant-store";
 import { canAssignAgent } from "@/lib/can-assign-agent";
 import { isAgentRuntimeBound } from "@/lib/is-agent-runtime-bound";
 import { useNativeSearchBar } from "@/lib/use-native-search-bar";
@@ -53,9 +54,12 @@ function agentStatusLabel(agent: Agent): { label: string; tone: string } {
 
 export default function StaffPicker() {
   const navigation = useNavigation();
-  const { intent: intentParam } = useLocalSearchParams<{
-    intent?: string;
-  }>();
+  const { intent: intentParam, title: titleParam, description: descriptionParam } =
+    useLocalSearchParams<{
+      intent?: string;
+      title?: string;
+      description?: string;
+    }>();
   const intent: Intent =
     intentParam === "default" ? "default" : "dispatch";
 
@@ -115,38 +119,39 @@ export default function StaffPicker() {
             workspace: wsSlug,
             assigneeId: agent.id,
             assigneeType: "agent",
+            ...(typeof titleParam === "string" && titleParam
+              ? { title: titleParam }
+              : {}),
+            ...(typeof descriptionParam === "string" && descriptionParam
+              ? { description: descriptionParam }
+              : {}),
           },
         });
       });
       return;
     }
 
-    // intent=default — SecureStore write lands in M2; UI-only for M1.
-    Alert.alert(
-      "已选择",
-      `「${agent.name}」将在后续版本写入默认员工设置。`,
-      [{ text: "好", onPress: () => router.back() }],
-    );
+    // intent=default — persist via assistant SecureStore (M2).
+    const wsIdNow = useWorkspaceStore.getState().currentWorkspaceId;
+    void (async () => {
+      if (wsIdNow) {
+        await useAssistantStore.getState().setDefaultAgent(wsIdNow, agent.id);
+      }
+      Alert.alert("已设为默认员工", `「${agent.name}」将用于语音发送目标。`, [
+        { text: "好", onPress: () => router.back() },
+      ]);
+    })();
   };
 
   return (
     <View className="flex-1 bg-background">
-      <Text className="px-4 pb-2 text-center text-xs text-muted-foreground">
-        {intent === "dispatch"
-          ? "派单 · 选中后进入新建事项并预填负责人"
-          : "设为默认员工 · 设置将在后续版本生效"}
-      </Text>
       {!ready ? (
-        <View className="px-4 pt-4">
+        <View className="px-4 pt-6">
           <Text className="text-sm text-muted-foreground">加载中…</Text>
         </View>
       ) : rows.length === 0 ? (
         <View className="flex-1 items-center justify-center px-8 gap-2">
-          <Ionicons
-            name="people-outline"
-            size={36}
-            color={t.mutedForeground}
-          />
+          <Icon name="Users" size={36} color={t.mutedForeground} />
           <Text className="text-base font-medium text-foreground">
             暂无可用数字员工
           </Text>
@@ -159,7 +164,14 @@ export default function StaffPicker() {
           ref={listRef}
           data={rows}
           keyExtractor={(a) => a.id}
-          contentContainerClassName="pb-8"
+          contentContainerStyle={{ paddingTop: 4, paddingBottom: 32 }}
+          ListHeaderComponent={
+            <Text className="px-4 pb-3 pt-1 text-center text-xs text-muted-foreground">
+              {intent === "dispatch"
+                ? "派单 · 选中后进入新建事项并预填负责人"
+                : "设为默认员工 · 写入本机秘书设置"}
+            </Text>
+          }
           renderItem={({ item }) => {
             const bound = isAgentRuntimeBound(item);
             const status = agentStatusLabel(item);

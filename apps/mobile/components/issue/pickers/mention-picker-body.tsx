@@ -22,7 +22,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useColorScheme } from "nativewind";
 import type {
   Agent,
@@ -244,7 +244,7 @@ export function MentionPickerBody({ query, mode = "comment" }: Props) {
                 className="rounded-full bg-primary/10 items-center justify-center"
                 style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
               >
-                <Ionicons name="people" size={20} color={checkColor} />
+                <Icon name="Users" size={20} color={checkColor} />
               </View>
             ) : item.kind === "member" ? (
               <ActorAvatar
@@ -297,7 +297,7 @@ export function MentionPickerBody({ query, mode = "comment" }: Props) {
               </Text>
             ) : null}
             {isSelected(item) ? (
-              <Ionicons name="checkmark" size={20} color={checkColor} />
+              <Icon name="Check" size={20} color={checkColor} />
             ) : null}
           </Pressable>
         );

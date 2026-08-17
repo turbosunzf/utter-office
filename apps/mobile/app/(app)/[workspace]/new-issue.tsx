@@ -4,6 +4,7 @@
  * Prefill: `assigneeId` + `assigneeType` URL params (from staff-picker
  * dispatch) are applied in useLayoutEffect so the assignee chip is set
  * before the first paint (avoids a flash of「负责人」占位).
+ * Optional `title` / `description` (e.g. brief dig).
  */
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
@@ -49,9 +50,16 @@ function seedDraftFromParams(
 }
 
 export default function NewIssueModal() {
-  const { assigneeId, assigneeType } = useLocalSearchParams<{
+  const {
+    assigneeId,
+    assigneeType,
+    title: titleParam,
+    description: descriptionParam,
+  } = useLocalSearchParams<{
     assigneeId?: string;
     assigneeType?: string;
+    title?: string;
+    description?: string;
   }>();
   // Seed during render (before paint) so CreateFormAttributeRow never
   // flashes the empty「负责人」placeholder when opened from staff-picker.
@@ -62,8 +70,19 @@ export default function NewIssueModal() {
     seedDraftFromParams(assigneeId, assigneeType);
   }
 
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(
+    typeof titleParam === "string" ? titleParam : "",
+  );
   const description = useMentionInput();
+  const seededDesc = useRef(false);
+  useLayoutEffect(() => {
+    if (seededDesc.current) return;
+    if (typeof descriptionParam === "string" && descriptionParam) {
+      seededDesc.current = true;
+      description.setText(descriptionParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed once
+  }, [descriptionParam]);
   const status = useNewIssueDraftStore((s) => s.status);
   const priority = useNewIssueDraftStore((s) => s.priority);
   const assignee = useNewIssueDraftStore((s) => s.assignee);

@@ -28,12 +28,17 @@ interface ChatSessionPickerState {
   selectRequest: { id: string | null; nonce: number } | null;
   requestSelect: (id: string | null) => void;
   consumeSelect: () => void;
+  /** One-shot: staff profile「与他对话」→ workbench focuses this agent. */
+  agentFocusRequest: { agentId: string; nonce: number } | null;
+  requestAgentFocus: (agentId: string) => void;
+  consumeAgentFocus: () => void;
   reset: () => void;
 }
 
 const INITIAL = {
   activeSessionId: null,
   selectRequest: null,
+  agentFocusRequest: null,
 } as const;
 
 export const useChatSessionPickerStore = create<ChatSessionPickerState>(
@@ -43,6 +48,14 @@ export const useChatSessionPickerStore = create<ChatSessionPickerState>(
     requestSelect: (id) =>
       set({ selectRequest: { id, nonce: (get().selectRequest?.nonce ?? 0) + 1 } }),
     consumeSelect: () => set({ selectRequest: null }),
+    requestAgentFocus: (agentId) =>
+      set({
+        agentFocusRequest: {
+          agentId,
+          nonce: (get().agentFocusRequest?.nonce ?? 0) + 1,
+        },
+      }),
+    consumeAgentFocus: () => set({ agentFocusRequest: null }),
     reset: () => set({ ...INITIAL }),
   }),
 );

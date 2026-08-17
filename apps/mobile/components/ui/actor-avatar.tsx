@@ -17,7 +17,7 @@
  * subscribing to that.
  */
 import { Image, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useColorScheme } from "nativewind";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
@@ -129,7 +129,7 @@ function BareAvatar({
         style={{ width: size, height: size, borderRadius: radius }}
         className="items-center justify-center bg-muted"
       >
-        <Ionicons name="cog" size={Math.round(size * 0.55)} color={iconColor} />
+        <Icon name="Settings" size={Math.round(size * 0.55)} color={iconColor} />
       </View>
     );
   }
@@ -140,7 +140,7 @@ function BareAvatar({
         style={{ width: size, height: size, borderRadius: radius }}
         className="items-center justify-center bg-muted"
       >
-        <Ionicons name="people" size={Math.round(size * 0.55)} color={iconColor} />
+        <Icon name="Users" size={Math.round(size * 0.55)} color={iconColor} />
       </View>
     );
   }

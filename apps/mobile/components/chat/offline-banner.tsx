@@ -12,7 +12,7 @@
  * fetch window — copy only appears when there's a real-world implication for
  * the message the user is about to send.
  */
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { View } from "react-native";
 import type { AgentAvailability } from "@multica/core/agents";
 import { Text } from "@/components/ui/text";
@@ -35,7 +35,7 @@ export function OfflineBanner({ agentName, availability }: Props) {
   if (availability === "unstable") {
     return (
       <View className="mx-3 mb-1.5 flex-row items-center gap-1.5 rounded-md bg-warning/15 px-2.5 py-1.5">
-        <Ionicons name="alert-circle-outline" size={14} color="#a16207" />
+        <Icon name="AlertCircle" size={14} color="#a16207" />
         <Text
           className="flex-1 text-xs text-warning"
           numberOfLines={1}
@@ -48,7 +48,7 @@ export function OfflineBanner({ agentName, availability }: Props) {
 
   return (
     <View className="mx-3 mb-1.5 flex-row items-center gap-1.5 rounded-md bg-muted px-2.5 py-1.5">
-      <Ionicons name="cloud-offline-outline" size={14} color="#71717a" />
+      <Icon name="CloudOff" size={14} color="#71717a" />
       <Text
         className="flex-1 text-xs text-muted-foreground"
         numberOfLines={1}

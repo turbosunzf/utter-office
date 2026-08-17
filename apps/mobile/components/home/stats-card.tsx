@@ -12,12 +12,11 @@
  * backing query is still loading.
  */
 import { View } from "react-native";
-import { Image as ExpoImage } from "expo-image";
+import { Icon, type AppIconName } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 
 export interface HomeStat {
-  /** SF Symbol name, rendered via expo-image `source: "sf:<name>"`. */
-  icon: string;
+    icon: AppIconName;
   /** Card label (fixed Chinese copy — the app's UI language). */
   label: string;
   /** `null` → still loading, render an em-dash instead of a fake zero. */
@@ -39,11 +38,7 @@ export function StatsGrid({ stats }: { stats: HomeStat[] }) {
 function StatsCard({ stat }: { stat: HomeStat }) {
   return (
     <View className="flex-1 rounded-md border border-border bg-card p-3 gap-2">
-      <ExpoImage
-        source={`sf:${stat.icon}`}
-        tintColor={stat.tint}
-        style={{ width: 16, height: 16 }}
-      />
+      <Icon name={stat.icon} size={18} color={stat.tint} />
       <Text className="text-2xl font-bold text-foreground">
         {stat.value == null ? "—" : String(stat.value)}
       </Text>

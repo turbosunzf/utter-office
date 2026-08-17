@@ -3,7 +3,7 @@
  * enum values. See status-picker-body.tsx for the split rationale.
  */
 import { Pressable, ScrollView, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useColorScheme } from "nativewind";
 import type { IssuePriority } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
@@ -49,7 +49,7 @@ export function PriorityPickerBody({ value, onChange }: Props) {
                 {PRIORITY_LABEL[v]}
               </Text>
               {selected ? (
-                <Ionicons name="checkmark" size={20} color={checkColor} />
+                <Icon name="Check" size={20} color={checkColor} />
               ) : null}
             </Pressable>
           );

@@ -31,7 +31,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type { Reaction, TimelineEntry } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { ActorAvatar } from "@/components/ui/actor-avatar";
@@ -247,7 +247,7 @@ function ResolvedThreadBar({
         accessibilityRole="button"
         accessibilityLabel={`Resolved thread by ${authorsLabel}, ${total} ${total === 1 ? "message" : "messages"}. Tap to expand.`}
       >
-        <Ionicons name="checkmark-circle" size={18} color={mutedFg} />
+        <Icon name="CheckCircle2" size={18} color={mutedFg} />
         <Text
           className="flex-1 text-sm text-muted-foreground"
           numberOfLines={1}
@@ -255,7 +255,7 @@ function ResolvedThreadBar({
           Resolved · {total} {total === 1 ? "message" : "messages"} by{" "}
           {authorsLabel}
         </Text>
-        <Ionicons name="chevron-down" size={14} color={mutedFg} />
+        <Icon name="ChevronDown" size={14} color={mutedFg} />
       </Pressable>
     </View>
   );
@@ -293,7 +293,7 @@ function ResolvedIndicator({
       accessibilityRole="button"
       accessibilityLabel="Collapse resolved thread"
     >
-      <Ionicons name="checkmark-circle" size={14} color={mutedFg} />
+      <Icon name="CheckCircle2" size={14} color={mutedFg} />
       <Text className="text-xs text-muted-foreground flex-1" numberOfLines={1}>
         Resolved by{" "}
         <Text className="text-xs text-foreground font-medium">
@@ -548,7 +548,7 @@ function FailedActions({
   const destructive = THEME[colorScheme].destructive;
   return (
     <View className="flex-row items-center gap-2 mt-0.5">
-      <Ionicons name="alert-circle" size={14} color={destructive} />
+      <Icon name="AlertCircle" size={14} color={destructive} />
       <Text
         className="flex-1 text-xs text-destructive"
         numberOfLines={1}

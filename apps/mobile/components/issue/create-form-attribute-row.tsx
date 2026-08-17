@@ -12,7 +12,7 @@
  */
 import { View } from "react-native";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { AttributeChip } from "@/components/issue/attribute-chip";
 import { ActorAvatar } from "@/components/ui/actor-avatar";
 import { PriorityIcon } from "@/components/ui/priority-icon";
@@ -92,8 +92,8 @@ export function CreateFormAttributeRow() {
                 showPresence
               />
             ) : (
-              <Ionicons
-                name="person-circle-outline"
+              <Icon
+                name="UserRound"
                 size={16}
                 color="#a1a1aa"
               />
@@ -105,8 +105,8 @@ export function CreateFormAttributeRow() {
         />
         <AttributeChip
           icon={
-            <Ionicons
-              name="calendar-outline"
+            <Icon
+              name="Calendar"
               size={14}
               color={dueDate ? undefined : "#a1a1aa"}
             />
@@ -120,7 +120,7 @@ export function CreateFormAttributeRow() {
             project ? (
               <ProjectIcon icon={project.icon} size="sm" />
             ) : (
-              <Ionicons name="folder-outline" size={14} color="#a1a1aa" />
+              <Icon name="Folder" size={14} color="#a1a1aa" />
             )
           }
           label={project?.title ?? "Project"}

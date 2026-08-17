@@ -43,7 +43,7 @@
 import { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useQuery } from "@tanstack/react-query";
 import type {
   ChatMessage,
@@ -560,11 +560,9 @@ function FailureBubble({
                 accessibilityLabel="Show error details"
                 className="mt-1 flex-row items-center gap-1 active:opacity-70"
               >
-                <Ionicons
-                  name="chevron-forward"
+                <Icon name="ChevronRight"
                   size={12}
-                  color="#71717a"
-                />
+                  color="#71717a" />
                 <Text className="text-xs text-muted-foreground">
                   Show details
                 </Text>

@@ -21,7 +21,7 @@
  * `packages/views/chat/components/chat-message-list.tsx`).
  */
 import { View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type { TaskMessagePayload } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import {
@@ -49,7 +49,7 @@ export function ChatTimeline({ items, isStreaming = false }: Props) {
           accessibilityLabel={`${processSteps.length} step${processSteps.length === 1 ? "" : "s"}`}
           className="flex-row items-center gap-1 active:opacity-70"
         >
-          <Ionicons name="chevron-forward" size={12} color="#71717a" />
+          <Icon name="ChevronRight" size={12} color="#71717a" />
           {isStreaming ? <StreamingDot /> : null}
           <Text className="text-xs text-muted-foreground">
             {processSteps.length === 1
@@ -99,8 +99,8 @@ function ThinkingRow({ item }: { item: TaskMessagePayload }) {
     <Collapsible>
       <CollapsibleTrigger asChild>
         <View className="py-0.5 flex-row items-start gap-1.5 active:opacity-70">
-          <Ionicons
-            name="bulb-outline"
+          <Icon
+            name="Lightbulb"
             size={12}
             color="#a1a1aa"
             style={{ marginTop: 2 }}
@@ -149,7 +149,7 @@ function ToolCallRow({ item }: { item: TaskMessagePayload }) {
     <Collapsible>
       <CollapsibleTrigger asChild>
         <View className="py-0.5 flex-row items-center gap-1.5 active:opacity-70">
-          <Ionicons name="chevron-forward" size={12} color="#71717a" />
+          <Icon name="ChevronRight" size={12} color="#71717a" />
           <Text className="text-xs font-medium text-foreground">
             {item.tool ?? "tool"}
           </Text>
@@ -183,12 +183,10 @@ function ToolResultRow({ item }: { item: TaskMessagePayload }) {
     <Collapsible>
       <CollapsibleTrigger asChild>
         <View className="py-0.5 flex-row items-start gap-1.5 active:opacity-70">
-          <Ionicons
-            name="chevron-forward"
+          <Icon name="ChevronRight"
             size={12}
             color="#71717a"
-            style={{ marginTop: 2 }}
-          />
+            style={{ marginTop: 2 }} />
           <Text
             className="flex-1 text-xs text-muted-foreground/80"
             numberOfLines={1}
@@ -214,12 +212,10 @@ function ToolResultRow({ item }: { item: TaskMessagePayload }) {
 function ErrorRow({ item }: { item: TaskMessagePayload }) {
   return (
     <View className="py-0.5 flex-row items-start gap-1.5">
-      <Ionicons
-        name="alert-circle"
+      <Icon name="AlertCircle"
         size={12}
         color="#dc2626"
-        style={{ marginTop: 2 }}
-      />
+        style={{ marginTop: 2 }} />
       <Text className="flex-1 text-xs text-destructive" numberOfLines={3}>
         {item.content}
       </Text>

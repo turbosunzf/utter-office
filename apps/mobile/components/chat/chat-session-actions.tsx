@@ -24,13 +24,13 @@ export function ChatSessionActions({
     <>
       {showMore ? (
         <IconButton
-          name="ellipsis-horizontal"
+          name="Ellipsis"
           onPress={onMorePress}
           accessibilityLabel="Session actions"
         />
       ) : null}
       <IconButton
-        name="add"
+        name="Plus"
         iconSize={24}
         onPress={onNewPress}
         accessibilityLabel="New chat"

@@ -23,7 +23,7 @@
  */
 import { useMemo } from "react";
 import { Linking, Pressable, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type { Attachment } from "@multica/core/types";
 import { standaloneAttachments } from "@/lib/attachment-dedup";
 import { MarkdownImage } from "@/lib/markdown/markdown-image";
@@ -113,8 +113,8 @@ function FileCard({
       accessibilityLabel={`Open ${attachment.filename}`}
       className="flex-row items-center gap-2 px-3 py-2 rounded-md bg-secondary/60 active:opacity-80"
     >
-      <Ionicons
-        name="document-outline"
+      <Icon
+        name="FileText"
         size={20}
         color={theme.mutedForeground}
       />
@@ -129,8 +129,8 @@ function FileCard({
           <Text className="text-xs text-muted-foreground">{sizeLabel}</Text>
         ) : null}
       </View>
-      <Ionicons
-        name="download-outline"
+      <Icon
+        name="Download"
         size={18}
         color={theme.mutedForeground}
       />

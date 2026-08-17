@@ -16,7 +16,7 @@
 import { useMemo } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useColorScheme } from "nativewind";
 import type { Label } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
@@ -120,7 +120,7 @@ export function LabelPickerBody({
             <Text className="flex-1 text-base text-foreground">
               Create &ldquo;{item.name}&rdquo;
             </Text>
-            <Ionicons name="add" size={20} color={checkColor} />
+            <Icon name="Plus" size={20} color={checkColor} />
           </Pressable>
         ) : (
           <Pressable
@@ -138,7 +138,7 @@ export function LabelPickerBody({
               {item.label.name}
             </Text>
             {attachedIds.has(item.label.id) ? (
-              <Ionicons name="checkmark" size={20} color={checkColor} />
+              <Icon name="Check" size={20} color={checkColor} />
             ) : null}
           </Pressable>
         )

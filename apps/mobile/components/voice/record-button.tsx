@@ -1,46 +1,33 @@
 /**
- * RecordButton — the central Voice tab button, rendered as the Voice tab's
- * custom `tabBarButton` (spec §1 option A). It is NOT a navigation target:
- * the tab's `listeners.tabPress` preventDefault()s and this button owns the
- * whole interaction, exactly like the old tab-as-action dropdowns.
+ * RecordButton — central Voice tab action (not a navigation target).
  *
- * State machine — a single `Gesture.Pan` splits tap / hold / slide-up-cancel
- * (WeChat 发语音 style):
- *   touch down → scale 1→0.92, start the 2s timer
- *   <2s release  → open the bottom sheet (录音/翻译/发送语音)
- *   ≥2s          → haptic + enter RECORDING (mic → 4-bar EQ + full-screen
- *                   overlay in VoiceOverlay)
- *   slide up ≥80px while recording → arm the cancel zone (store `slidUp`,
- *                   overlay flips red); release in the zone → cancel (no send)
- *   release (recording, not slid up) → haptic + send prototype placeholder
- *                   + switch to Chat (/workbench in M4)
- *
- * Gesture identity stays stable across the mid-press `setRecording` re-render
- * (useMemo + refs): recreating the Pan while a press is active would tear
- * down the native handler and lose the release. `send` / `slug` are read via
- * refs so they don't leak into the memo deps. RNGH v2 workletizes gesture
- * callbacks by default under Reanimated — `.runOnJS(true)` forces JS-thread
- * execution because these callbacks touch zustand / Animated / Haptics /
- * router.
+ * Touch model uses RN responders (not RNGH Pan) so the bottom tab bar
+ * cannot cancel the gesture before onEnd — a common cause of “dead”
+ * center buttons. Behavior matches WeChat 发语音:
+ *   <holdMs release → voice sheet
+ *   ≥holdMs       → recording overlay + EQ
+ *   slide up ≥80px while recording → cancel zone; release → no toast
+ *   release (recording, not cancelled) → prototype toast（不发送对话）
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Animated, Easing, StyleSheet, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  StyleSheet,
+  View,
+  type GestureResponderEvent,
+  type LayoutChangeEvent,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Image } from "expo-image";
+import { Icon } from "@/components/ui/icon";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
-import { useWorkspaceStore } from "@/data/workspace-store";
 import { useVoiceStore } from "@/data/stores/voice-store";
-import { useSendVoiceMessage } from "@/lib/use-send-voice-message";
+import { useAssistantStore } from "@/data/stores/assistant-store";
+import { VOICE_PROTOTYPE_TOAST } from "@/data/mocks/voice";
 
-const LONG_PRESS_MS = 2000;
-/** Upward travel (px) that arms the slide-up cancel zone. */
 const CANCEL_THRESHOLD = -80;
 const BUTTON_SIZE = 58;
 const BUTTON_RADIUS = 18;
-
-// 4 EQ bars staggered 150ms apart (spec §3: 900ms cycle, 150ms phase offset).
 const EQ_BAR_COUNT = 4;
 
 export function RecordButton() {
@@ -48,23 +35,28 @@ export function RecordButton() {
   const recording = useVoiceStore((s) => s.recording);
   const setRecording = useVoiceStore((s) => s.setRecording);
   const setSlidUp = useVoiceStore((s) => s.setSlidUp);
-  const slug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
-  const { send, sending } = useSendVoiceMessage();
+  const showToast = useVoiceStore((s) => s.showToast);
+  const holdMs = useAssistantStore((s) => s.holdThresholdMs);
 
   const [pressed, setPressed] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordingRef = useRef(false);
   const slidUpRef = useRef(false);
+  const startPageY = useRef(0);
+  const activeRef = useRef(false);
 
-  // Values that change per render but must stay fresh inside the stable
-  // memoized gesture without recreating it.
-  const sendRef = useRef(send);
-  sendRef.current = send;
-  const slugRef = useRef(slug);
-  slugRef.current = slug;
+  const holdMsRef = useRef(holdMs);
+  holdMsRef.current = holdMs;
+  const openSheetRef = useRef(openSheet);
+  openSheetRef.current = openSheet;
+  const setRecordingRef = useRef(setRecording);
+  setRecordingRef.current = setRecording;
+  const setSlidUpRef = useRef(setSlidUp);
+  setSlidUpRef.current = setSlidUp;
+  const showToastRef = useRef(showToast);
+  showToastRef.current = showToast;
 
-  // EQ bars — Animated.loop + Animated.stagger (scaleY → native driver).
   const eqBars = useRef<Animated.Value[]>(
     Array.from({ length: EQ_BAR_COUNT }, () => new Animated.Value(0)),
   ).current;
@@ -109,143 +101,142 @@ export function RecordButton() {
     [scale],
   );
 
-  const pan = useMemo(
-    () =>
-      Gesture.Pan()
-        .runOnJS(true)
-        .minDistance(0)
-        .maxPointers(1)
-        .hitSlop(8)
-        .shouldCancelWhenOutside(false)
-        .enabled(!sending)
-        .onBegin(() => {
-          // Defensive re-press guard — you can't start a second press without
-          // lifting, but a system quirk shouldn't restart the timer mid-record.
-          if (recordingRef.current) return;
-          setPressed(true);
-          animateScale(0.92);
-          timer.current = setTimeout(() => {
-            recordingRef.current = true;
-            setRecording(true);
-            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            timer.current = null;
-          }, LONG_PRESS_MS);
-        })
-        .onUpdate((e) => {
-          const slidUp = e.translationY < CANCEL_THRESHOLD;
-          // Write to the store only on threshold crossing — the overlay is a
-          // sibling subscribed to it; per-pixel writes would re-render it at
-          // frame rate. One haptic on the rising edge.
-          if (slidUp !== slidUpRef.current) {
-            slidUpRef.current = slidUp;
-            setSlidUp(slidUp);
-            if (slidUp) {
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-            }
-          }
-        })
-        .onEnd((e) => {
-          if (timer.current) {
-            clearTimeout(timer.current);
-            timer.current = null;
-          }
-          const wasRecording = recordingRef.current;
-          recordingRef.current = false;
-          setPressed(false);
-          animateScale(1);
+  const clearTimer = useCallback(() => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+  }, []);
 
-          if (!wasRecording) {
-            // Short tap (<2s) — open the voice sheet. A <2s release with some
-            // upward drift is still a tap, never a cancel.
-            openSheet();
-            return;
-          }
-
-          setRecording(false);
-          const slidUp = e.translationY < CANCEL_THRESHOLD;
-          if (slidUp) {
-            // Cancelled — no send, no navigation.
-            void Haptics.notificationAsync(
-              Haptics.NotificationFeedbackType.Warning,
-            );
-            return;
-          }
-          void Haptics.notificationAsync(
-            Haptics.NotificationFeedbackType.Success,
-          );
-          void (async () => {
-            await sendRef.current("（语音原型）请稍后补充需求描述");
-            // 无员工时 hook 已 Alert；仍跳工作台（现 /chat），与 PRD 一致。
-            if (slugRef.current) {
-              router.navigate(`/${slugRef.current}/chat`);
-            }
-          })();
-        })
-        .onFinalize(() => {
-          // Cleanup also fires on CANCELLED (system interruption, background,
-          // incoming call) — without it the 2s timer and a stuck red slidUp
-          // leak. Redundant with onEnd on a clean end; harmless.
-          if (timer.current) {
-            clearTimeout(timer.current);
-            timer.current = null;
-          }
-          setPressed(false);
-          animateScale(1);
-          recordingRef.current = false;
-          slidUpRef.current = false;
-          setSlidUp(false);
-        }),
-    [animateScale, openSheet, setRecording, setSlidUp, sending],
+  const onGrant = useCallback(
+    (e: GestureResponderEvent) => {
+      if (activeRef.current) return;
+      activeRef.current = true;
+      recordingRef.current = false;
+      slidUpRef.current = false;
+      setSlidUpRef.current(false);
+      startPageY.current = e.nativeEvent.pageY;
+      setPressed(true);
+      animateScale(0.92);
+      clearTimer();
+      timer.current = setTimeout(() => {
+        recordingRef.current = true;
+        setRecordingRef.current(true);
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        timer.current = null;
+      }, holdMsRef.current);
+    },
+    [animateScale, clearTimer],
   );
 
+  const onMove = useCallback((e: GestureResponderEvent) => {
+    if (!activeRef.current || !recordingRef.current) return;
+    const dy = e.nativeEvent.pageY - startPageY.current;
+    const slidUp = dy < CANCEL_THRESHOLD;
+    if (slidUp !== slidUpRef.current) {
+      slidUpRef.current = slidUp;
+      setSlidUpRef.current(slidUp);
+      if (slidUp) {
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+      }
+    }
+  }, []);
+
+  const finish = useCallback(
+    (cancelledBySystem: boolean) => {
+      if (!activeRef.current) return;
+      activeRef.current = false;
+      clearTimer();
+      setPressed(false);
+      animateScale(1);
+
+      const wasRecording = recordingRef.current;
+      const slidUp = slidUpRef.current;
+      recordingRef.current = false;
+      slidUpRef.current = false;
+      setSlidUpRef.current(false);
+
+      if (cancelledBySystem) {
+        if (wasRecording) setRecordingRef.current(false);
+        return;
+      }
+
+      if (!wasRecording) {
+        openSheetRef.current();
+        return;
+      }
+
+      setRecordingRef.current(false);
+      if (slidUp) {
+        void Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Warning,
+        );
+        return;
+      }
+      void Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      );
+      // Prototype: never send to chat — toast only.
+      showToastRef.current(VOICE_PROTOTYPE_TOAST);
+    },
+    [animateScale, clearTimer],
+  );
+
+  const onLayout = useCallback((_e: LayoutChangeEvent) => {}, []);
+
   return (
-    <View style={styles.cell}>
-      <GestureDetector gesture={pan}>
-        <Animated.View
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel="录音"
-          accessibilityHint="轻点选择录音、翻译或发送语音，长按 2 秒直接发送语音，上滑取消"
-          style={[styles.shadow, { transform: [{ scale }] }]}
+    <View
+      style={styles.cell}
+      onLayout={onLayout}
+      collapsable={false}
+      onStartShouldSetResponderCapture={() => true}
+      onStartShouldSetResponder={() => true}
+      onMoveShouldSetResponder={() => true}
+      onResponderTerminationRequest={() => false}
+      onResponderGrant={onGrant}
+      onResponderMove={onMove}
+      onResponderRelease={() => finish(false)}
+      onResponderTerminate={() => finish(true)}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel="录音"
+      accessibilityHint="轻点选择录音、翻译或发语音，长按进入说话状态，上滑取消"
+    >
+      <Animated.View style={[styles.shadow, { transform: [{ scale }] }]}>
+        <LinearGradient
+          colors={["#2F62F0", "#3B6FFF", "#5B8AFF"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.button}
+          pointerEvents="none"
         >
-          <LinearGradient
-            colors={["#2F62F0", "#3B6FFF", "#5B8AFF"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.button}
-          >
-            {recording ? (
-              <View style={styles.eqContainer}>
-                {eqBars.map((v, i) => (
-                  <Animated.View
-                    key={i}
-                    style={[
-                      styles.eqBar,
-                      {
-                        transform: [
-                          {
-                            scaleY: v.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [0.33, 1],
-                            }),
-                          },
-                        ],
-                      },
-                    ]}
-                  />
-                ))}
-              </View>
-            ) : (
-              <Image
-                source="sf:mic.fill"
-                tintColor="#FFFFFF"
-                style={styles.mic}
-              />
-            )}
-            {pressed ? <View style={styles.pressedScrim} /> : null}
-          </LinearGradient>
-        </Animated.View>
-      </GestureDetector>
+          {recording ? (
+            <View style={styles.eqContainer}>
+              {eqBars.map((v, i) => (
+                <Animated.View
+                  key={i}
+                  style={[
+                    styles.eqBar,
+                    {
+                      transform: [
+                        {
+                          scaleY: v.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.33, 1],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+          ) : (
+            <Icon name="Mic" size={26} color="#FFFFFF" strokeWidth={2.2} />
+          )}
+          {pressed ? <View style={styles.pressedScrim} /> : null}
+        </LinearGradient>
+      </Animated.View>
     </View>
   );
 }
@@ -255,6 +246,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    minHeight: BUTTON_SIZE,
+    paddingVertical: 4,
+    backgroundColor: "transparent",
   },
   shadow: {
     borderRadius: BUTTON_RADIUS,
@@ -271,10 +265,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-  },
-  mic: {
-    width: 26,
-    height: 26,
   },
   eqContainer: {
     flexDirection: "row",

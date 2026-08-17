@@ -26,7 +26,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQueries } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type {
   Issue,
   IssueStatus,
@@ -187,8 +187,8 @@ function SearchIssueRow({ item, query, slug }: SearchIssueRowProps) {
       </View>
       {showSnippet ? (
         <View className="flex-row items-start gap-2 mt-1 pl-[68px]">
-          <Ionicons
-            name="chatbubble-outline"
+          <Icon
+            name="MessageCircle"
             size={12}
             color="#71717a"
             style={{ marginTop: 2 }}
@@ -429,7 +429,7 @@ export default function SearchModal() {
       >
         {/* Search input row */}
         <View className="flex-row items-center gap-3 border-b border-border px-4 py-2">
-          <Ionicons name="search" size={20} color="#71717a" />
+          <Icon name="Search" size={20} color="#71717a" />
           <TextInput
             value={query}
             onChangeText={handleChange}

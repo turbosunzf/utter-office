@@ -1,69 +1,69 @@
 /**
- * Mobile screen header — single row, slot-based. Rendered in the screen's
- * JSX (NOT a react-navigation header), so dynamic content reaches it as
- * plain props instead of `navigation.setOptions` closures.
- *
- *   <Header title="Inbox" right={<HeaderActions />} />
- *   <Header center={<ChatTitleButton ... />} right={<ChatSessionActions ... />} />
- *
- * Self-handles the top safe area. Colors live on RNR tokens
- * (`bg-background`, `text-foreground`, `border-border`) so dark mode flips
- * via NativeWind without any logic here.
- *
- * For push screens (issue/[id], more/issues, etc.) keep using the native
- * Stack header — that's where the iOS back button + swipe-to-dismiss come
- * from. This component is for tab roots only.
+ * Mobile screen header — tab-root chrome (NOT Stack headers).
+ * Soft bottom hairline + larger title for the four main tabs.
  */
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
+import { useColorScheme } from "@/lib/use-color-scheme";
 
 interface Props {
-  /** Title text (fallback when `center` is not provided). */
   title?: string;
-  /** Optional subtitle below the title. Ignored when `center` is provided. */
   subtitle?: string;
-  /** Centered custom node — wins over `title`. Use for tappable titles, agent pickers, etc. */
   center?: ReactNode;
-  /** Leading slot (left of title). Use sparingly — most screens just leave it null. */
   left?: ReactNode;
-  /** Trailing slot — action buttons, menus, search/add toolbar. */
   right?: ReactNode;
 }
 
 export function Header({ title, subtitle, center, left, right }: Props) {
+  const { colorScheme } = useColorScheme();
+  const hairline =
+    colorScheme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.06)";
+
   return (
-    <SafeAreaView
-      edges={["top"]}
-      className="bg-background border-b border-border"
-    >
-      <View className="flex-row items-center h-12 px-2">
-        {left ? <View className="flex-row items-center">{left}</View> : null}
-        <View className="flex-1 px-2 justify-center">
+    <SafeAreaView edges={["top"]} className="bg-background">
+      <View
+        className="flex-row items-center px-3"
+        style={{
+          minHeight: subtitle || center ? 56 : 52,
+          paddingTop: 4,
+          paddingBottom: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: hairline,
+        }}
+      >
+        {left ? <View className="flex-row items-center mr-1">{left}</View> : null}
+        <View className="flex-1 px-1 justify-center min-w-0" style={{ flexShrink: 1 }}>
           {center ?? (
             title ? (
-              <>
+              <View className="gap-0.5">
                 <Text
-                  className="text-lg font-semibold text-foreground"
+                  className="text-[22px] font-bold text-foreground"
+                  style={{ letterSpacing: -0.4 }}
                   numberOfLines={1}
                 >
                   {title}
                 </Text>
                 {subtitle ? (
                   <Text
-                    className="text-xs text-muted-foreground"
+                    className="text-[12px] text-muted-foreground"
                     numberOfLines={1}
                   >
                     {subtitle}
                   </Text>
                 ) : null}
-              </>
+              </View>
             ) : null
           )}
         </View>
         {right ? (
-          <View className="flex-row items-center gap-1">{right}</View>
+          <View
+            className="flex-row items-center gap-0.5"
+            style={{ flexShrink: 0, maxWidth: "55%" }}
+          >
+            {right}
+          </View>
         ) : null}
       </View>
     </SafeAreaView>

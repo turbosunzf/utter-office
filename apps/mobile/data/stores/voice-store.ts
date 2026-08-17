@@ -14,20 +14,24 @@ import { create } from "zustand";
 interface VoiceState {
   sheetOpen: boolean;
   recording: boolean;
-  /** Whether the finger has slid up into the "cancel send" zone (WeChat-style
-   *  recording). Written by the record button's Pan gesture, read by the
-   *  recording overlay so it can flip to the red cancel state live. */
+  /** Whether the finger has slid up into the "cancel" zone (WeChat-style
+   *  recording). Written by the record button, read by the overlay. */
   slidUp: boolean;
+  /** Ephemeral toast message (prototype release hint). */
+  toastMessage: string | null;
   openSheet: () => void;
   closeSheet: () => void;
   setRecording: (recording: boolean) => void;
   setSlidUp: (slidUp: boolean) => void;
+  showToast: (message: string) => void;
+  clearToast: () => void;
 }
 
 export const useVoiceStore = create<VoiceState>((set) => ({
   sheetOpen: false,
   recording: false,
   slidUp: false,
+  toastMessage: null,
   openSheet: () => set({ sheetOpen: true, slidUp: false }),
   closeSheet: () => set({ sheetOpen: false }),
   // Stopping recording resets slidUp so a stale value can't paint the
@@ -35,4 +39,6 @@ export const useVoiceStore = create<VoiceState>((set) => ({
   setRecording: (recording) =>
     set((s) => ({ recording, slidUp: recording ? s.slidUp : false })),
   setSlidUp: (slidUp) => set({ slidUp }),
+  showToast: (message) => set({ toastMessage: message }),
+  clearToast: () => set({ toastMessage: null }),
 }));

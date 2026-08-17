@@ -86,7 +86,7 @@ import {
   type ViewToken,
 } from "react-native";
 import { FlashList, type FlashListRef } from "@shopify/flash-list";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useQuery } from "@tanstack/react-query";
 import type { Issue, TimelineEntry } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
@@ -546,7 +546,7 @@ function NewCommentChip({
         elevation: 4,
       }}
     >
-      <Ionicons name="arrow-down" size={14} color={fg} />
+      <Icon name="ArrowDown" size={14} color={fg} />
       <Text className="text-xs font-semibold text-primary-foreground">
         {count} new
       </Text>

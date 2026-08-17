@@ -10,7 +10,7 @@
  * useActorLookup so it shares the same lookup with my-issues + issue detail.
  */
 import { Pressable, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type { Project } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { ActorAvatar } from "@/components/ui/actor-avatar";
@@ -131,11 +131,9 @@ function Separator() {
 function Chevron() {
   const { colorScheme } = useColorScheme();
   return (
-    <Ionicons
-      name="chevron-forward"
+    <Icon name="ChevronRight"
       size={14}
-      color={THEME[colorScheme].mutedForeground}
-    />
+      color={THEME[colorScheme].mutedForeground} />
   );
 }
 

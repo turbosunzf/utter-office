@@ -118,8 +118,8 @@ export function AgentUsage({
     : 0;
 
   return (
-    <SectionGroup title="智能体运行数据">
-      <View className="p-4 gap-4">
+    <SectionGroup title="员工用量">
+      <View className="px-4 pt-4 pb-4 gap-4">
         {isLoading ? (
           <Skeleton className="h-24 w-full" />
         ) : agentError ? (
@@ -134,23 +134,23 @@ export function AgentUsage({
           </View>
         ) : rows.length === 0 ? (
           <Text className="text-sm text-muted-foreground">
-            近 {days} 天暂无智能体运行记录。
+            近 {days} 天暂无员工运行记录。
           </Text>
         ) : (
-          <View className="gap-3">
-            <Text className="text-xs text-muted-foreground">
-              {runtimes.length} 个智能体 · 近 {days} 天任务量 Top {rows.length}
+          <View className="gap-3.5">
+            <Text className="text-[11px] text-muted-foreground">
+              {runtimes.length} 名员工 · 近 {days} 天任务量 Top {rows.length}
             </Text>
             {rows.map((row) => (
-              <View key={row.id} className="gap-1">
-                <View className="flex-row items-baseline justify-between">
+              <View key={row.id} className="gap-1.5">
+                <View className="flex-row items-baseline justify-between gap-2">
                   <Text
-                    className="text-sm text-foreground flex-1"
+                    className="text-[13px] font-medium text-foreground flex-1"
                     numberOfLines={1}
                   >
                     {row.name}
                   </Text>
-                  <Text className="text-sm font-semibold text-foreground">
+                  <Text className="text-[13px] font-bold text-foreground">
                     {row.taskCount}
                   </Text>
                 </View>
@@ -159,11 +159,11 @@ export function AgentUsage({
                     className="h-full rounded-full"
                     style={{
                       width: `${maxTasks ? (row.taskCount / maxTasks) * 100 : 0}%`,
-                      backgroundColor: t.success,
+                      backgroundColor: t.brand,
                     }}
                   />
                 </View>
-                <Text className="text-xs text-muted-foreground">
+                <Text className="text-[11px] text-muted-foreground">
                   时长 {formatElapsedSecs(row.seconds)} · 失败 {row.failed} ·{" "}
                   {formatCompact(row.tokens)} tokens
                 </Text>
@@ -173,13 +173,13 @@ export function AgentUsage({
         )}
 
         {failureClasses.length > 0 ? (
-          <View className="gap-2 pt-1">
-            <Text className="text-xs uppercase tracking-wider text-muted-foreground">
+          <View className="gap-2.5 pt-1 border-t border-border">
+            <Text className="text-[11px] font-medium text-muted-foreground pt-3">
               失败分布
             </Text>
             {failureClasses.map((f) => (
               <View key={f.cls} className="flex-row items-center gap-2">
-                <Text className="text-xs text-foreground w-16">
+                <Text className="text-[12px] text-foreground w-16">
                   {FAILURE_CLASS_LABEL[f.cls]}
                 </Text>
                 <View className="h-2 flex-1 rounded-full overflow-hidden bg-muted">
@@ -191,7 +191,7 @@ export function AgentUsage({
                     }}
                   />
                 </View>
-                <Text className="text-xs text-muted-foreground w-8 text-right">
+                <Text className="text-[11px] text-muted-foreground w-8 text-right">
                   {f.count}
                 </Text>
               </View>

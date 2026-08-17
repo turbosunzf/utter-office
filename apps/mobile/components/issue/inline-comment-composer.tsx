@@ -58,7 +58,7 @@ export function InlineCommentComposer({ issueId }: { issueId: string }) {
       uploadContext={{ issueId }}
       placeholder="Add a comment…"
       pillLabel="Add a comment, @ to mention…"
-      pillIcon="chatbubble-ellipses-outline"
+      pillIcon="MessageCircle"
       replyTarget={
         replyTarget
           ? {

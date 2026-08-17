@@ -13,62 +13,23 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { Image } from "expo-image";
+import { Icon, type AppIconName } from "@/components/ui/icon";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
+import { VoicePrototypeBanner } from "@/components/voice/voice-prototype-banner";
+import {
+  VOICE_RECORD_POOL,
+  VOICE_RECORD_SEED,
+  type VoiceTranscriptLine,
+} from "@/data/mocks/voice-record";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 
-type TranscriptLine = {
-  speaker: string;
-  time: string;
-  text: string;
-  translation: string;
-};
+type TranscriptLine = VoiceTranscriptLine;
 
-// Mock transcript segments — feed the "实时转写" list (time is added at
-// append-time for pool items).
-const TRANSCRIPT_SEED: TranscriptLine[] = [
-  {
-    speaker: "说话人1",
-    time: "00:00",
-    text: "这个需求我们先从语音入口开始，把录音和翻译两个页面做起来。",
-    translation:
-      "Let's start from the voice entry and build the recording and translation pages.",
-  },
-  {
-    speaker: "说话人2",
-    time: "00:03",
-    text: "可以，录音页要有个实时转写列表和底部控制区。",
-    translation:
-      "Sure, the recording page needs a live transcript list and a bottom control dock.",
-  },
-];
-
-const TRANSCRIPT_POOL: Omit<TranscriptLine, "time">[] = [
-  {
-    speaker: "说话人1",
-    text: "对，底部 Dock 放波形、计时和暂停停止按钮。",
-    translation: "Right, the dock holds the waveform, timer, and pause/stop buttons.",
-  },
-  {
-    speaker: "说话人2",
-    text: "翻译页做成左右对向气泡，按住说话松开出译。",
-    translation:
-      "Make the translate page bilateral bubbles with hold-to-speak / release-to-translate.",
-  },
-  {
-    speaker: "说话人1",
-    text: "深色模式也要正常，所有颜色走主题 token。",
-    translation: "Dark mode must work too — all colours go through theme tokens.",
-  },
-  {
-    speaker: "说话人2",
-    text: "那这个版本先做纯 UI，真实转写后面再接。",
-    translation: "Then this iteration is pure UI; real transcription comes later.",
-  },
-];
+const TRANSCRIPT_SEED = VOICE_RECORD_SEED;
+const TRANSCRIPT_POOL = VOICE_RECORD_POOL;
 
 // How often a new mock line lands in the live transcript (seconds).
 const APPEND_INTERVAL_S = 3;
@@ -147,6 +108,7 @@ export default function VoiceRecordPage() {
 
   return (
     <View className="flex-1 bg-background">
+      <VoicePrototypeBanner />
       {/* 顶栏胶囊：状态 + 转写模式 + 语言 */}
       <View className="flex-row items-center gap-2 px-4 pt-2 pb-3">
         <Capsule label={status} dotColor={dotColor} />
@@ -201,11 +163,7 @@ export default function VoiceRecordPage() {
         ]}
       >
         <View className="flex-row items-center gap-2 px-4 pt-3">
-          <Image
-            source="sf:waveform"
-            tintColor={t.brand}
-            style={{ width: 22, height: 22 }}
-          />
+          <Icon name="AudioLines" size={22} color={t.brand} />
           <Text
             className="text-lg font-bold text-foreground"
             style={{ fontVariant: ["tabular-nums"] }}
@@ -219,36 +177,47 @@ export default function VoiceRecordPage() {
             style={[styles.orb, styles.orbShadow]}
           >
             <LinearGradient
-              colors={["#2F62F0", "#3B6FFF", "#5B8AFF"]}
+              colors={["#3B6FFF", "#6B9BFF"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.orbFill}
             >
-              <Image
-                source={showPlay ? "sf:play.fill" : "sf:pause.fill"}
-                tintColor="#FFFFFF"
-                style={{ width: 24, height: 24 }}
+              <Icon
+                name={showPlay ? "Play" : "Pause"}
+                size={26}
+                color="#FFFFFF"
+                strokeWidth={2.4}
+                fill="#FFFFFF"
               />
             </LinearGradient>
           </Pressable>
+          <View style={{ width: 12 }} />
           <Pressable
             onPress={onStop}
             accessibilityLabel="停止"
-            style={[styles.orb, { backgroundColor: t.secondary }]}
+            style={[
+              styles.orb,
+              {
+                backgroundColor:
+                  colorScheme === "dark" ? t.secondary : "#E8ECF4",
+              },
+            ]}
           >
-            <Image
-              source="sf:stop.fill"
-              tintColor={t.foreground}
-              style={{ width: 24, height: 24 }}
+            <Icon
+              name="Square"
+              size={18}
+              color={t.foreground}
+              strokeWidth={2.6}
+              fill={t.foreground}
             />
           </Pressable>
         </View>
 
         <View className="flex-row justify-around px-4 pt-4">
-          <Tool icon="camera.fill" label="拍照" onPress={() => {}} />
-          <Tool icon="paperclip" label="上传附件" onPress={() => {}} />
-          <Tool icon="square.and.pencil" label="快速记录" onPress={() => {}} />
-          <Tool icon="checklist" label="记录要点" badge={3} onPress={() => {}} />
+          <Tool icon="Camera" label="拍照" onPress={() => {}} />
+          <Tool icon="Paperclip" label="上传附件" onPress={() => {}} />
+          <Tool icon="FileText" label="快速记录" onPress={() => {}} />
+          <Tool icon="ListChecks" label="记录要点" badge={3} onPress={() => {}} />
         </View>
 
         <Text className="pt-4 text-center text-xs text-muted-foreground">
@@ -288,7 +257,7 @@ function Tool({
   badge,
   onPress,
 }: {
-  icon: string;
+  icon: AppIconName;
   label: string;
   badge?: number;
   onPress: () => void;
@@ -302,11 +271,7 @@ function Tool({
       accessibilityLabel={label}
     >
       <View>
-        <Image
-          source={`sf:${icon}`}
-          tintColor={t.foreground}
-          style={{ width: 22, height: 22 }}
-        />
+        <Icon name={icon} size={22} color={t.foreground} />
         {badge ? (
           <View
             className="absolute -right-2 -top-1 rounded-full px-1"
@@ -338,8 +303,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   orbShadow: {
-    shadowColor: "rgb(59,111,255)",
-    shadowOpacity: 0.3,
+    shadowColor: "#3B6FFF",
+    shadowOpacity: 0.28,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 5,

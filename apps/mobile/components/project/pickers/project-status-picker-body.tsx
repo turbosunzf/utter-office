@@ -4,7 +4,7 @@
  * the "extract body, route owns shell" rationale.
  */
 import { Pressable, ScrollView, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useColorScheme } from "nativewind";
 import type { ProjectStatus } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
@@ -44,7 +44,7 @@ export function ProjectStatusPickerBody({ value, onChange }: Props) {
                 {PROJECT_STATUS_LABEL[status]}
               </Text>
               {selected ? (
-                <Ionicons name="checkmark" size={20} color={checkColor} />
+                <Icon name="Check" size={20} color={checkColor} />
               ) : null}
             </Pressable>
           );

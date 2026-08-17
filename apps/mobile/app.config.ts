@@ -47,6 +47,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           ? "ai.multica.mobile.staging"
           : (process.env.EXPO_BUNDLE_IDENTIFIER_DEV ?? "ai.multica.mobile.dev"),
     },
+    // Mirror iOS application id so `expo prebuild --platform android` /
+    // `expo run:android` can generate the native project. Dev may override
+    // via EXPO_BUNDLE_IDENTIFIER_DEV (same as iOS).
+    android: {
+      package: isProd
+        ? (process.env.EXPO_BUNDLE_IDENTIFIER_PROD ?? "ai.multica.mobile")
+        : isStaging
+          ? "ai.multica.mobile.staging"
+          : (process.env.EXPO_BUNDLE_IDENTIFIER_DEV ?? "ai.multica.mobile.dev"),
+    },
     plugins: [
       "expo-router",
       "expo-secure-store",

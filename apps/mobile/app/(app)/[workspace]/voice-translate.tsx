@@ -12,47 +12,30 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { Image } from "expo-image";
+import { Icon } from "@/components/ui/icon";
 import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
+import { VoicePrototypeBanner } from "@/components/voice/voice-prototype-banner";
+import {
+  VOICE_TRANSLATE_HOLD_ME,
+  VOICE_TRANSLATE_HOLD_OTHER,
+  VOICE_TRANSLATE_SEED,
+  type VoiceTranslateLine,
+  type VoiceTranslateSide,
+} from "@/data/mocks/voice-translate";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 
-type Side = "me" | "other";
-
-type TranslateLine = {
-  side: Side;
-  time: string;
-  text: string;
-  translation: string;
-};
+type Side = VoiceTranslateSide;
+type TranslateLine = VoiceTranslateLine;
 
 // meet-think accent colours (mirrors its MtColors.brandPrimary / teal pair).
 const BRAND = "#3B6FFF";
 const TEAL = "#0D9488";
 const TEAL_DARK = "#14B8A6";
 
-const SEED: TranslateLine[] = [
-  {
-    side: "me",
-    time: "00:00",
-    text: "您好，今天想先确认一下交付时间。",
-    translation: "Hello, I would like to confirm the delivery timeline today.",
-  },
-  {
-    side: "other",
-    time: "00:04",
-    text: "Sure, we can ship by Friday if the specs are final.",
-    translation: "没问题，如果规格已定，我们可以周五发货。",
-  },
-  {
-    side: "me",
-    time: "00:09",
-    text: "规格已经定稿了，麻烦同步给仓库。",
-    translation: "The specs are finalized. Please sync with the warehouse.",
-  },
-];
+const SEED = VOICE_TRANSLATE_SEED;
 
 /** MM:SS under an hour, HH:MM:SS from an hour — mirrors meet-think's clock. */
 function formatClock(totalSeconds: number): string {
@@ -94,14 +77,12 @@ export default function VoiceTranslatePage() {
       ? {
           side,
           time: formatClock(elapsedRef.current),
-          text: "（中）这是一段按住说话的示例原文。",
-          translation: "This is a sample hold-to-speak source sentence.",
+          ...VOICE_TRANSLATE_HOLD_ME,
         }
       : {
           side,
           time: formatClock(elapsedRef.current),
-          text: "This is a sample utterance from the other side.",
-          translation: "（中）这是对方按住说话后的示例译文。",
+          ...VOICE_TRANSLATE_HOLD_OTHER,
         };
     setLines((prev) => [...prev, line]);
   };
@@ -122,16 +103,13 @@ export default function VoiceTranslatePage() {
 
   return (
     <View className="flex-1 bg-background">
+      <VoicePrototypeBanner />
       {/* 顶部提示条 */}
       <View
         className="mx-4 mt-2 flex-row items-center gap-1.5 rounded-xl px-3 py-2"
         style={{ backgroundColor: t.secondary }}
       >
-        <Image
-          source="sf:character.bubble"
-          tintColor={t.brand}
-          style={{ width: 14, height: 14 }}
-        />
+        <Icon name="MessageCircle" size={22} color={t.brand} />
         <Text className="flex-1 text-xs text-muted-foreground">
           翻译中 · 端侧录音 · 对向 · 分段
         </Text>
@@ -267,11 +245,7 @@ function HoldSpeakBar({
         borderColor: active ? accent : t.border,
       }}
     >
-      <Image
-        source={active ? "sf:mic.fill" : "sf:mic"}
-        tintColor={accent}
-        style={{ width: 18, height: 18 }}
-      />
+      <Icon name="Mic" size={28} color={active ? "#FFFFFF" : t.foreground} strokeWidth={2.2} />
       <Text className="text-xs font-bold" style={{ color: accent }}>
         {active ? "松开出译" : label}
       </Text>

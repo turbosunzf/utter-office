@@ -29,7 +29,7 @@
 import { useCallback } from "react";
 import { Pressable, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import * as Haptics from "expo-haptics";
 import { MessageComposer } from "@/components/composer/message-composer";
 import { useWorkspaceStore } from "@/data/workspace-store";
@@ -112,7 +112,7 @@ export function ChatComposer({
             ? (disabledReason ?? "Chat unavailable")
             : "Message…"
       }
-      pillIcon="chatbubble-ellipses-outline"
+      pillIcon="MessageCircle"
       disabled={disabled}
       disabledReason={disabledReason}
       isSending={sending}

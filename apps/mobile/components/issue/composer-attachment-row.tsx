@@ -27,7 +27,7 @@
  */
 import { useMemo } from "react";
 import { ActivityIndicator, Linking, Pressable, ScrollView, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon, type AppIconName } from "@/components/ui/icon";
 import { resolveAttachmentUrl } from "@/lib/attachment-url";
 import { useLightbox } from "@/lib/markdown/lightbox-provider";
 import { useColorScheme } from "@/lib/use-color-scheme";
@@ -136,12 +136,12 @@ function MentionChipView({
 
   // Icon picks: @all → people; issue → git-branch (matches web's status icon
   // styling for issue mentions); else single-person glyph.
-  const iconName =
+  const iconName: AppIconName =
     mention.type === "all"
-      ? "people"
+      ? "Users"
       : mention.type === "issue"
-        ? "git-branch-outline"
-        : "person";
+        ? "GitBranch"
+        : "User";
 
   // Issue chips show the bare identifier (e.g. "MUL-123") — no leading @.
   // Mirrors how the serialized markdown link renders on web/desktop.
@@ -149,7 +149,7 @@ function MentionChipView({
 
   return (
     <View className="flex-row items-center gap-1 h-7 px-2 rounded-full bg-primary/10">
-      <Ionicons name={iconName} size={12} color={theme.primary} />
+      <Icon name={iconName} size={12} color={theme.primary} />
       <Text className="text-xs font-medium text-foreground">{label}</Text>
       <Pressable
         onPress={() => onRemove(mention.type, mention.id)}
@@ -158,7 +158,7 @@ function MentionChipView({
         accessibilityLabel={`Remove mention ${mention.name}`}
         className="h-4 w-4 items-center justify-center"
       >
-        <Ionicons name="close" size={12} color={theme.mutedForeground} />
+        <Icon name="X" size={12} color={theme.mutedForeground} />
       </Pressable>
     </View>
   );
@@ -208,11 +208,12 @@ function AttachmentChipView({ item, onRemove, onRetry }: AttachmentChipProps) {
     }
   };
 
-  const iconName = item.status === "failed"
-    ? "refresh"
-    : isImage
-      ? "image-outline"
-      : "document-outline";
+  const iconName: AppIconName =
+    item.status === "failed"
+      ? "RefreshCw"
+      : isImage
+        ? "Image"
+        : "FileText";
 
   return (
     <Pressable
@@ -228,7 +229,7 @@ function AttachmentChipView({ item, onRemove, onRetry }: AttachmentChipProps) {
       {item.status === "uploading" ? (
         <ActivityIndicator size="small" color={theme.mutedForeground} />
       ) : (
-        <Ionicons
+        <Icon
           name={iconName}
           size={12}
           color={
@@ -251,7 +252,7 @@ function AttachmentChipView({ item, onRemove, onRetry }: AttachmentChipProps) {
         accessibilityLabel={`Remove ${item.filename}`}
         className="h-4 w-4 items-center justify-center"
       >
-        <Ionicons name="close" size={12} color={theme.mutedForeground} />
+        <Icon name="X" size={12} color={theme.mutedForeground} />
       </Pressable>
     </Pressable>
   );

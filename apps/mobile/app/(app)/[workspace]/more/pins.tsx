@@ -33,7 +33,7 @@ import {
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type { Issue, PinnedItem, Project } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -222,11 +222,9 @@ function MissingPinRow({
       className="px-4 py-3 flex-row items-center gap-3 active:bg-secondary opacity-60"
       accessibilityLabel={`Unavailable ${itemType}, tap to unpin`}
     >
-      <Ionicons
-        name="alert-circle-outline"
+      <Icon name="AlertCircle"
         size={18}
-        color={THEME[colorScheme].mutedForeground}
-      />
+        color={THEME[colorScheme].mutedForeground} />
       <Text className="flex-1 text-sm text-muted-foreground" numberOfLines={1}>
         Unavailable {itemType} — tap to unpin
       </Text>

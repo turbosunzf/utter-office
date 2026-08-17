@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router, useNavigation } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type { InboxItem } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -119,7 +119,7 @@ export default function Inbox() {
     navigation.setOptions({
       headerRight: () => (
         <IconButton
-          name="ellipsis-horizontal"
+          name="Ellipsis"
           onPress={onPressMenu}
           accessibilityLabel="收件箱操作"
         />
@@ -185,7 +185,7 @@ function InboxLoading() {
 function InboxEmpty({ iconColor }: { iconColor: string }) {
   return (
     <View className="flex-1 items-center justify-center px-8 gap-3">
-      <Ionicons name="mail-open-outline" size={42} color={iconColor} />
+      <Icon name="MailOpen" size={42} color={iconColor} />
       <Text className="text-base font-medium text-foreground text-center">
         收件箱空空如也
       </Text>

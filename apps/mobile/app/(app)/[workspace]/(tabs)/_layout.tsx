@@ -1,26 +1,9 @@
 /**
- * Bottom tab bar — JS `<Tabs>` from expo-router (react-navigation under the
- * hood). Five slots, reordered for the AI秘书 redesign:
- * 首页 - 看板 - 录音(central) - 聊天 - 我的.
- *
- * The central Voice tab is NOT a navigation target. Its custom
- * `tabBarButton` (RecordButton) owns the interaction — a <2s tap opens a
- * bottom sheet, a ≥2s hold enters a recording state and sends "你好" on
- * release — and `listeners.tabPress` preventDefault()s so the underlying
- * (tabs)/voice.tsx stub is never navigated to (same tab-as-action pattern
- * the old More/Voice dropdowns used).
- *
- * RecordButton and VoiceOverlay coordinate through `useVoiceStore`: the
- * button lives inside <Tabs> (as a tabBarButton) while the full-screen
- * sheet/ripple overlays render as siblings here so they stack above the
- * bar. See components/voice/record-button.tsx + voice-overlay.tsx.
- *
- * Active tint is brand blue per spec §1 (#3B6FFF); inactive uses the theme
- * token so dark mode picks a contrasting value automatically.
+ * Bottom tab bar — 首页 / 看板 / 录音(中央) / 工作台 / 我的。
+ * Icons: Lucide via shared Icon. Central Voice tab is not a nav target.
  */
 import { Tabs } from "expo-router";
-import { Image } from "expo-image";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useColorScheme } from "@/lib/use-color-scheme";
@@ -31,20 +14,56 @@ import {
 } from "@/lib/unread-counts";
 import { RecordButton } from "@/components/voice/record-button";
 import { VoiceOverlay } from "@/components/voice/voice-overlay";
+import { Icon, type AppIconName } from "@/components/ui/icon";
 
-// Only override backgroundColor — @react-navigation/elements Badge internally
-// sets borderRadius = size/2, height = size, minWidth = size, so a single
-// character renders as a perfect circle. Text color is auto-derived from the
-// backgroundColor luminance by Badge itself (white on brand blue).
 const BADGE_STYLE = {
   backgroundColor: THEME.light.brand,
+  color: "#FFFFFF",
+  fontSize: 10,
+  fontWeight: "700" as const,
+  lineHeight: 14,
+  minWidth: 16,
+  height: 16,
+  borderRadius: 8,
+  paddingHorizontal: 4,
+  paddingVertical: 0,
+  // iOS Text baseline sits high inside the pill — nudge down slightly.
+  ...(Platform.OS === "ios"
+    ? { paddingTop: 1, overflow: "hidden" as const }
+    : { textAlignVertical: "center" as const, includeFontPadding: false }),
 };
 
-// The central record button is 58×58 and must not protrude (spec §1), so the
-// tab bar's content band is raised from the default 49px to 60px — button
-// sits vertically centred with 1px breathing room top and bottom. The
-// safe-area inset is added as the bar's bottom padding by React Navigation.
-const TAB_BAR_CONTENT_HEIGHT = 60;
+const TAB_BAR_CONTENT_HEIGHT = 64;
+
+function TabGlyph({
+  name,
+  color,
+  focused,
+}: {
+  name: AppIconName;
+  color: string;
+  focused: boolean;
+}) {
+  return (
+    <View
+      style={{
+        width: 44,
+        height: 30,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 10,
+        backgroundColor: focused ? "rgba(59,111,255,0.12)" : "transparent",
+      }}
+    >
+      <Icon
+        name={name}
+        size={22}
+        color={color}
+        strokeWidth={focused ? 2.35 : 1.85}
+      />
+    </View>
+  );
+}
 
 export default function TabsLayout() {
   const { colorScheme } = useColorScheme();
@@ -55,12 +74,22 @@ export default function TabsLayout() {
   const inboxUnread = useInboxUnreadCount(wsId);
   const chatUnread = useChatUnreadMessageCount(wsId);
 
-  // Truncation aligned with web's sidebar badges: 99+ for both. `undefined`
-  // makes React Navigation hide the badge, so zero-count is a free no-op.
   const inboxBadge =
-    inboxUnread > 0 ? (inboxUnread > 99 ? "99+" : String(inboxUnread)) : undefined;
+    inboxUnread > 0
+      ? inboxUnread > 99
+        ? "99+"
+        : String(inboxUnread)
+      : undefined;
   const chatBadge =
-    chatUnread > 0 ? (chatUnread > 99 ? "99+" : String(chatUnread)) : undefined;
+    chatUnread > 0
+      ? chatUnread > 99
+        ? "99+"
+        : String(chatUnread)
+      : undefined;
+
+  const hairline =
+    colorScheme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.07)";
+  const barBg = colorScheme === "dark" ? t.card : "#FFFFFF";
 
   return (
     <View style={{ flex: 1 }}>
@@ -70,10 +99,31 @@ export default function TabsLayout() {
           tabBarActiveTintColor: t.brand,
           tabBarInactiveTintColor: t.mutedForeground,
           tabBarStyle: {
-            backgroundColor: t.background,
+            backgroundColor: barBg,
             height: TAB_BAR_CONTENT_HEIGHT + insets.bottom,
+            paddingTop: 6,
+            borderTopWidth: 1,
+            borderTopColor: hairline,
+            elevation: 0,
+            shadowOpacity: 0,
+            ...(Platform.OS === "ios"
+              ? {
+                  shadowColor: "#0F172A",
+                  shadowOpacity: colorScheme === "dark" ? 0 : 0.04,
+                  shadowRadius: 8,
+                  shadowOffset: { width: 0, height: -2 },
+                }
+              : null),
           },
-          tabBarLabelStyle: { fontSize: 10 },
+          tabBarItemStyle: {
+            paddingTop: 2,
+          },
+          tabBarLabelStyle: {
+            fontSize: 10,
+            fontWeight: "600",
+            marginTop: 2,
+            letterSpacing: 0.1,
+          },
         }}
       >
         <Tabs.Screen
@@ -82,12 +132,8 @@ export default function TabsLayout() {
             title: "首页",
             tabBarBadge: inboxBadge,
             tabBarBadgeStyle: BADGE_STYLE,
-            tabBarIcon: ({ color, size, focused }) => (
-              <Image
-                source={focused ? "sf:house.fill" : "sf:house"}
-                tintColor={color}
-                style={{ width: size, height: size }}
-              />
+            tabBarIcon: ({ color, focused }) => (
+              <TabGlyph name="Home" color={color} focused={focused} />
             ),
           }}
         />
@@ -95,14 +141,8 @@ export default function TabsLayout() {
           name="board"
           options={{
             title: "看板",
-            tabBarIcon: ({ color, size, focused }) => (
-              <Image
-                source={
-                  focused ? "sf:square.grid.2x2.fill" : "sf:square.grid.2x2"
-                }
-                tintColor={color}
-                style={{ width: size, height: size }}
-              />
+            tabBarIcon: ({ color, focused }) => (
+              <TabGlyph name="LayoutGrid" color={color} focused={focused} />
             ),
           }}
         />
@@ -110,31 +150,38 @@ export default function TabsLayout() {
           name="voice"
           options={{
             title: "录音",
-            tabBarButton: () => <RecordButton />,
+            tabBarButton: (props) => (
+              <View
+                style={[
+                  props.style,
+                  {
+                    flex: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                ]}
+                pointerEvents="box-none"
+              >
+                <RecordButton />
+              </View>
+            ),
+            tabBarLabel: () => null,
+            tabBarIcon: () => null,
           }}
           listeners={() => ({
             tabPress: (e) => {
-              // Voice tab is not a navigation target — the RecordButton
-              // owns the tap/hold interaction (same tab-as-action pattern
-              // the old Voice dropdown used).
               e.preventDefault();
             },
           })}
         />
         <Tabs.Screen
-          name="chat"
+          name="workbench"
           options={{
             title: "工作台",
             tabBarBadge: chatBadge,
             tabBarBadgeStyle: BADGE_STYLE,
-            tabBarIcon: ({ color, size, focused }) => (
-              <Image
-                source={
-                  focused ? "sf:person.2.wave.2.fill" : "sf:person.2.wave.2"
-                }
-                tintColor={color}
-                style={{ width: size, height: size }}
-              />
+            tabBarIcon: ({ color, focused }) => (
+              <TabGlyph name="Bot" color={color} focused={focused} />
             ),
           }}
         />
@@ -142,12 +189,8 @@ export default function TabsLayout() {
           name="mine"
           options={{
             title: "我的",
-            tabBarIcon: ({ color, size, focused }) => (
-              <Image
-                source={focused ? "sf:person.fill" : "sf:person"}
-                tintColor={color}
-                style={{ width: size, height: size }}
-              />
+            tabBarIcon: ({ color, focused }) => (
+              <TabGlyph name="User" color={color} focused={focused} />
             ),
           }}
         />

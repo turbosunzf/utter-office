@@ -101,7 +101,7 @@ export default function ProjectsPage() {
 function PlusButton({ onPress }: { onPress: () => void }) {
   return (
     <IconButton
-      name="add"
+      name="Plus"
       onPress={onPress}
       accessibilityLabel="New project"
     />

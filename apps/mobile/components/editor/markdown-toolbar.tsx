@@ -16,7 +16,7 @@
  * before step 4 wires the picker + upload pipeline.
  */
 import { Pressable, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 
@@ -65,21 +65,21 @@ export function MarkdownToolbar({
         onPress={onList}
         disabled={disabled}
       >
-        <Ionicons name="list-outline" size={18} color={ICON_COLOR} />
+        <Icon name="List" size={18} color={ICON_COLOR} />
       </ToolbarButton>
       <ToolbarButton
         accessibilityLabel="Checklist"
         onPress={onCheckbox}
         disabled={disabled}
       >
-        <Ionicons name="checkbox-outline" size={18} color={ICON_COLOR} />
+        <Icon name="SquareCheck" size={18} color={ICON_COLOR} />
       </ToolbarButton>
       <ToolbarButton
         accessibilityLabel="Code block"
         onPress={onCode}
         disabled={disabled}
       >
-        <Ionicons name="code-slash-outline" size={18} color={ICON_COLOR} />
+        <Icon name="Code2" size={18} color={ICON_COLOR} />
       </ToolbarButton>
       <ToolbarButton
         accessibilityLabel="Quote"
@@ -98,7 +98,7 @@ export function MarkdownToolbar({
           onPress={onImage}
           disabled={disabled}
         >
-          <Ionicons name="image-outline" size={18} color={ICON_COLOR} />
+          <Icon name="Image" size={18} color={ICON_COLOR} />
         </ToolbarButton>
       ) : null}
       {onFile ? (
@@ -107,7 +107,7 @@ export function MarkdownToolbar({
           onPress={onFile}
           disabled={disabled}
         >
-          <Ionicons name="attach-outline" size={18} color={ICON_COLOR} />
+          <Icon name="Paperclip" size={18} color={ICON_COLOR} />
         </ToolbarButton>
       ) : null}
     </View>

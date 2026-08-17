@@ -1,33 +1,35 @@
+/**
+ * Soft elevated section group — title sits above the card (iOS Settings feel).
+ */
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import { Text } from "@/components/ui/text";
+import { ElevatedSurface } from "@/components/ui/elevated-surface";
 
-/**
- * iOS-style grouped list section — an uppercase label over a single card
- * (rounded border) that stacks rows with separators between them.
- *
- * Shared by the Settings page and the 我的 (mine) tab. `title` is optional
- * so a section can render as a bare card — mine's top identity + workspace
- * card mirrors the old More popover's UserCard + WorkspaceCard stacking
- * without a section label.
- */
 export function SectionGroup({
   title,
+  right,
   children,
 }: {
   title?: string;
+  right?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <View className="gap-2">
-      {title ? (
-        <Text className="text-xs uppercase tracking-wider text-muted-foreground px-1">
-          {title}
-        </Text>
+      {title || right ? (
+        <View className="flex-row items-center justify-between px-1">
+          {title ? (
+            <Text className="text-[13px] font-semibold text-muted-foreground tracking-wide">
+              {title}
+            </Text>
+          ) : (
+            <View />
+          )}
+          {right ?? null}
+        </View>
       ) : null}
-      <View className="rounded-md border border-border bg-card overflow-hidden">
-        {children}
-      </View>
+      <ElevatedSurface className="border-0">{children}</ElevatedSurface>
     </View>
   );
 }

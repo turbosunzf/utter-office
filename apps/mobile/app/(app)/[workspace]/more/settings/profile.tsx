@@ -62,8 +62,8 @@ export default function ProfileSettingsScreen() {
 
   const handleAvatarPick = () => {
     const options = user?.avatar_url
-      ? ["Choose from Library", "Remove Photo", "Cancel"]
-      : ["Choose from Library", "Cancel"];
+      ? ["从相册选择", "移除头像", "取消"]
+      : ["从相册选择", "取消"];
     const removeIndex = user?.avatar_url ? 1 : -1;
     const cancelIndex = options.length - 1;
 
@@ -93,7 +93,7 @@ export default function ProfileSettingsScreen() {
 
   const uploadAvatar = async (asset: ImagePicker.ImagePickerAsset) => {
     if (asset.fileSize && asset.fileSize > MAX_AVATAR_BYTES) {
-      Alert.alert("Image too large", "Pick an image under 5 MB.");
+      Alert.alert("图片过大", "请选择小于 5 MB 的图片。");
       return;
     }
     const fileAsset: FileAsset = {
@@ -111,8 +111,8 @@ export default function ProfileSettingsScreen() {
       setUser(updated);
     } catch (err) {
       Alert.alert(
-        "Upload failed",
-        err instanceof Error ? err.message : "Could not upload avatar.",
+        "上传失败",
+        err instanceof Error ? err.message : "无法上传头像。",
       );
     } finally {
       setUploading(false);
@@ -126,8 +126,8 @@ export default function ProfileSettingsScreen() {
       setUser(updated);
     } catch (err) {
       Alert.alert(
-        "Remove failed",
-        err instanceof Error ? err.message : "Could not remove avatar.",
+        "移除失败",
+        err instanceof Error ? err.message : "无法移除头像。",
       );
     } finally {
       setUploading(false);
@@ -142,8 +142,8 @@ export default function ProfileSettingsScreen() {
       setUser(updated);
     } catch (err) {
       Alert.alert(
-        "Save failed",
-        err instanceof Error ? err.message : "Could not update profile.",
+        "保存失败",
+        err instanceof Error ? err.message : "无法更新资料。",
       );
     } finally {
       setSaving(false);
@@ -158,7 +158,7 @@ export default function ProfileSettingsScreen() {
     >
       <View className="items-center gap-3">
         <Pressable onPress={handleAvatarPick} disabled={uploading}>
-          <Avatar alt={user?.name ?? "Your avatar"} className="size-24">
+          <Avatar alt={user?.name ?? "头像"} className="size-24">
             {user?.avatar_url ? (
               <AvatarImage source={{ uri: user.avatar_url }} />
             ) : null}
@@ -173,7 +173,7 @@ export default function ProfileSettingsScreen() {
           <ActivityIndicator />
         ) : (
           <Text className="text-xs text-muted-foreground">
-            Tap to change photo
+            点按更换头像
           </Text>
         )}
       </View>
@@ -182,31 +182,31 @@ export default function ProfileSettingsScreen() {
 
       <View className="gap-4">
         <View>
-          <Text className="text-xs text-muted-foreground mb-1.5">Name</Text>
+          <Text className="text-xs text-muted-foreground mb-1.5">姓名</Text>
           <TextField
             value={name}
             onChangeText={setName}
-            placeholder="Your name"
+            placeholder="你的姓名"
             autoCapitalize="words"
             autoCorrect={false}
             returnKeyType="done"
           />
         </View>
         <View>
-          <Text className="text-xs text-muted-foreground mb-1.5">Email</Text>
+          <Text className="text-xs text-muted-foreground mb-1.5">邮箱</Text>
           <View className="rounded-md border border-border bg-muted px-3 py-2.5">
             <Text className="text-base text-muted-foreground">
               {user?.email ?? "—"}
             </Text>
           </View>
           <Text className="text-xs text-muted-foreground mt-1.5">
-            Email is set at sign-up and can&apos;t be changed here.
+            邮箱在注册时设定，此处不可修改。
           </Text>
         </View>
       </View>
 
       <Button onPress={handleSave} disabled={!dirty || saving}>
-        <Text>{saving ? "Saving…" : "Save"}</Text>
+        <Text>{saving ? "保存中…" : "保存"}</Text>
       </Button>
     </ScrollView>
   );

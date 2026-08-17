@@ -623,6 +623,11 @@ export const AgentSchema: z.ZodType<Agent> = z.object({
   // dedicated /env endpoint and we don't expose env editing on mobile.
   has_custom_env: z.boolean().optional(),
   custom_env_key_count: z.number().optional(),
+  // Tool counting / expand (PRD §7.5 / §14.3) — fields already on `/api/agents`.
+  mcp_config: z.unknown().nullable().optional(),
+  mcp_config_redacted: z.boolean().optional(),
+  composio_toolkit_allowlist: z.array(z.string()).optional(),
+  composio_toolkit_allowlist_redacted: z.boolean().optional(),
   visibility: z.string().catch("workspace") as unknown as z.ZodType<
     Agent["visibility"]
   >,
@@ -631,6 +636,7 @@ export const AgentSchema: z.ZodType<Agent> = z.object({
   status: z.string().catch("active") as unknown as z.ZodType<Agent["status"]>,
   max_concurrent_tasks: z.number().default(1),
   model: z.string().default(""),
+  thinking_level: z.string().optional(),
   owner_id: z.string().nullable().default(null),
   skills: z.array(z.unknown()).default([]) as unknown as z.ZodType<
     Agent["skills"]

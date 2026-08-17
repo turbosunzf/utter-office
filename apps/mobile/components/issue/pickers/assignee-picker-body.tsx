@@ -15,7 +15,7 @@
 import { useMemo } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useColorScheme } from "nativewind";
 import type {
   Agent,
@@ -205,7 +205,7 @@ export function AssigneePickerBody({ value, query, onChange }: Props) {
             </Text>
           ) : null}
           {isSelected(item) ? (
-            <Ionicons name="checkmark" size={20} color={checkColor} />
+            <Icon name="Check" size={20} color={checkColor} />
           ) : null}
           </Pressable>
         );

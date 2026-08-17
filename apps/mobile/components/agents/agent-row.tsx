@@ -1,14 +1,5 @@
 /**
- * Single agent row in the Agents roster (`more/agents.tsx`). Pure
- * presentation — presence arrives via the single workspace-wide
- * `useWorkspacePresenceMap` (so N rows never mount N copies of
- * `useAgentPresence`), and the active-issue count is derived page-side from
- * the task snapshot.
- *
- * The avatar renders WITHOUT `showPresence`: the presence dot on the avatar
- * would mount `useAgentPresence` per row (three subscriptions + a 30s tick
- * each). The live availability is conveyed instead by the inline
- * `PresenceDot` in the status line, driven by the same derived map.
+ * Single agent row — Chinese presence labels for staff / legacy surfaces.
  */
 import { View } from "react-native";
 import type { Agent } from "@multica/core/types";
@@ -24,21 +15,19 @@ interface Props {
 }
 
 const AVAILABILITY_LABEL: Record<AgentPresenceDetail["availability"], string> = {
-  online: "Online",
-  unstable: "Unstable",
-  offline: "Offline",
-  archived: "Archived",
+  online: "在岗",
+  unstable: "不稳定",
+  offline: "离线",
+  archived: "已归档",
 };
 
 const WORKLOAD_LABEL: Record<AgentPresenceDetail["workload"], string> = {
-  working: "Working",
-  queued: "Queued",
-  idle: "Idle",
+  working: "工作中",
+  queued: "排队中",
+  idle: "空闲",
 };
 
 export function AgentRow({ agent, presence, activeIssueCount }: Props) {
-  // Load ratio only when the agent has a runtime (capacity > 0); a runtime
-  // missing agent is already read as "Offline" — "0/0" would be noise.
   const load =
     presence.capacity > 0
       ? `${presence.runningCount}/${presence.capacity}`
@@ -48,7 +37,7 @@ export function AgentRow({ agent, presence, activeIssueCount }: Props) {
     AVAILABILITY_LABEL[presence.availability],
     WORKLOAD_LABEL[presence.workload],
     load,
-    `${activeIssueCount} active`,
+    `${activeIssueCount} 在手`,
   ]
     .filter(Boolean)
     .join(" · ");

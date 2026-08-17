@@ -15,7 +15,7 @@ import { useMemo } from "react";
 import { Pressable, View } from "react-native";
 import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { AvatarStack, type StackActor } from "@/components/ui/avatar-stack";
 import { PulseDot } from "@/components/ui/pulse-dot";
@@ -81,7 +81,7 @@ export function AgentActivityRow({ issueId }: Props) {
       ) : (
         <IdleContent count={pastCount} mutedFg={mutedFg} />
       )}
-      <Ionicons name="chevron-forward" size={16} color={mutedFg} />
+      <Icon name="ChevronRight" size={16} color={mutedFg} />
     </Pressable>
   );
 }
@@ -99,7 +99,7 @@ function ActiveContent({ actors }: { actors: StackActor[] }) {
 function IdleContent({ count, mutedFg }: { count: number; mutedFg: string }) {
   return (
     <View className="flex-1 flex-row items-center gap-2">
-      <Ionicons name="time-outline" size={16} color={mutedFg} />
+      <Icon name="Clock" size={16} color={mutedFg} />
       <Text className="text-sm text-foreground">Runs · {count}</Text>
     </View>
   );

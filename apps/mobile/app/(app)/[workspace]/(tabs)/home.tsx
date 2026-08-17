@@ -1,32 +1,35 @@
 /**
  * 首页 — PRD §4 Today shell (M1):
- *   greeting + bell + search → 快捷 4 格 → 报告骨架 → 待办 → 简报骨架
- *
- * Personal KPI three-card grid removed; report real data lands in M2.
+ *   greeting → hero → 组织在岗可视化 → 报告 → 待办 → 简报
  */
 import { useMemo } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Image as ExpoImage } from "expo-image";
 import type { Issue } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { Header } from "@/components/ui/header";
+import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
-import { QuickActions, type QuickAction } from "@/components/home/quick-actions";
-import { ReportSkeleton } from "@/components/home/report-skeleton";
+import { QuickActions } from "@/components/home/quick-actions";
+import { HomeHero } from "@/components/home/home-hero";
+import { ReportCard } from "@/components/home/report-card";
 import { TodoList } from "@/components/home/todo-list";
 import { BriefList } from "@/components/home/brief-list";
+import { ProUpsellCard } from "@/components/shared/pro-upsell-card";
+import { useVoiceStore } from "@/data/stores/voice-store";
 import {
   buildMyIssuesFilter,
   myIssueListOptions,
 } from "@/data/queries/my-issues";
 import { agentListOptions } from "@/data/queries/agents";
 import { memberListOptions } from "@/data/queries/members";
+import { projectListOptions } from "@/data/queries/projects";
 import { workspaceListOptions } from "@/data/queries/workspaces";
 import { useAuthStore } from "@/data/auth-store";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useInboxUnreadCount } from "@/lib/unread-counts";
+import { BlockingNoticeBar } from "@/components/shared/blocking-notice-bar";
 import { canAssignAgent } from "@/lib/can-assign-agent";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
@@ -75,24 +78,36 @@ export default function Home() {
   const { data: members = [], isFetched: membersFetched } = useQuery(
     memberListOptions(wsId),
   );
+  const { data: projects = [], isFetched: projectsFetched } = useQuery(
+    projectListOptions(wsId),
+  );
   const { data: workspaces } = useQuery(workspaceListOptions());
   const memberRole = members.find((m) => m.user_id === userId)?.role;
   const workspaceName =
     workspaces?.find((w) => w.slug === wsSlug)?.name ?? "工作区";
-  // Wait for members before counting — canAssignAgent returns false when
-  // memberRole is still undefined, which would flash「0 位员工在岗」.
   const onDutyReady = agentsFetched && membersFetched;
 
-  // PRD §4.2：非归档且可见员工中 status 为 idle / working（在线可用）。
-  const onDutyCount = useMemo(() => {
+  const onDutyAgents = useMemo(() => {
     if (!onDutyReady) return null;
     return agents.filter(
       (a) =>
         !a.archived_at &&
         canAssignAgent(a, userId, memberRole) &&
         (a.status === "idle" || a.status === "working"),
-    ).length;
+    );
   }, [agents, userId, memberRole, onDutyReady]);
+
+  const onDutyCount = onDutyAgents?.length ?? null;
+  const onDutyAgentIds = useMemo(
+    () => (onDutyAgents ?? []).map((a) => a.id),
+    [onDutyAgents],
+  );
+
+  const projectCount = projectsFetched
+    ? projects.filter(
+        (p) => p.status === "planned" || p.status === "in_progress" || p.status === "paused",
+      ).length
+    : null;
 
   const todos = useMemo(
     () =>
@@ -115,43 +130,7 @@ export default function Home() {
   const firstName = user?.name?.split(" ")[0] ?? "";
   const greet = greetingForHour(new Date().getHours());
 
-  const quickActions = useMemo<QuickAction[]>(
-    () => [
-      {
-        key: "new",
-        label: "新建事项",
-        icon: "plus",
-        onPress: () => go("/new-issue"),
-      },
-      {
-        key: "dispatch",
-        label: "派单",
-        icon: "person.2",
-        onPress: () => {
-          if (!wsSlug) return;
-          router.push({
-            pathname: "/[workspace]/staff-picker",
-            params: { workspace: wsSlug, intent: "dispatch" },
-          });
-        },
-      },
-      {
-        key: "projects",
-        label: "项目",
-        icon: "folder",
-        onPress: () => go("/more/projects"),
-      },
-      {
-        key: "inbox",
-        label: "收件箱",
-        icon: "tray",
-        badge: inboxUnread,
-        onPress: () => go("/inbox"),
-      },
-    ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- go closes over wsSlug
-    [wsSlug, inboxUnread],
-  );
+  const openSheet = useVoiceStore((s) => s.openSheet);
 
   const headerRight = (
     <>
@@ -164,10 +143,11 @@ export default function Home() {
         }
         className="relative h-9 w-9 items-center justify-center active:opacity-70"
       >
-        <ExpoImage
-          source={inboxUnread > 0 ? "sf:bell.badge.fill" : "sf:bell"}
-          tintColor={t.foreground}
-          style={{ width: 22, height: 22 }}
+        <Icon
+          name={inboxUnread > 0 ? "BellRing" : "Bell"}
+          size={22}
+          color={t.foreground}
+          strokeWidth={2}
         />
         {inboxUnread > 0 ? (
           <View className="absolute right-0.5 top-0.5 min-w-[14px] h-3.5 items-center justify-center rounded-full bg-brand px-0.5">
@@ -178,7 +158,7 @@ export default function Home() {
         ) : null}
       </Pressable>
       <IconButton
-        name="search"
+        name="Search"
         onPress={() => go("/search")}
         accessibilityLabel="搜索"
       />
@@ -189,14 +169,32 @@ export default function Home() {
     <View className="flex-1 bg-background">
       <Header
         title={firstName ? `${greet}，${firstName}` : greet}
-        subtitle={`${workspaceName} · ${
-          onDutyCount == null ? "—" : `${onDutyCount} 位员工在岗`
-        }`}
         right={headerRight}
       />
-      <ScrollView contentContainerClassName="gap-6 pb-8 pt-4">
-        <QuickActions actions={quickActions} />
-        <ReportSkeleton />
+      <BlockingNoticeBar />
+      <ScrollView contentContainerClassName="gap-5 pb-10 pt-2">
+        <HomeHero
+          onDispatch={() => {
+            if (!wsSlug) return;
+            router.push({
+              pathname: "/[workspace]/staff-picker",
+              params: { workspace: wsSlug, intent: "dispatch" },
+            });
+          }}
+          onNewIssue={() => go("/new-issue")}
+          onVoiceHint={() => openSheet()}
+        />
+        <QuickActions
+          workspaceName={workspaceName}
+          onDutyCount={onDutyCount}
+          onDutyAgentIds={onDutyAgentIds}
+          projectCount={projectCount}
+          inboxBadge={inboxUnread}
+          onPressProjects={() => go("/more/projects")}
+          onPressInbox={() => go("/inbox")}
+          onPressStaff={() => go("/staff")}
+        />
+        <ReportCard />
         <View className="px-4">
           <TodoList
             issues={todos}
@@ -206,6 +204,9 @@ export default function Home() {
         </View>
         <View className="px-4">
           <BriefList />
+        </View>
+        <View className="px-4">
+          <ProUpsellCard />
         </View>
       </ScrollView>
     </View>

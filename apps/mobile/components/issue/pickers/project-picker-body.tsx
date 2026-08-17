@@ -9,7 +9,7 @@
 import { useMemo } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { useColorScheme } from "nativewind";
 import type { Project } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
@@ -84,11 +84,9 @@ export function ProjectPickerBody({ value, query, onChange }: Props) {
           className="flex-row items-center gap-3 px-4 py-3 active:bg-secondary"
         >
           {item.kind === "none" ? (
-            <Ionicons
-              name="close-circle-outline"
+            <Icon name="XCircle"
               size={28}
-              color={MOBILE_PLACEHOLDER_COLOR}
-            />
+              color={MOBILE_PLACEHOLDER_COLOR} />
           ) : (
             <ProjectIcon icon={item.project.icon} size="md" />
           )}
@@ -99,7 +97,7 @@ export function ProjectPickerBody({ value, query, onChange }: Props) {
             {item.kind === "none" ? "No project" : item.project.title}
           </Text>
           {isSelected(item) ? (
-            <Ionicons name="checkmark" size={20} color={checkColor} />
+            <Icon name="Check" size={20} color={checkColor} />
           ) : null}
         </Pressable>
       )}

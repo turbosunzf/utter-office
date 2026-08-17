@@ -1,38 +1,40 @@
 /**
  * Reusable "send a voice message to the current chat" hook.
  *
- * Extracted from the voice-talk screen so the central record button can
- * reuse the same send channel (spec §4.2: releasing a ≥2s hold sends a
- * hard-coded "你好" to the current chat). Deliberately reuses the API
- * client + chat query keys instead of importing the chat tab's
- * component-local `handleSend` (coupled to that screen's session/agent
- * state).
- *
- * Resolves the first non-archived agent + first non-archived session
- * (creating one if none), POSTs the message, then invalidates the chat
- * caches so the Chat tab refetches and shows it.
+ * Resolves agent via §6.4 fallback: default agent → first available.
+ * Creates a session for that agent if needed.
  */
 import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/data/api";
+import { useAuthStore } from "@/data/auth-store";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { agentListOptions } from "@/data/queries/agents";
+import { memberListOptions } from "@/data/queries/members";
 import { chatKeys, chatSessionsOptions } from "@/data/queries/chat";
+import { useAssistantHydration } from "@/data/stores/assistant-store";
+import { canAssignAgent } from "@/lib/can-assign-agent";
+import { resolveDefaultAgent } from "@/lib/resolve-default-agent";
 
 export function useSendVoiceMessage() {
   const qc = useQueryClient();
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
+  const userId = useAuthStore((s) => s.user?.id);
+  useAssistantHydration(wsId);
 
   const { data: agents = [] } = useQuery(agentListOptions(wsId));
+  const { data: members = [] } = useQuery(memberListOptions(wsId));
   const { data: sessions = [] } = useQuery(chatSessionsOptions(wsId));
   const [sending, setSending] = useState(false);
 
-  const availableAgents = agents.filter((a) => !a.archived_at);
+  const role = members.find((m) => m.user_id === userId)?.role;
 
   const send = useCallback(
     async (text: string): Promise<boolean> => {
-      const agent = availableAgents[0];
+      const agent = resolveDefaultAgent(agents, wsId, userId, (a) =>
+        canAssignAgent(a, userId, role),
+      );
       if (!agent) {
         Alert.alert("暂无可用数字员工", "该工作区暂无可用数字员工，无法发送消息。");
         return false;
@@ -41,9 +43,13 @@ export function useSendVoiceMessage() {
       setSending(true);
       try {
         const existing =
-          sessions.find((s) => s.status !== "archived") ?? sessions[0];
+          sessions.find(
+            (s) => s.agent_id === agent.id && s.status !== "archived",
+          ) ??
+          sessions.find((s) => s.status !== "archived") ??
+          sessions[0];
         let sessionId = existing?.id ?? null;
-        if (!sessionId) {
+        if (!sessionId || existing?.agent_id !== agent.id) {
           const session = await api.createChatSession({
             agent_id: agent.id,
             title: text.slice(0, 50),
@@ -64,7 +70,7 @@ export function useSendVoiceMessage() {
         setSending(false);
       }
     },
-    [availableAgents, sessions, wsId, qc],
+    [agents, sessions, wsId, qc, userId, role],
   );
 
   return { send, sending };

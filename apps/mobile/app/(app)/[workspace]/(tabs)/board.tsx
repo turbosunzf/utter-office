@@ -1,200 +1,195 @@
 /**
- * 看板 (board) tab — workspace dashboard for the AI秘书 redesign.
- *
- * Layout: a time-range selector (7/30/90 天), a 2×2 hero strip, then three
- * blocks — 任务进度, 智能体运行数据, 数据分析报告. All numbers come from the
- * six `/api/dashboard/*` rollups wrapped in `data/queries/dashboard.ts`, the
- * mobile mirror of `packages/core/dashboard/queries.ts`. The hero totals and
- * the task-progress counts read the SAME `DashboardRunTimeDaily` series, so
- * the two can never disagree (acceptance criterion "计数与后端一致").
- *
- * Charts are plain RN views with flex-width bars — no chart library — per
- * the issue's "简单条形图" constraint. Empty states (no tasks / no agents /
- * no report) render inline placeholders.
+ * 看板 tab — M3：进度 | 列 | 泳道。
+ * 默认进度视图；项目 chip 仅在列/泳道显示。
  */
-import { useCallback, useMemo, useState } from "react";
-import { ScrollView, View } from "react-native";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { ActionSheetIOS, Pressable, View } from "react-native";
+import { router } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
 import { Text } from "@/components/ui/text";
-import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
-import { HeaderActions } from "@/components/ui/app-header-actions";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TaskProgress } from "@/components/board/task-progress";
-import { AgentUsage } from "@/components/board/agent-usage";
-import { ReportCard } from "@/components/board/report-card";
-import { formatCompact } from "@/components/board/format";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
+import { ColumnBoard } from "@/components/board/column-board";
+import { SwimlaneBoard } from "@/components/board/swimlane-board";
+import { BoardProgressView } from "@/components/board/board-progress-view";
+import { BlockingNoticeBar } from "@/components/shared/blocking-notice-bar";
 import {
-  dashboardKeys,
-  dashboardRunTimeDailyOptions,
-  dashboardUsageDailyOptions,
-  dashboardFailuresDailyOptions,
-  localTimezone,
-} from "@/data/queries/dashboard";
+  boardHasActiveFilters,
+  useBoardViewStore,
+  type BoardViewMode,
+} from "@/data/stores/board-view-store";
+import { projectListOptions } from "@/data/queries/projects";
 import { useWorkspaceStore } from "@/data/workspace-store";
-import { formatElapsedSecs } from "@/lib/format-elapsed";
+import { useClearFiltersOnWorkspaceChange } from "@/lib/use-clear-filters-on-workspace-change";
+import { useColorScheme } from "@/lib/use-color-scheme";
+import { THEME } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
-const RANGES = [
-  { days: 7, label: "7 天" },
-  { days: 30, label: "30 天" },
-  { days: 90, label: "90 天" },
-] as const;
+const MODES: { value: BoardViewMode; label: string }[] = [
+  { value: "progress", label: "整盘" },
+  { value: "columns", label: "按状态" },
+  { value: "swimlanes", label: "按人" },
+];
 
 export default function Board() {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
-  const queryClient = useQueryClient();
-  const [days, setDays] = useState<number>(7);
-  // 日桶按查看者时区切割，与 web `packages/core/dashboard/queries.ts` 同构
-  // （P1 修复）。Hermes 支持 Intl，localTimezone 内已有兜底。
-  const tz = localTimezone();
+  const wsSlug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
+  const mode = useBoardViewStore((s) => s.mode);
+  const setMode = useBoardViewStore((s) => s.setMode);
+  const projectId = useBoardViewStore((s) => s.projectId);
+  const setProjectId = useBoardViewStore((s) => s.setProjectId);
+  const hasFilters = useBoardViewStore(boardHasActiveFilters);
+  const { colorScheme } = useColorScheme();
+  const t = THEME[colorScheme];
+  const well = colorScheme === "dark" ? t.secondary : "#EEF1F8";
 
-  const {
-    data: runTimeDaily = [],
-    isLoading: runTimeLoading,
-    error: runTimeError,
-  } = useQuery(dashboardRunTimeDailyOptions(wsId, days, null, tz));
-  const {
-    data: usageDaily = [],
-    isLoading: usageLoading,
-    error: usageError,
-  } = useQuery(dashboardUsageDailyOptions(wsId, days, null, tz));
-  const {
-    data: failuresDaily = [],
-    isLoading: failuresLoading,
-    error: failuresError,
-  } = useQuery(dashboardFailuresDailyOptions(wsId, days, null, tz));
+  useClearFiltersOnWorkspaceChange(
+    useCallback(() => useBoardViewStore.getState().reset(), []),
+    wsId,
+  );
 
-  const hero = useMemo(() => {
-    let tasks = 0;
-    let seconds = 0;
-    for (const d of runTimeDaily) {
-      tasks += d.task_count;
-      seconds += d.total_seconds;
-    }
-    let tokens = 0;
-    for (const u of usageDaily) {
-      tokens +=
-        u.input_tokens + u.output_tokens + u.cache_read_tokens + u.cache_write_tokens;
-    }
-    let failures = 0;
-    for (const f of failuresDaily) {
-      if (f.failure_reason !== "") failures += f.task_count; // skip succeeded bucket
-    }
-    return { tasks, seconds, tokens, failures };
-  }, [runTimeDaily, usageDaily, failuresDaily]);
+  const { data: projects = [] } = useQuery(projectListOptions(wsId));
+  const projectLabel =
+    projectId == null
+      ? "全部项目"
+      : (projects.find((p) => p.id === projectId)?.title ?? "项目");
 
-  const loading = runTimeLoading || usageLoading || failuresLoading;
-  // 三个 dashboard 查询任一失败即渲染错误横幅 + 重试，而不是把失败渲染成
-  // 全 0 / 空态（P2 修复，对齐 inbox / issues 页既有模式）。
-  const dashboardError = runTimeError ?? usageError ?? failuresError;
-  const retryDashboard = useCallback(() => {
-    void queryClient.refetchQueries({ queryKey: dashboardKeys.all(wsId) });
-  }, [queryClient, wsId]);
+  const showProjectChip = mode !== "progress";
+
+  const go = (path: string) => {
+    if (wsSlug) router.push(`/${wsSlug}${path}`);
+  };
+
+  const pickProject = () => {
+    const options = ["取消", "全部项目", ...projects.map((p) => p.title)];
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex: 0,
+        title: "选择项目",
+      },
+      (i) => {
+        if (i === 0) return;
+        if (i === 1) {
+          setProjectId(null);
+          return;
+        }
+        const project = projects[i - 2];
+        if (project) setProjectId(project.id);
+      },
+    );
+  };
+
+  const headerRight = (
+    <>
+      <Pressable
+        onPress={() => go("/board-view")}
+        accessibilityLabel="筛选"
+        className="relative h-9 w-9 items-center justify-center active:opacity-70"
+      >
+        <Icon name="Filter" size={20} color={t.foreground} />
+        {hasFilters ? (
+          <View className="absolute right-1 top-1 size-2 rounded-full bg-destructive" />
+        ) : null}
+      </Pressable>
+      <IconButton
+        name="Search"
+        onPress={() => go("/search")}
+        accessibilityLabel="搜索"
+      />
+      <IconButton
+        name="Plus"
+        iconSize={24}
+        onPress={() => go("/new-issue")}
+        accessibilityLabel="新建事项"
+      />
+    </>
+  );
 
   return (
     <View className="flex-1 bg-background">
-      <Header title="看板" right={<HeaderActions />} />
-      <ScrollView
-        contentContainerClassName="px-4 py-4 gap-4"
-        showsVerticalScrollIndicator={false}
-      >
-        <RangeSelector value={days} onChange={setDays} />
-
-        {dashboardError ? (
-          <View className="px-4 gap-3 py-1">
-            <Text className="text-sm text-destructive">
-              看板统计接口加载失败：{" "}
-              {dashboardError instanceof Error
-                ? dashboardError.message
-                : "未知错误"}
-            </Text>
-            <Button variant="outline" onPress={retryDashboard}>
-              <Text>重试</Text>
-            </Button>
-          </View>
-        ) : null}
-
-        <View className="flex-row flex-wrap gap-2">
-          <HeroCard
-            label="任务总数"
-            value={loading ? null : String(hero.tasks)}
-          />
-          <HeroCard
-            label="运行时长"
-            value={loading ? null : formatElapsedSecs(hero.seconds)}
-          />
-          <HeroCard
-            label="Tokens"
-            value={loading ? null : formatCompact(hero.tokens)}
-          />
-          <HeroCard
-            label="失败次数"
-            value={loading ? null : String(hero.failures)}
-          />
+      <Header title="看板" right={headerRight} />
+      <BlockingNoticeBar />
+      <View className="px-4 pt-2 pb-2 gap-2">
+        <View
+          className="flex-row rounded-2xl p-1"
+          style={{ backgroundColor: well }}
+        >
+          {MODES.map((m) => {
+            const on = mode === m.value;
+            return (
+              <Pressable
+                key={m.value}
+                onPress={() => setMode(m.value)}
+                className="flex-1 items-center rounded-xl py-2.5 active:opacity-90"
+                style={{
+                  backgroundColor: on ? t.brand : "transparent",
+                  shadowColor: on ? "#3B6FFF" : "transparent",
+                  shadowOpacity: on ? 0.22 : 0,
+                  shadowRadius: 6,
+                  shadowOffset: { width: 0, height: 2 },
+                }}
+              >
+                <Text
+                  className={cn(
+                    "text-[13px] font-semibold",
+                    on ? "text-white" : "text-muted-foreground",
+                  )}
+                >
+                  {m.label}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
 
-        <TaskProgress days={days} tz={tz} />
-        <AgentUsage days={days} tz={tz} />
-        <ReportCard />
-      </ScrollView>
-    </View>
-  );
-}
-
-/**
- * Time-range segmented control. Pill-row mirrors the outline-Button toolbar
- * pattern used by the old board's scope switcher — same size, same active
- * `bg-accent` / `text-accent-foreground` treatment so it reads as a native
- * iOS segmented control without a new primitive.
- */
-function RangeSelector({
-  value,
-  onChange,
-}: {
-  value: number;
-  onChange: (days: number) => void;
-}) {
-  return (
-    <View className="flex-row gap-1">
-      {RANGES.map((r) => {
-        const active = value === r.days;
-        return (
-          <Button
-            key={r.days}
-            variant="outline"
-            size="sm"
-            onPress={() => onChange(r.days)}
-            className={active ? "bg-accent" : ""}
-            accessibilityState={{ selected: active }}
-          >
-            <Text
-              className={
-                active ? "text-accent-foreground" : "text-muted-foreground"
-              }
+        {showProjectChip ? (
+          <View className="flex-row items-center gap-2">
+            <Pressable
+              onPress={pickProject}
+              accessibilityLabel={`项目：${projectLabel}`}
+              className="flex-1 flex-row items-center gap-2 rounded-xl px-3 py-2.5 active:opacity-80"
+              style={{
+                backgroundColor:
+                  colorScheme === "dark" ? t.secondary : "#FFFFFF",
+                borderWidth: 1,
+                borderColor: t.border,
+              }}
             >
-              {r.label}
-            </Text>
-          </Button>
-        );
-      })}
-    </View>
-  );
-}
+              <View
+                className="size-7 items-center justify-center rounded-lg"
+                style={{ backgroundColor: "rgba(59,111,255,0.12)" }}
+              >
+                <Icon name="Folder" size={14} color={t.brand} />
+              </View>
+              <Text
+                className="flex-1 text-[13px] font-medium text-foreground"
+                numberOfLines={1}
+              >
+                {projectLabel}
+              </Text>
+              <Text className="text-[11px] text-muted-foreground">切换 ▾</Text>
+            </Pressable>
+            {hasFilters ? (
+              <View className="rounded-full bg-brand/15 px-2.5 py-1.5">
+                <Text className="text-[10px] font-medium text-brand">已筛选</Text>
+              </View>
+            ) : null}
+          </View>
+        ) : (
+          <Text className="text-[11px] text-muted-foreground px-0.5">
+            整盘工作区度量 · 与项目筛选无关
+          </Text>
+        )}
+      </View>
 
-function HeroCard({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | null;
-}) {
-  return (
-    <View className="w-[48%] rounded-md border border-border bg-card p-3 gap-1">
-      <Text className="text-xs text-muted-foreground">{label}</Text>
-      {value === null ? (
-        <Skeleton className="h-7 w-20" />
+      {mode === "columns" ? (
+        <ColumnBoard />
+      ) : mode === "swimlanes" ? (
+        <SwimlaneBoard />
       ) : (
-        <Text className="text-2xl font-semibold text-foreground">{value}</Text>
+        <BoardProgressView />
       )}
     </View>
   );

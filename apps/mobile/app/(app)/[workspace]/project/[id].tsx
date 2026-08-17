@@ -154,7 +154,7 @@ export default function ProjectDetail() {
           headerRight: project
             ? () => (
                 <IconButton
-                  name="ellipsis-horizontal"
+                  name="Ellipsis"
                   onPress={onPressMore}
                   accessibilityLabel="Project actions"
                 />

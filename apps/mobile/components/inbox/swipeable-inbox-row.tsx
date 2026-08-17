@@ -37,7 +37,7 @@ import Animated, {
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import * as Haptics from "expo-haptics";
 import type { InboxItem } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
@@ -103,7 +103,7 @@ function ArchiveAction({
         className="flex-1 items-center justify-center bg-destructive"
       >
         <View className="items-center gap-0.5">
-          <Ionicons name="archive-outline" size={20} color="white" />
+          <Icon name="Archive" size={20} color="white" />
           <Text className="text-xs text-white">Archive</Text>
         </View>
       </Pressable>

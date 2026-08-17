@@ -1,10 +1,6 @@
 /**
  * Banner shown when the workspace has zero usable agents for the current
- * user. Mirrors the role of packages/views/chat/components/no-agent-banner.tsx
- * on web — distinct visual cue + a route into the place where users can
- * add agents.
- *
- * Rendered just under ChatHeader. Tap → More → Agents.
+ * user. Tap → staff roster.
  */
 import { Pressable } from "react-native";
 import { router } from "expo-router";
@@ -16,7 +12,7 @@ export function NoAgentBanner() {
 
   const handlePress = () => {
     if (!wsSlug) return;
-    router.push(`/${wsSlug}/more/agents`);
+    router.push(`/${wsSlug}/staff`);
   };
 
   return (
@@ -24,13 +20,13 @@ export function NoAgentBanner() {
       onPress={handlePress}
       className="mx-3 mt-2 mb-1 rounded-xl border border-border bg-secondary/50 px-3 py-2 active:opacity-80"
       accessibilityRole="button"
-      accessibilityLabel="No agents available, open agents settings"
+      accessibilityLabel="暂无数字员工，打开名册"
     >
       <Text className="text-sm font-medium text-foreground">
-        No agents available
+        暂无可用数字员工
       </Text>
       <Text className="text-xs text-muted-foreground mt-0.5">
-        Add or enable an agent in More → Agents to start chatting.
+        请在 Web 端创建，或打开名册查看状态。
       </Text>
     </Pressable>
   );

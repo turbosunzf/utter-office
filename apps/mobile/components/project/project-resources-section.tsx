@@ -10,7 +10,7 @@
  */
 import { ActivityIndicator, Alert, Linking, Pressable, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon, type AppIconName } from "@/components/ui/icon";
 import type {
   GithubRepoResourceRef,
   ProjectResource,
@@ -109,7 +109,7 @@ function ResourceRow({
       delayLongPress={400}
       className="flex-row items-center gap-3 px-4 py-2.5 active:bg-secondary border-t border-border"
     >
-      <Ionicons
+      <Icon
         name={iconFor(resource.resource_type)}
         size={16}
         color={THEME[colorScheme].mutedForeground}
@@ -128,9 +128,9 @@ function ResourceRow({
   );
 }
 
-function iconFor(type: string): keyof typeof Ionicons.glyphMap {
-  if (type === "github_repo") return "logo-github";
-  return "link-outline";
+function iconFor(type: string): AppIconName {
+  if (type === "github_repo") return "GitBranch";
+  return "Link2";
 }
 
 function getResourceUrl(resource: ProjectResource): string | null {

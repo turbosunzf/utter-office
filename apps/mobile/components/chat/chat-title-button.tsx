@@ -27,30 +27,28 @@ export function ChatTitleButton({
     <Pressable
       onPress={onPress}
       hitSlop={4}
-      className="flex-row items-center gap-2 px-2 py-1 rounded-lg active:bg-secondary"
+      className="flex-row items-center gap-2.5 px-1.5 py-1 rounded-xl active:bg-secondary"
       accessibilityRole="button"
-      accessibilityLabel="Sessions and agent picker"
+      accessibilityLabel="会话与员工切换"
     >
       <ActorAvatar
         type={currentAgent ? "agent" : null}
         id={currentAgent?.id ?? null}
-        size={24}
+        size={28}
         showPresence
       />
-      <View>
+      <View className="min-w-0 gap-0.5">
         <View className="flex-row items-center gap-1">
           <Text
-            className="text-base font-semibold text-foreground"
+            className="text-[17px] font-bold text-foreground"
+            style={{ letterSpacing: -0.3 }}
             numberOfLines={1}
           >
             {agentName}
           </Text>
-          <Text className="text-xs text-muted-foreground">▼</Text>
+          <Text className="text-[10px] text-muted-foreground">▾</Text>
         </View>
-        <Text
-          className="text-xs text-muted-foreground"
-          numberOfLines={1}
-        >
+        <Text className="text-[12px] text-muted-foreground" numberOfLines={1}>
           {subtitle}
         </Text>
       </View>

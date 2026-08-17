@@ -76,7 +76,7 @@ export function TaskProgress({
 
   return (
     <SectionGroup title="任务进度">
-      <View className="p-4 gap-3">
+      <View className="px-4 pt-4 pb-3 gap-3">
         {isLoading ? (
           <Skeleton className="h-16 w-full" />
         ) : error ? (
@@ -96,12 +96,17 @@ export function TaskProgress({
         ) : (
           <>
             <View className="flex-row items-baseline gap-2">
-              <Text className="text-3xl font-semibold text-foreground">
+              <Text
+                className="text-[28px] font-extrabold text-foreground"
+                style={{ letterSpacing: -0.5 }}
+              >
                 {totals.total}
               </Text>
-              <Text className="text-sm text-muted-foreground">个任务已结束</Text>
+              <Text className="text-[12px] text-muted-foreground">
+                个任务已结束
+              </Text>
             </View>
-            <View className="flex-row h-2 rounded-full overflow-hidden bg-muted">
+            <View className="flex-row h-2.5 rounded-full overflow-hidden bg-muted">
               {totals.succeeded > 0 ? (
                 <View
                   className="h-full"
@@ -124,7 +129,7 @@ export function TaskProgress({
                 />
               ) : null}
             </View>
-            <View className="flex-row gap-4">
+            <View className="flex-row gap-3">
               <Legend color={t.success} label="完成" count={totals.succeeded} />
               <Legend
                 color={t.destructive}
@@ -141,8 +146,8 @@ export function TaskProgress({
         )}
       </View>
       {openIssues.length > 0 ? (
-        <View className="pt-1">
-          <Text className="text-xs uppercase tracking-wider text-muted-foreground px-4 pb-1">
+        <View className="border-t border-border pt-2 pb-1">
+          <Text className="text-[11px] font-medium text-muted-foreground px-4 pb-1">
             进行中的事项
           </Text>
           {openIssues.map((issue) => (

@@ -90,9 +90,11 @@ import { NoAgentBanner } from "@/components/chat/no-agent-banner";
 import { OfflineBanner } from "@/components/chat/offline-banner";
 import { RuntimeRequiredBanner } from "@/components/chat/runtime-required-banner";
 import { useChatSelectStore } from "@/data/chat-select-store";
+import { StaffRail } from "@/components/workbench/staff-rail";
+import { BlockingNoticeBar } from "@/components/shared/blocking-notice-bar";
 import { isAgentRuntimeBound } from "@/lib/is-agent-runtime-bound";
 
-export default function ChatTab() {
+export default function WorkbenchTab() {
   const qc = useQueryClient();
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
   const wsSlug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
@@ -111,6 +113,8 @@ export default function ChatTab() {
   );
   const selectRequest = useChatSessionPickerStore((s) => s.selectRequest);
   const consumeSelect = useChatSessionPickerStore((s) => s.consumeSelect);
+  const agentFocusRequest = useChatSessionPickerStore((s) => s.agentFocusRequest);
+  const consumeAgentFocus = useChatSessionPickerStore((s) => s.consumeAgentFocus);
   useEffect(() => {
     setStoreActiveSessionId(activeSessionId);
   }, [activeSessionId, setStoreActiveSessionId]);
@@ -119,6 +123,17 @@ export default function ChatTab() {
   const { data: sessions = [] } = useQuery(chatSessionsOptions(wsId));
   const { data: agents = [] } = useQuery(agentListOptions(wsId));
   const { data: members = [] } = useQuery(memberListOptions(wsId));
+
+  useEffect(() => {
+    if (!agentFocusRequest) return;
+    const agentId = agentFocusRequest.agentId;
+    setSelectedAgentId(agentId);
+    const existing = sessions.find(
+      (s) => s.agent_id === agentId && s.status !== "archived",
+    );
+    setActiveSessionId(existing?.id ?? null);
+    consumeAgentFocus();
+  }, [agentFocusRequest, consumeAgentFocus, sessions]);
 
   // ── Auto-hydrate active session on first Chat tab entry ────────────────
   // Mobile-only deviation from web: web's chat-window opens to an empty
@@ -459,6 +474,21 @@ export default function ChatTab() {
             onNewPress={handleNewChat}
           />
         }
+      />
+      <BlockingNoticeBar focusAgentId={currentAgent?.id ?? null} />
+      <StaffRail
+        selectedAgentId={currentAgent?.id ?? selectedAgentId}
+        onSelectAgent={(agent) => {
+          setSelectedAgentId(agent.id);
+          const existing = sessions.find(
+            (s) => s.agent_id === agent.id && s.status !== "archived",
+          );
+          setActiveSessionId(existing?.id ?? null);
+        }}
+        onNewSession={(agent) => {
+          setSelectedAgentId(agent.id);
+          setActiveSessionId(null);
+        }}
       />
       {availability === "none" ? <NoAgentBanner /> : null}
       <KeyboardAvoidingView

@@ -6,7 +6,7 @@
  * in-flight, so the user can't double-tap.
  */
 import { ActivityIndicator, Pressable, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -34,8 +34,8 @@ export function SubmitIssueButton({ disabled, onPress, loading }: Props) {
         {loading ? (
           <ActivityIndicator size="small" color="#ffffff" />
         ) : (
-          <Ionicons
-            name="arrow-up"
+          <Icon
+            name="ArrowUp"
             size={18}
             color={interactive ? "#ffffff" : "#a1a1aa"}
           />

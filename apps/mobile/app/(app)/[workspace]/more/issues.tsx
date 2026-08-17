@@ -24,7 +24,7 @@ import { useMemo } from "react";
 import { Pressable, SectionList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/icon";
 import type { Issue, IssuePriority, IssueStatus } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -226,8 +226,7 @@ function FilterButton({
         accessibilityLabel="Filter"
         className="w-9 px-0"
       >
-        <Ionicons
-          name="options-outline"
+        <Icon name="Ellipsis"
           size={16}
           color={THEME[colorScheme].mutedForeground}
         />
@@ -334,11 +333,9 @@ function Chip({ label, onClear }: { label: string; onClear: () => void }) {
       className="flex-row items-center gap-1 pl-2.5 pr-2 py-1 rounded-full border border-border bg-secondary/40 active:bg-secondary"
     >
       <Text className="text-xs text-foreground">{label}</Text>
-      <Ionicons
-        name="close"
+      <Icon name="X"
         size={12}
-        color={THEME[colorScheme].mutedForeground}
-      />
+        color={THEME[colorScheme].mutedForeground} />
     </Pressable>
   );
 }

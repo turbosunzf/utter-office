@@ -18,7 +18,7 @@ import { IconButton } from "@/components/ui/icon-button";
 export function ModalCloseButton() {
   return (
     <IconButton
-      name="close"
+      name="X"
       iconSize={18}
       variant="secondary"
       className="size-7 rounded-full"

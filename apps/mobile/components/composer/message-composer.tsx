@@ -47,7 +47,7 @@ import {
 import { Alert, Keyboard, Pressable, TextInput, View } from "react-native";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon, type AppIconName } from "@/components/ui/icon";
 import { router, type Href } from "expo-router";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
@@ -92,7 +92,7 @@ interface Props {
 
   placeholder?: string;
   pillLabel?: string;
-  pillIcon?: keyof typeof Ionicons.glyphMap;
+  pillIcon?: AppIconName;
 
   /** Optional controlled-text mode. When `value` + `onChangeText` are
    *  both provided, the parent owns the draft (chat: persists to its
@@ -160,7 +160,7 @@ export function MessageComposer({
   uploadContext,
   placeholder = "Type a message…",
   pillLabel = "Type a message…",
-  pillIcon = "chatbubble-ellipses-outline",
+  pillIcon = "MessageCircle",
   value: controlledValue,
   onChangeText: controlledOnChange,
   replyTarget = null,
@@ -462,7 +462,7 @@ export function MessageComposer({
         accessibilityState={{ disabled }}
         className="flex-row items-center gap-2 h-11 px-4 rounded-full bg-secondary active:opacity-80"
       >
-        <Ionicons
+        <Icon
           name={pillIcon}
           size={18}
           color={theme.mutedForeground}
@@ -482,8 +482,8 @@ export function MessageComposer({
       {replyTarget && (
         <View className="px-3 py-1.5 rounded-md bg-secondary/60 gap-0.5">
           <View className="flex-row items-center gap-2">
-            <Ionicons
-              name="return-up-back"
+            <Icon
+              name="Reply"
               size={14}
               color={theme.mutedForeground}
             />
@@ -499,11 +499,9 @@ export function MessageComposer({
               accessibilityRole="button"
               accessibilityLabel="Cancel reply"
             >
-              <Ionicons
-                name="close-circle"
+              <Icon name="XCircle"
                 size={16}
-                color={theme.mutedForeground}
-              />
+                color={theme.mutedForeground} />
             </Pressable>
           </View>
           {replyTarget.preview ? (
@@ -551,7 +549,7 @@ export function MessageComposer({
            *  that drives notifications) and cross-resource (people +
            *  issues), pride-of-place left. */}
           <IconButton
-            name="at"
+            name="AtSign"
             iconSize={20}
             color={mentions.length > 0 ? theme.primary : undefined}
             onPress={onAtPress}
@@ -559,14 +557,14 @@ export function MessageComposer({
             className="h-8 w-8"
           />
           <IconButton
-            name="image-outline"
+            name="Image"
             iconSize={20}
             onPress={onImagePress}
             accessibilityLabel="Upload image"
             className="h-8 w-8"
           />
           <IconButton
-            name="attach-outline"
+            name="Paperclip"
             iconSize={20}
             onPress={onFilePress}
             accessibilityLabel="Upload file"
@@ -577,7 +575,7 @@ export function MessageComposer({
             renderStop()
           ) : (
             <IconButton
-              name="arrow-up"
+              name="ArrowUp"
               iconSize={18}
               color={theme.primaryForeground}
               variant="default"
