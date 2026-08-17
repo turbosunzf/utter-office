@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>06 我的</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
+.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
+.header{height:48px;display:flex;align-items:center;padding:0 16px}
+.hl{font-size:17px;font-weight:700}
+.content{flex:1;overflow:hidden;padding:0 16px 12px;display:flex;flex-direction:column;gap:8px}
+.group{background:#fff;border:1px solid #E5E5EA;border-radius:14px;overflow:hidden;flex-shrink:0}
+.gt{font-size:12px;color:#8E8E93;padding:10px 4px 4px}
+.row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid #F1F1F4;font-size:14px;color:#1C1C1E;text-decoration:none}
+.row:first-child{border-top:none}
+.row .ic{width:24px;height:24px;border-radius:7px;background:#EDF1FB;color:#3B6FFF;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.row .chev{margin-left:auto;color:#C7C7CC}
+.row .num{font-size:11px;color:#8E8E93;background:#F1F1F4;border-radius:6px;padding:1px 6px}
+.row .num.blue{color:#3B6FFF;background:#EDF1FB}
+.ident{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.avatar{width:40px;height:40px;border-radius:20px;background:#3B6FFF;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.ident .nm{font-size:15px;font-weight:700}
+.ident .em{font-size:11px;color:#8E8E93}
+.wsrow{display:flex;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid #F1F1F4}
+.wsav{width:30px;height:30px;border-radius:8px;background:#E6F6EC;color:#1B8A4A;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px;text-decoration:none}
+.tab.active{color:#3B6FFF}
+.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8}
+.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;text-decoration:none}
+.ver{text-align:center;font-size:11px;color:#C7C7CC;padding:6px 0 0}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="demo">原型目标态 · 数字员工→/staff · 秘书设置→10 · M1 编码仍可指 more/agents</div>
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="header"><div class="hl">我的</div></div>
+    <div class="content">
+      <div class="group">
+        <div class="ident"><div class="avatar">S</div><div style="flex:1"><div class="nm">Sun</div><div class="em">sun@example.com</div></div><span class="chev">›</span></div>
+        <div class="wsrow"><div class="wsav">U</div><div style="flex:1;font-size:14px">Utter Office</div><span class="chev">›</span></div>
+      </div>
+      <div class="gt">工作</div>
+      <div class="group">
+        <a class="row" href="00-index.html"><div class="ic">📥</div>收件箱<span class="num blue">3</span><span class="chev">›</span></a>
+        <a class="row" href="00-index.html"><div class="ic">☑</div>我的事项<span class="chev">›</span></a>
+        <div class="row"><div class="ic">📌</div>置顶<span class="chev">›</span></div>
+        <div class="row"><div class="ic">☰</div>事项<span class="chev">›</span></div>
+        <div class="row"><div class="ic">▤</div>项目<span class="chev">›</span></div>
+        <a class="row" href="07-staff-roster.html"><div class="ic">👥</div>数字员工<span class="chev">›</span></a>
+      </div>
+      <div class="gt">报告</div>
+      <div class="group">
+        <div class="row"><div class="ic">📊</div>数据报告（日/周/月）<span class="chev">›</span></div>
+      </div>
+      <div class="gt">秘书</div>
+      <div class="group">
+        <a class="row" href="10-assistant-settings.html"><div class="ic">🤖</div>秘书设置（默认员工 · 语音 · 简报）<span class="chev">›</span></a>
+      </div>
+      <div class="gt">设置</div>
+      <div class="group">
+        <div class="row"><div class="ic">⚙</div>设置<span class="chev">›</span></div>
+        <div class="row"><div class="ic">👤</div>个人资料<span class="chev">›</span></div>
+        <div class="row"><div class="ic">🔔</div>通知<span class="chev">›</span></div>
+      </div>
+      <div class="gt">关于</div>
+      <div class="group">
+        <div class="row"><div class="ic">❓</div>帮助与反馈<span class="chev">›</span></div>
+        <div class="row"><div class="ic">ℹ</div>版本 1.0.0 (55)</div>
+      </div>
+      <div class="ver">utter-office · AI 秘书</div>
+    </div>
+    <div class="tabbar">
+      <a class="tab" href="02-home.html"><div class="tab-icon"></div>首页</a>
+      <a class="tab" href="03-board.html"><div class="tab-icon"></div>看板</a>
+      <a class="center" href="04-voice.html">●</a>
+      <a class="tab" href="05-workbench.html"><div class="tab-icon"></div>工作台</a>
+      <a class="tab active" href="06-mine.html"><div class="tab-icon" style="background:#C9D9FF"></div>我的</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

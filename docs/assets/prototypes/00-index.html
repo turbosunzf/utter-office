@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>utter-office 原型目录 · StaffDeck 整合目标态</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;background:#F5F6F8;color:#1C1C1E;line-height:1.55;padding:24px 20px 48px;max-width:720px;margin:0 auto}
+h1{font-size:22px;margin-bottom:6px}
+.sub{font-size:13px;color:#8E8E93;margin-bottom:20px}
+.banner{background:#FFF8E6;border:1px solid #FFE8B3;border-radius:12px;padding:12px 14px;font-size:13px;color:#6B4E0A;margin-bottom:20px}
+.banner b{color:#4A3800}
+h2{font-size:15px;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid #E5E5EA}
+.paths{display:flex;flex-direction:column;gap:8px}
+.path{background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:12px 14px;font-size:13px}
+.path a{color:#3B6FFF;font-weight:600;text-decoration:none}
+.path .n{display:inline-block;width:20px;height:20px;border-radius:6px;background:#EDF1FB;color:#3B6FFF;text-align:center;font-size:11px;font-weight:700;line-height:20px;margin-right:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:12px 14px;text-decoration:none;color:inherit;display:block}
+.card:hover{border-color:#3B6FFF}
+.card .t{font-size:14px;font-weight:600}
+.card .d{font-size:11px;color:#8E8E93;margin-top:4px}
+.tag{font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:500}
+.tag.a{background:#E6F6EC;color:#1B8A4A}
+.tag.b{background:#EDF1FB;color:#3B6FFF}
+.tag.c{background:#F1F1F4;color:#6E6E73}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;margin-bottom:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:3px}
+.dot.real{background:#34C759}
+.dot.mock{background:#3B6FFF}
+.dot.ph{background:#D1D1D6}
+table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E5E5EA}
+th,td{padding:8px 10px;text-align:left;border-top:1px solid #F1F1F4;vertical-align:top}
+th{background:#F8F8FA;font-weight:600;border-top:none}
+.skip{font-size:12px;color:#8E8E93;background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:12px 14px}
+.skip code{font-size:11px;background:#F2F3F7;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+  <h1>utter-office 移动端原型</h1>
+  <p class="sub">StaffDeck 整合目标态 · 多文件相对链接 · 对齐 PRD v1.6 · 非 M1 中间态</p>
+
+  <div class="banner">
+    <b>原型演示</b>：本包用于评审交互与信息架构。页内「示例数据」= B 类 mock；A 类决策数字缺接口时画 <b>——</b>，禁止用假成功率/假运行时长冒充。编码按里程碑分批，M1 我的页仍指 <code>more/agents</code>，与原型 <code>/staff</code> 不一致属预期。
+  </div>
+
+  <h2>数据图例</h2>
+  <div class="legend">
+    <span><i class="dot real"></i>真实 / 有聚合口径</span>
+    <span><i class="dot mock"></i>示例数据（B 类）</span>
+    <span><i class="dot ph"></i>占位 / 暂不支持</span>
+  </div>
+
+  <h2>四条主路径（须点通）</h2>
+  <div class="paths">
+    <div class="path"><span class="n">1</span>首页「派单」→ <a href="09-staff-picker.html#dispatch">picker(dispatch)</a> → <a href="08-staff-profile.html">档案</a> 或工作台</div>
+    <div class="path"><span class="n">2</span><a href="06-mine.html">我的</a>「数字员工」→ <a href="07-staff-roster.html">名册</a> → <a href="08-staff-profile.html">档案</a> →「与他对话」→ <a href="05-workbench.html">工作台</a></div>
+    <div class="path"><span class="n">3</span><a href="05-workbench.html">工作台</a> Rail 切员工；「全部」→ 名册；阻断条「去绑定」→ 档案能力 Tab</div>
+    <div class="path"><span class="n">4</span>我的「秘书设置」→ <a href="10-assistant-settings.html">秘书设置</a> → <a href="09-staff-picker.html#default">picker(default)</a> → 回设置；中央按钮见 <a href="04-voice.html">录音 Overlay</a></div>
+  </div>
+
+  <h2>屏目录</h2>
+  <div class="grid">
+    <a class="card" href="01-tab-ia.html"><div class="t">01 信息架构</div><div class="d">底栏 2+1+2</div></a>
+    <a class="card" href="02-home.html"><div class="t">02 首页</div><div class="d">派单 · 阻断条 · 报告降级 · 简报</div></a>
+    <a class="card" href="03-board.html"><div class="t">03 看板</div><div class="d">列视图 · 运行中 → HITL</div></a>
+    <a class="card" href="04-voice.html"><div class="t">04 中央录音</div><div class="d">短按 Sheet · 长按 Overlay</div></a>
+    <a class="card" href="05-workbench.html"><div class="t">05 工作台</div><div class="d">员工 Rail · HITL 三入口</div></a>
+    <a class="card" href="06-mine.html"><div class="t">06 我的</div><div class="d">数字员工 · 秘书设置</div></a>
+    <a class="card" href="07-staff-roster.html"><div class="t">07 名册</div><div class="d">能力三格 · 工具三态 · 战队</div></a>
+    <a class="card" href="08-staff-profile.html"><div class="t">08 档案</div><div class="d">页头 + 工作记录/能力/会话</div></a>
+    <a class="card" href="09-staff-picker.html"><div class="t">09 员工选择器</div><div class="d">dispatch / default 双 intent</div></a>
+    <a class="card" href="10-assistant-settings.html"><div class="t">10 秘书设置</div><div class="d">默认员工 · 语音偏好</div></a>
+    <a class="card" href="11-brief-detail.html"><div class="t">11 简报详情</div><div class="d">示例数据 · 让员工深挖</div></a>
+  </div>
+
+  <h2>借鉴 / 不借鉴</h2>
+  <table>
+    <thead><tr><th>级</th><th>内容</th><th>本包</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag a">借</span></td><td>员工即上下文、能力计数、档案分层、阻断提示、HITL、空态说明、升级条件描述、工具展开、数据诚实</td><td>必须可见</td></tr>
+      <tr><td><span class="tag c">不借</span></td><td>SOP 状态机、OKF、广场五列、竞标 arena、渠道接入、表格式管理、移动端创建员工</td><td>禁止假流程</td></tr>
+      <tr><td><span class="tag b">登记</span></td><td>B-5 定时/主动工作、B-6 成长记录、B-7 模板广场、B-9 30 天 KPI</td><td>仅说明卡 / ——</td></tr>
+    </tbody>
+  </table>
+
+  <h2>本包明确不做</h2>
+  <div class="skip">
+    inbox / my-issues / reports / board-view / 泳道与进度 / 语音三子页展开 / 新建事项完整表单 / 广场 / SOP / 知识库 / 记忆管理 / 定时任务表 / 成长时间线。
+    上述或已有 PRD 线框，或属 B/C 级。编码前以 <code>docs/app-prd.md</code> v1.6 为准。
+  </div>
+</body>
+</html>

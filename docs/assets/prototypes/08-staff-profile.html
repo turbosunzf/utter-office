@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>08 员工档案</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
+.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
+.nav{height:40px;display:flex;align-items:center;padding:0 12px;gap:10px}
+.back{color:#3B6FFF;font-size:15px;text-decoration:none}
+.hl{font-size:17px;font-weight:700}
+.head{background:#fff;border-bottom:1px solid #E5E5EA;padding:12px 16px 14px}
+.head .row{display:flex;gap:12px;align-items:flex-start}
+.ava{width:64px;height:64px;border-radius:32px;background:#FFD9D9;color:#C42;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}
+.nm{font-size:18px;font-weight:700}
+.sub{font-size:12px;color:#8E8E93;margin-top:3px}
+.desc{font-size:12px;color:#3A3A3C;margin-top:10px;line-height:1.5}
+.chips{display:flex;margin-top:12px;gap:0;border:1px solid #E5E5EA;border-radius:10px;overflow:hidden}
+.chips div{flex:1;text-align:center;padding:8px 0;border-left:1px solid #E5E5EA}
+.chips div:first-child{border-left:none}
+.chips .n{font-size:15px;font-weight:600}
+.chips .n.muted{color:#C7C7CC}
+.chips .l{font-size:10px;color:#8E8E93}
+.acts{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;text-decoration:none}
+.btn.pri{background:#3B6FFF;color:#fff}
+.btn.sec{background:#EDF1FB;color:#3B6FFF}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #E5E5EA}
+.tab{flex:1;text-align:center;padding:12px 0;font-size:13px;color:#8E8E93;cursor:pointer;border-bottom:2px solid transparent}
+.tab.on{color:#3B6FFF;font-weight:600;border-bottom-color:#3B6FFF}
+.pane{display:none;flex:1;overflow-y:auto;padding:12px 16px}
+.pane.on{display:block}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.kpi{background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:12px;text-align:center}
+.kpi .n{font-size:20px;font-weight:700;color:#8E8E93}
+.kpi .l{font-size:10px;color:#8E8E93;margin-top:4px}
+.hint{font-size:11px;color:#8E8E93;text-align:center;margin-bottom:12px}
+.block{background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:12px;margin-bottom:10px}
+.block .t{font-size:13px;font-weight:600;margin-bottom:8px}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #F1F1F4;font-size:12px}
+.row:first-of-type{border-top:none}
+.chip{font-size:11px;background:#EDF1FB;color:#3B6FFF;border-radius:6px;padding:4px 8px;margin:0 4px 4px 0;display:inline-block}
+.tool{font-size:12px;padding:8px 0;border-top:1px solid #F1F1F4}
+.tool:first-of-type{border-top:none}
+.tool .id{font-size:10px;color:#8E8E93;font-family:ui-monospace,monospace}
+.pill{font-size:10px;background:#F1F1F4;color:#6E6E73;border-radius:4px;padding:1px 5px;margin-left:6px}
+.ph{background:#FAFAFA;border:1px dashed #D1D1D6;border-radius:12px;padding:12px;margin-bottom:10px}
+.ph .t{font-size:13px;font-weight:600;color:#6E6E73}
+.ph .d{font-size:11px;color:#8E8E93;margin-top:4px;line-height:1.45}
+.sess{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #F1F1F4;text-decoration:none;color:inherit}
+.sess:first-of-type{border-top:none}
+.sess .dot{width:8px;height:8px;border-radius:4px;background:#FF3B30}
+.sess .chev{margin-left:auto;color:#C7C7CC}
+.hitl{display:flex;gap:6px;flex-wrap:wrap}
+.btn-sm{font-size:11px;color:#3B6FFF;background:#EDF1FB;border-radius:8px;padding:6px 10px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="demo">原型演示 · KPI 未镜像 → —— · 能力含脱敏三态样例（本页 mika=可计数）</div>
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="nav">
+      <a class="back" href="07-staff-roster.html">‹ 名册</a>
+      <div class="hl">员工档案</div>
+    </div>
+    <div class="head">
+      <div class="row">
+        <div class="ava">m</div>
+        <div style="flex:1">
+          <div class="nm">mika · 研发助理</div>
+          <div class="sub">● 工作中 · 归属 @sun · 入职 07-08</div>
+        </div>
+      </div>
+      <div class="desc">熟悉本仓库鉴权与支付模块，可独立完成接口改造与单测；涉及数据库迁移时交回给我确认。</div>
+      <div class="chips">
+        <div><div class="n">4</div><div class="l">技能</div></div>
+        <div><div class="n">3</div><div class="l">工具</div></div>
+        <div><div class="n">2</div><div class="l">在手</div></div>
+        <div><div class="n muted">——</div><div class="l">定时</div></div>
+      </div>
+      <div class="acts">
+        <a class="btn pri" href="05-workbench.html">与他对话</a>
+        <a class="btn sec" href="09-staff-picker.html#dispatch">派单给他</a>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab on" data-tab="work">工作记录</div>
+      <div class="tab" data-tab="cap">能力</div>
+      <div class="tab" data-tab="sess">会话</div>
+    </div>
+    <div class="pane on" id="work">
+      <div class="kpis">
+        <div class="kpi"><div class="n">——</div><div class="l">今日终态</div></div>
+        <div class="kpi"><div class="n">——</div><div class="l">近 30 天运行</div></div>
+        <div class="kpi"><div class="n">——</div><div class="l">近 30 天失败</div></div>
+        <div class="kpi"><div class="n">——</div><div class="l">近 30 天失败率</div></div>
+      </div>
+      <div class="hint">统计接口待接入 · 禁止用 snapshot 冒充累计</div>
+      <div class="block">
+        <div class="t">在手任务</div>
+        <div class="row">◐ MUL-42 重构鉴权中间件 · running</div>
+        <div class="row">○ MUL-45 补 sqlc 查询 · queued</div>
+        <div class="hitl" style="margin-top:8px">
+          <a class="btn-sm" href="05-workbench.html">查看运行记录</a>
+          <a class="btn-sm" href="05-workbench.html">取消任务</a>
+          <a class="btn-sm" href="05-workbench.html">追加评论</a>
+        </div>
+      </div>
+      <div class="block">
+        <div class="t">最近运行</div>
+        <div class="row">今天 · MUL-42 · 运行中</div>
+        <div class="row">昨天 · MUL-40 · 已完成</div>
+      </div>
+      <div class="ph">
+        <div class="t">成长记录</div>
+        <div class="d">暂不支持。需要后端能力变更事件流（B-6）。不会假装有「今天新增技能」时间线。</div>
+      </div>
+    </div>
+    <div class="pane" id="cap">
+      <div class="block">
+        <div class="t">工位（utter-office 独有）</div>
+        <div class="row">provider · claude</div>
+        <div class="row">runtime_mode · 云端 · 在线</div>
+      </div>
+      <div class="block">
+        <div class="t">模型与参数</div>
+        <div class="row">模型 · 默认租户模型</div>
+        <div class="row">thinking · medium</div>
+      </div>
+      <div class="block">
+        <div class="t">技能</div>
+        <span class="chip">鉴权重构</span>
+        <span class="chip">单测补齐</span>
+        <span class="chip">接口迁移</span>
+        <span class="chip">代码审阅</span>
+      </div>
+      <div class="block">
+        <div class="t">工具（可展开 · 本员工可计数）</div>
+        <div class="tool"><b>github</div><span class="pill">MCP</span><div class="id">mcp.github</div></div>
+        <div class="tool"><b>filesystem</b><span class="pill">MCP</span><div class="id">mcp.fs</div></div>
+        <div class="tool"><b>composio · linear</b><span class="pill">toolkit</span><div class="id">composio.linear</div></div>
+      </div>
+      <div class="block">
+        <div class="t">权限</div>
+        <div class="row">visibility · workspace</div>
+        <div class="row">permission_mode · default</div>
+      </div>
+      <div class="ph">
+        <div class="t">知识库</div>
+        <div class="d">暂不支持。StaffDeck OKF 与 ProjectResource 语义不等价，不做空壳。</div>
+      </div>
+      <div class="ph">
+        <div class="t">长期记忆</div>
+        <div class="d">暂不支持。员工目前不会跨会话记住你的偏好，每次对话都是独立上下文。</div>
+      </div>
+      <div class="ph">
+        <div class="t">定时任务</div>
+        <div class="d">暂不支持。主动工作（B-5 autopilots）确认 REST 可用性后再做。页头「定时」为 ——，不是 0。</div>
+      </div>
+      <div class="ph">
+        <div class="t">SOP</div>
+        <div class="d">暂不支持。领域不匹配（工程事项 ≠ 审批流状态机）。</div>
+      </div>
+    </div>
+    <div class="pane" id="sess">
+      <div class="block">
+        <div class="t">该员工的会话</div>
+        <a class="sess" href="05-workbench.html"><span class="dot"></span>鉴权重构讨论<div class="chev">›</div></a>
+        <a class="sess" href="05-workbench.html">支付模块单测<div class="chev">›</div></a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.querySelectorAll('.tabs .tab').forEach(function(el){
+  el.addEventListener('click',function(){
+    document.querySelectorAll('.tabs .tab').forEach(function(t){t.classList.remove('on')});
+    document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on')});
+    el.classList.add('on');
+    document.getElementById(el.dataset.tab).classList.add('on');
+  });
+});
+if(location.hash==='#cap'){
+  document.querySelector('[data-tab="cap"]').click();
+}
+</script>
+</body>
+</html>

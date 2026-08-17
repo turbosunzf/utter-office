@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>09 员工选择器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;justify-content:center;gap:24px;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;flex-wrap:wrap}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px;z-index:10}
+.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
+.bg{flex:1;background:#ddd;opacity:.35}
+.sheet{position:absolute;left:0;right:0;bottom:0;height:62%;background:#fff;border-radius:20px 24px 0 0;padding:8px 0 20px;display:flex;flex-direction:column;z-index:5}
+.grab{width:36px;height:5px;border-radius:3px;background:#D1D1D6;margin:0 auto 10px}
+.title{text-align:center;font-size:15px;font-weight:700;margin-bottom:4px}
+.intent{text-align:center;font-size:11px;color:#8E8E93;margin-bottom:10px;padding:0 16px}
+.search{margin:0 16px 10px;height:36px;background:#F2F3F7;border-radius:10px;display:flex;align-items:center;padding:0 12px;font-size:13px;color:#8E8E93}
+.list{flex:1;overflow-y:auto;padding:0 8px}
+.row{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;text-decoration:none;color:inherit}
+.row:active,.row:hover{background:#F5F6F8}
+.ava{width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.nm{font-size:14px;font-weight:600}
+.meta{font-size:11px;color:#8E8E93}
+.st{margin-left:auto;font-size:10px;padding:2px 6px;border-radius:6px}
+.st.ok{background:#E6F6EC;color:#1B8A4A}
+.st.work{background:#EDF1FB;color:#3B6FFF}
+.st.off{background:#F1F1F4;color:#8E8E93}
+.switch{display:flex;gap:8px;justify-content:center;padding:8px;font-size:11px}
+.switch a{color:#3B6FFF;text-decoration:none}
+.cap{width:390px;text-align:center;font-size:12px;color:#8E8E93;margin-top:8px}
+</style>
+</head>
+<body>
+<!-- dispatch -->
+<div>
+<div class="phone" id="dispatch">
+  <div class="screen">
+    <div class="demo">原型 · intent=dispatch · 选中后预填新建事项负责人</div>
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="bg"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="title">选择数字员工</div>
+      <div class="intent">派单 · 选中后进入新建事项并预填 assignee</div>
+      <div class="search">🔍 搜索员工</div>
+      <div class="list">
+        <a class="row" href="08-staff-profile.html">
+          <div class="ava" style="background:#FFD9D9;color:#C42">m</div>
+          <div><div class="nm">mika</div><div class="meta">研发助理 · 工位云端</div></div>
+          <span class="st work">工作中</span>
+        </a>
+        <a class="row" href="08-staff-profile.html">
+          <div class="ava" style="background:#DFE9FF;color:#3B6FFF">c</div>
+          <div><div class="nm">codex</div><div class="meta">测试工程师 · 本地</div></div>
+          <span class="st ok">在岗</span>
+        </a>
+        <a class="row" href="08-staff-profile.html" style="opacity:.55">
+          <div class="ava" style="background:#E1E1E8;color:#8E8E93">k</div>
+          <div><div class="nm">kimi</div><div class="meta">未绑定工位 · 不可派单</div></div>
+          <span class="st off">离线</span>
+        </a>
+      </div>
+      <div class="switch"><a href="#default">切换到「设为默认」态 ›</a> · <a href="02-home.html">回首页</a></div>
+    </div>
+  </div>
+</div>
+<div class="cap">#dispatch · 从首页「派单」进入</div>
+</div>
+
+<!-- default -->
+<div>
+<div class="phone" id="default">
+  <div class="screen">
+    <div class="demo">原型 · intent=default · 写回秘书设置 SecureStore</div>
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="bg"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="title">设为默认员工</div>
+      <div class="intent">中央按钮长按将发送给此人 · 仅可选可见且可触发的员工</div>
+      <div class="search">🔍 搜索员工</div>
+      <div class="list">
+        <a class="row" href="10-assistant-settings.html">
+          <div class="ava" style="background:#FFD9D9;color:#C42">m</div>
+          <div><div class="nm">mika ✓ 当前默认</div><div class="meta">研发助理</div></div>
+          <span class="st work">工作中</span>
+        </a>
+        <a class="row" href="10-assistant-settings.html">
+          <div class="ava" style="background:#DFE9FF;color:#3B6FFF">c</div>
+          <div><div class="nm">codex</div><div class="meta">测试工程师</div></div>
+          <span class="st ok">在岗</span>
+        </a>
+      </div>
+      <div class="switch"><a href="#dispatch">切换到「派单」态 ›</a> · <a href="10-assistant-settings.html">回秘书设置</a></div>
+    </div>
+  </div>
+</div>
+<div class="cap">#default · 从秘书设置进入</div>
+</div>
+<script>
+if(location.hash==='#default'){
+  document.getElementById('default').scrollIntoView({behavior:'instant',block:'center'});
+}
+</script>
+</body>
+</html>

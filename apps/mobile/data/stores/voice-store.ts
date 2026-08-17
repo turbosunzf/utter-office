@@ -14,15 +14,25 @@ import { create } from "zustand";
 interface VoiceState {
   sheetOpen: boolean;
   recording: boolean;
+  /** Whether the finger has slid up into the "cancel send" zone (WeChat-style
+   *  recording). Written by the record button's Pan gesture, read by the
+   *  recording overlay so it can flip to the red cancel state live. */
+  slidUp: boolean;
   openSheet: () => void;
   closeSheet: () => void;
   setRecording: (recording: boolean) => void;
+  setSlidUp: (slidUp: boolean) => void;
 }
 
 export const useVoiceStore = create<VoiceState>((set) => ({
   sheetOpen: false,
   recording: false,
-  openSheet: () => set({ sheetOpen: true }),
+  slidUp: false,
+  openSheet: () => set({ sheetOpen: true, slidUp: false }),
   closeSheet: () => set({ sheetOpen: false }),
-  setRecording: (recording) => set({ recording }),
+  // Stopping recording resets slidUp so a stale value can't paint the
+  // overlay red after the finger has left the cancel zone.
+  setRecording: (recording) =>
+    set((s) => ({ recording, slidUp: recording ? s.slidUp : false })),
+  setSlidUp: (slidUp) => set({ slidUp }),
 }));

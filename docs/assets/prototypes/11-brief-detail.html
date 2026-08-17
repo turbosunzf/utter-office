@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>11 简报详情</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
+.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
+.nav{height:44px;display:flex;align-items:center;padding:0 12px;gap:10px}
+.back{color:#3B6FFF;font-size:15px;text-decoration:none}
+.hl{font-size:17px;font-weight:700;flex:1}
+.act{font-size:14px;color:#3B6FFF}
+.content{flex:1;overflow-y:auto;padding:8px 16px 16px}
+.badge{font-size:10px;color:#8E8E93;border:1px solid #D1D1D6;border-radius:4px;padding:2px 6px}
+.chip{font-size:11px;color:#3B6FFF;background:#EDF1FB;border-radius:6px;padding:2px 8px}
+.meta{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.title{font-size:20px;font-weight:700;line-height:1.35;margin-bottom:8px}
+.src{font-size:12px;color:#8E8E93;margin-bottom:16px}
+.body{font-size:14px;line-height:1.65;color:#1C1C1E}
+.body p{margin-bottom:12px}
+.body ul{margin:0 0 12px 18px;font-size:13px;color:#3A3A3C}
+.link{font-size:13px;color:#3B6FFF;text-decoration:none}
+.cta{margin-top:20px;background:#fff;border:1px solid #E5E5EA;border-radius:14px;padding:14px;text-align:center}
+.cta a{display:block;background:#3B6FFF;color:#fff;border-radius:10px;padding:12px;font-size:14px;font-weight:600;text-decoration:none}
+.cta .n{font-size:11px;color:#8E8E93;margin-top:8px;line-height:1.45}
+.warn{font-size:11px;color:#8A6116;background:#FFF8E6;border-radius:8px;padding:8px;margin-top:12px;line-height:1.45}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="demo">原型演示 · B 类示例数据 · 不是员工定时巡检产物</div>
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="nav">
+      <a class="back" href="02-home.html">‹ 首页</a>
+      <div class="hl">简报</div>
+      <span class="act">分享</span>
+    </div>
+    <div class="content">
+      <div class="meta">
+        <span class="chip">AI Infra</span>
+        <span class="badge">示例数据</span>
+      </div>
+      <div class="title">某推理框架发布新版本，推理成本下降约 40%</div>
+      <div class="src">36Kr · 2 小时前</div>
+      <div class="body">
+        <p>示例正文。本期简报用于验证首页区块与详情阅读链路，内容来自 mock，带「示例数据」徽标。</div>
+        <p>与 StaffDeck「主动工作」不同：主动工作是定时任务按规则巡检并留 Trace；本页是行业资讯阅读，深挖派单才产生真实事项。</p>
+        <ul>
+          <li>成本下降主要来自批处理与量化</li>
+          <li>对鉴权/支付类服务的影响需结合本仓库评估</li>
+        </ul>
+        <a class="link" href="#">来源链接 ↗</a>
+      </div>
+      <div class="cta">
+        <a href="09-staff-picker.html#dispatch">🔍 让数字员工深挖这条</a>
+        <div class="n">将预填新建事项标题「调研：…」并可选派单。产出是真实 issue，素材来自示例简报。</div>
+      </div>
+      <div class="warn">禁止文案写成「员工已自动巡检」。主动工作落点见档案「定时」与后端 B-5。</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

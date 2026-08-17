@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;gap:24px;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:0 16px}
+.status{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 4px 10px;font-size:15px;font-weight:600}
+.page-title{margin:14px 0 4px;font-size:20px;font-weight:700;color:#1C1C1E}
+.page-sub{margin-bottom:14px;font-size:12px;color:#8E8E93}
+.cards{flex:1;display:flex;flex-direction:column;gap:10px}
+.card{background:#fff;border:1px solid #E5E5EA;border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}
+.card .ic{width:40px;height:40px;border-radius:12px;background:#EDF1FB;color:#3B6FFF;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.card .body{flex:1}
+.card .t{font-size:15px;font-weight:600;color:#1C1C1E}
+.card .d{font-size:11px;color:#8E8E93;margin-top:2px;line-height:1.5}
+.card .tag{font-size:10px;color:#fff;background:#3B6FFF;border-radius:6px;padding:2px 6px}
+.card .tag.badge-t{background:#FF9500}
+.card.central{background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);border:none}
+.card.central .ic{background:rgba(255,255,255,.22);color:#fff}
+.card.central .t{color:#fff}
+.card.central .d{color:rgba(255,255,255,.85)}
+.tabbar{height:88px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 4px 26px;margin:0 -16px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px}
+.tab.active{color:#3B6FFF}
+.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8;position:relative}
+.tab.badge .tab-icon::after{content:"3";position:absolute;top:-4px;right:-5px;min-width:16px;height:16px;border-radius:8px;background:#3B6FFF;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.tab.badge.orange .tab-icon::after{content:"2";background:#FF9500}
+.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="page-title">信息架构 · 2 + 1 + 2</div>
+    <div class="page-sub">5 Tab 重构：感知 → 治理 → 执行 → 自我</div>
+    <div class="cards">
+      <a class="card" href="02-home.html" style="text-decoration:none;color:inherit"><div class="ic">🏠</div><div class="body"><div class="t">首页 <span class="tag badge-t">收件箱未读</span></div><div class="d">Today 决策台：快捷入口 + 数据报告 + 待办 + 简报</div></div></a>
+      <a class="card" href="03-board.html" style="text-decoration:none;color:inherit"><div class="ic">📊</div><div class="body"><div class="t">看板</div><div class="d">整盘任务可视化：列 / 泳道 / 进度 三视图</div></div></a>
+      <a class="card central" href="04-voice.html" style="text-decoration:none"><div class="ic">🎙</div><div class="body"><div class="t">● 录（中央按钮）</div><div class="d">长按 2s 录音发默认员工 · 短按弹 Sheet 选 录音/翻译/发语音</div></div></a>
+      <a class="card" href="05-workbench.html" style="text-decoration:none;color:inherit"><div class="ic">💬</div><div class="body"><div class="t">工作台 <span class="tag badge-t">会话未读</span></div><div class="d">员工即频道：员工 Rail + 会话 × 数字员工（原「聊天」）</div></div></a>
+      <a class="card" href="06-mine.html" style="text-decoration:none;color:inherit"><div class="ic">👤</div><div class="body"><div class="t">我的</div><div class="d">身份 / 工作 / 报告 / 秘书设置 / 设置 / 关于</div></div></a>
+    </div>
+    <div style="font-size:11px;color:#8E8E93;margin:4px 0 8px"><a href="00-index.html" style="color:#3B6FFF;text-decoration:none">‹ 原型目录</a> · 目标态，编码按 M1–M4</div>
+    <div class="tabbar">
+      <a class="tab active" href="02-home.html" style="text-decoration:none;color:inherit"><div class="tab-icon" style="background:#C9D9FF"></div>首页</a>
+      <a class="tab" href="03-board.html" style="text-decoration:none;color:inherit"><div class="tab-icon"></div>看板</a>
+      <a class="center" href="04-voice.html" style="text-decoration:none">●</a>
+      <a class="tab badge orange" href="05-workbench.html" style="text-decoration:none;color:inherit"><div class="tab-icon" style="background:#FFE3C7"></div>工作台</a>
+      <a class="tab" href="06-mine.html" style="text-decoration:none;color:inherit"><div class="tab-icon"></div>我的</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -14,31 +14,48 @@ import { useWorkspaceStore } from "@/data/workspace-store";
  * renders the latest comment whose body contains the `数据分析报告` marker;
  * until the first report lands, it shows a placeholder (acceptance criterion
  * "分析报告无数据时显示占位").
+ *
+ * The issue UUID + marker are backend-driven (数据分析官 writes to the COD-16
+ * landing issue) and are out of scope to change here. This component only
+ * degrades gracefully: query error (e.g. the workspace has no such issue) and
+ * "no report yet" intentionally share the same placeholder — the report card
+ * is never a hard-failure surface.
  */
-const SECRETARY_ISSUE_ID = "30c7b240-55a9-4aab-bafe-b09b25f3dba0";
-const REPORT_MARKER = "数据分析报告";
+export const SECRETARY_ISSUE_ID = "30c7b240-55a9-4aab-bafe-b09b25f3dba0";
+export const REPORT_MARKER = "数据分析报告";
 
 export function ReportCard() {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
-  const { data: timeline = [], isLoading } = useQuery(
+  const { data, isPending } = useQuery(
     issueTimelineOptions(wsId, SECRETARY_ISSUE_ID),
   );
 
   const report = useMemo(() => {
-    // Timeline arrives ASC — the latest matching report wins.
+    // Query error leaves `data` undefined → timeline stays [] → we fall
+    // through to the shared placeholder below (never an error surface).
+    // Guard here (inside the memo) so a malformed / missing payload can't
+    // throw and the memo deps stay on the stable `data` reference.
+    const timeline = Array.isArray(data) ? data : [];
+    // Timeline arrives ASC — the latest matching report wins. Defensive
+    // against malformed rows: a non-comment or non-string content entry
+    // can't throw here.
     for (let i = timeline.length - 1; i >= 0; i--) {
       const entry = timeline[i];
-      if (entry.type === "comment" && entry.content?.includes(REPORT_MARKER)) {
+      if (
+        entry.type === "comment" &&
+        typeof entry.content === "string" &&
+        entry.content.includes(REPORT_MARKER)
+      ) {
         return entry.content;
       }
     }
     return null;
-  }, [timeline]);
+  }, [data]);
 
   return (
     <SectionGroup title="数据分析报告">
       <View className="p-4">
-        {isLoading ? (
+        {isPending ? (
           <Skeleton className="h-20 w-full" />
         ) : report ? (
           <Markdown content={report} compact />
