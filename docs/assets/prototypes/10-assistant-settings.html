@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>10 秘书设置</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
+.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
+.nav{height:44px;display:flex;align-items:center;padding:0 12px;gap:10px}
+.back{color:#3B6FFF;font-size:15px;text-decoration:none}
+.hl{font-size:17px;font-weight:700}
+.content{flex:1;overflow-y:auto;padding:8px 16px 16px}
+.gt{font-size:12px;color:#8E8E93;padding:12px 4px 6px}
+.group{background:#fff;border:1px solid #E5E5EA;border-radius:14px;overflow:hidden;margin-bottom:4px}
+.row{display:flex;align-items:center;gap:10px;padding:14px;border-top:1px solid #F1F1F4;font-size:14px;text-decoration:none;color:inherit}
+.row:first-child{border-top:none}
+.row.muted{opacity:.55}
+.chev{margin-left:auto;color:#C7C7CC}
+.val{margin-left:auto;font-size:13px;color:#8E8E93}
+.seg{display:flex;border:1px solid #E1E1E8;border-radius:8px;overflow:hidden;margin-left:auto}
+.seg span{font-size:11px;padding:4px 10px;color:#8E8E93}
+.seg span.on{background:#3B6FFF;color:#fff}
+.sw{width:46px;height:28px;border-radius:14px;background:#3B6FFF;margin-left:auto;position:relative}
+.sw::after{content:"";position:absolute;right:3px;top:3px;width:22px;height:22px;border-radius:11px;background:#fff}
+.note{font-size:11px;color:#8E8E93;padding:10px 4px;line-height:1.45}
+.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px;text-decoration:none}
+.tab.active{color:#3B6FFF}
+.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8}
+.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="demo">原型演示 · 简报偏好置灰（等 B-2）· 默认员工 → picker#default</div>
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="nav">
+      <a class="back" href="06-mine.html">‹ 我的</a>
+      <div class="hl">秘书设置</div>
+    </div>
+    <div class="content">
+      <div class="gt">默认员工</div>
+      <div class="group">
+        <a class="row" href="09-staff-picker.html#default">
+          默认数字员工
+          <span class="val">mika</span>
+          <span class="chev">›</span>
+        </a>
+      </div>
+      <div class="note">中央按钮长按 Overlay 显示「将发送给 · mika」。员工归档后自动回退为首个可用员工。</div>
+
+      <div class="gt">语音入口</div>
+      <div class="group">
+        <div class="row">长按录音阈值 <span class="seg"><span>1s</span><span class="on">2s</span><span>3s</span></span></div>
+        <div class="row">松手后自动跳工作台 <span class="sw"></span></div>
+        <div class="row">语音入口默认项 <span class="seg"><span class="on">录音</span><span>翻译</span><span>发语音</span></span></div>
+      </div>
+      <div class="note">录音 / 翻译仍为原型能力；「发语音」会真实发消息到默认员工会话。</div>
+
+      <div class="gt">简报</div>
+      <div class="group">
+        <div class="row muted">简报推送偏好 <span class="val">待接入</span></div>
+      </div>
+      <div class="note">等后端 /api/briefs（B-2）。本期首页简报是资讯 mock，不是员工定时巡检产物，禁止写成「主动工作」。</div>
+
+      <div class="note"><a href="04-voice.html" style="color:#3B6FFF;text-decoration:none">查看中央按钮 Overlay ›</a></div>
+    </div>
+    <div class="tabbar">
+      <a class="tab" href="02-home.html"><div class="tab-icon"></div>首页</a>
+      <a class="tab" href="03-board.html"><div class="tab-icon"></div>看板</a>
+      <a class="center" href="04-voice.html">●</a>
+      <a class="tab" href="05-workbench.html"><div class="tab-icon"></div>工作台</a>
+      <a class="tab active" href="06-mine.html"><div class="tab-icon" style="background:#C9D9FF"></div>我的</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

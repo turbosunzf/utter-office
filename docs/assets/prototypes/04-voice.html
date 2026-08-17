@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;gap:24px;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.status{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 10px;font-size:15px;font-weight:600}
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:5}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;z-index:6;padding:8px 0 30px}
+.grab{width:36px;height:5px;border-radius:3px;background:#D1D1D6;margin:0 auto 12px}
+.sheet .ti{text-align:center;font-size:13px;color:#8E8E93;margin-bottom:6px}
+.sheet .item{display:flex;align-items:center;gap:14px;padding:14px 20px}
+.sheet .ic{width:40px;height:40px;border-radius:12px;background:#EDF1FB;color:#3B6FFF;display:flex;align-items:center;justify-content:center;font-size:18px}
+.sheet .ic.t{background:#F2F3F7;color:#6E6E73}
+.sheet .nm{font-size:16px;font-weight:600;color:#1C1C1E;display:flex;align-items:center;gap:8px}
+.sheet .proto{font-size:9px;color:#8E8E93;border:1px solid #D1D1D6;border-radius:4px;padding:1px 5px}
+.sheet .ic.rec{background:#FFEDEB;color:#FF3B30}
+.sheet .item .dl{margin-left:auto;color:#C7C7CC;font-size:18px}
+.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px}
+.tab.active{color:#3B6FFF}
+.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8}
+.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px}
+/* overlay phone B */
+.ovl{position:absolute;inset:0;background:linear-gradient(180deg,#1B2B5E,#2F62F0 60%,#3B6FFF);z-index:6;display:flex;flex-direction:column;align-items:center}
+.ovl .target{position:absolute;top:64px;left:0;right:0;text-align:center;color:#fff;font-size:13px}
+.ovl .target b{color:#FFE9A8}
+.ovl .ring{position:absolute;top:300px;left:50%;transform:translateX(-50%);width:240px;height:240px;border-radius:50%;border:1px solid rgba(255,255,255,.35)}
+.ovl .ring.r2{top:328px;width:184px;height:184px}
+.ovl .ring.r3{top:356px;width:128px;height:128px}
+.ovl .btn{position:absolute;top:352px;left:50%;transform:translateX(-50%);width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid #fff;display:flex;align-items:center;justify-content:center}
+.ovl .eq{position:absolute;top:392px;left:50%;transform:translateX(-50%);display:flex;gap:5px;align-items:flex-end;height:40px}
+.ovl .eq i{width:5px;height:14px;border-radius:3px;background:#fff;animation:eq 1s infinite}
+.ovl .eq i:nth-child(2){animation-delay:.15s}
+.ovl .eq i:nth-child(3){animation-delay:.3s}
+.ovl .eq i:nth-child(4){animation-delay:.45s}
+.ovl .eq i:nth-child(5){animation-delay:.6s}
+@keyframes eq{50%{height:34px}}
+.ovl .time{position:absolute;top:470px;left:0;right:0;text-align:center;color:rgba(255,255,255,.9);font-size:15px;font-variant-numeric:tabular-nums}
+.ovl .protobar{position:absolute;bottom:60px;left:20px;right:20px;background:rgba(0,0,0,.25);border-radius:10px;color:#fff;font-size:11px;text-align:center;padding:8px}
+.cap{color:#8E8E93;font-size:12px;margin-top:16px;position:absolute;bottom:-26px;left:0;right:0;text-align:center}
+.wrap{position:relative}
+</style>
+</head>
+<body>
+<!-- 左：短按 → 语音 Sheet -->
+<div class="wrap">
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="dim"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="ti">选择语音方式</div>
+      <div class="item"><div class="ic rec">🎙</div><div class="nm">录音 <span class="proto">原型</span></div><div class="dl">›</div></div>
+      <div class="item"><div class="ic t">🈯</div><div class="nm">翻译 <span class="proto">原型</span></div><div class="dl">›</div></div>
+      <div class="item"><div class="ic">📤</div><div class="nm">发语音</div><div class="dl">›</div></div>
+    </div>
+    <div class="tabbar">
+      <a class="tab active" href="02-home.html" style="text-decoration:none;color:inherit"><div class="tab-icon" style="background:#C9D9FF"></div>首页</a>
+      <a class="tab" href="03-board.html" style="text-decoration:none;color:inherit"><div class="tab-icon"></div>看板</a>
+      <a class="center" href="04-voice.html" style="text-decoration:none">●</a>
+      <a class="tab" href="05-workbench.html" style="text-decoration:none;color:inherit"><div class="tab-icon"></div>工作台</a>
+      <a class="tab" href="06-mine.html" style="text-decoration:none;color:inherit"><div class="tab-icon"></div>我的</a>
+    </div>
+  </div>
+</div>
+<div class="cap">短按 &lt; 2s → 语音 Sheet（录音/翻译带原型徽标） · <a href="00-index.html" style="color:#3B6FFF">目录</a></div>
+</div>
+
+<!-- 右：长按 ≥2s → 录音 Overlay -->
+<div class="wrap">
+<div class="phone">
+  <div class="screen">
+    <div class="status" style="color:#fff"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="ovl">
+      <div class="target">将发送给 · <b>mika</b>（默认员工）</div>
+      <div class="ring"></div>
+      <div class="ring r2"></div>
+      <div class="ring r3"></div>
+      <div class="btn"></div>
+      <div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="time">0:03</div>
+      <div class="protobar">原型演示 · 尚未接入真实录音与转写 · 松手发送 → <a href="05-workbench.html" style="color:#FFE9A8">工作台</a></div>
+    </div>
+  </div>
+</div>
+<div class="cap">长按 ≥ 2s → EQ 动画 + 波纹 + 目标员工名（M1 显示首可用员工，M2 起显示默认员工）· 松手落 <a href="05-workbench.html" style="color:#3B6FFF">工作台</a></div>
+</div>
+</body>
+</html>

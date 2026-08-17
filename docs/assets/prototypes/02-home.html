@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>02 首页</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
+.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600;background:#F5F6F8}
+.header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#F5F6F8}
+.hl{font-size:17px;font-weight:700;color:#1C1C1E}
+.sub{font-size:12px;color:#8E8E93;background:#F5F6F8;padding:0 16px 8px}
+.hic{display:flex;gap:14px}
+.hic .dot{width:24px;height:24px;border-radius:8px;background:#E1E1E8;position:relative;text-decoration:none;display:flex;align-items:center;justify-content:center;font-size:12px}
+.hic .dot.bell::after{content:"3";position:absolute;top:-5px;right:-6px;min-width:16px;height:16px;border-radius:8px;background:#FF3B30;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.notice{display:flex;align-items:center;gap:8px;background:#FFF8E6;border-bottom:1px solid #FFE8B3;padding:8px 14px;font-size:12px;color:#8A6116}
+.notice .act{margin-left:auto;color:#3B6FFF;font-weight:600;text-decoration:none;font-size:12px}
+.content{flex:1;overflow:hidden;padding:8px 16px 0;display:flex;flex-direction:column;gap:10px}
+.q{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.q a{height:72px;border-radius:14px;background:#fff;border:1px solid #E5E5EA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:#1C1C1E;text-decoration:none;position:relative}
+.q .ic{width:26px;height:26px;border-radius:8px;background:#EDF1FB;color:#3B6FFF;display:flex;align-items:center;justify-content:center;font-size:14px}
+.q .b::after{content:"3";position:absolute;top:6px;right:10px;min-width:14px;height:14px;border-radius:7px;background:#3B6FFF;color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;padding:0 2px}
+.card{background:#fff;border:1px solid #E5E5EA;border-radius:14px;padding:12px;flex-shrink:0}
+.card .t{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:#1C1C1E;margin-bottom:8px}
+.seg{display:flex;border:1px solid #E1E1E8;border-radius:8px;overflow:hidden}
+.seg span{font-size:11px;padding:3px 10px;color:#8E8E93}
+.seg span.on{background:#3B6FFF;color:#fff}
+.rings{display:flex;justify-content:space-around;margin:6px 0 4px}
+.ring{display:flex;flex-direction:column;align-items:center;gap:4px}
+.circle{width:56px;height:56px;border-radius:50%;border:6px solid #E7ECFA;position:relative}
+.circle i{position:absolute;inset:0;border-radius:50%;border:6px solid transparent;border-top-color:#3B6FFF;transform:rotate(20deg)}
+.circle.dash{border-color:#E5E5EA}
+.circle.dash i{border-top-color:#C7C7CC}
+.circle span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#1C1C1E}
+.circle span.muted{color:#8E8E93;font-size:14px}
+.ring .l{font-size:10px;color:#8E8E93}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #F1F1F4;font-size:12px;color:#1C1C1E}
+.row:first-of-type{border-top:none}
+.st{width:16px;height:16px;border-radius:5px;background:#E1E1E8;flex-shrink:0}
+.ids{font-size:10px;color:#3B6FFF;font-weight:600}
+.pri{font-size:10px;color:#FF9500}
+.due{font-size:10px;color:#8E8E93;background:#F1F1F4;border-radius:6px;padding:1px 5px}
+.due.over{color:#FF3B30;background:#FFEBEC}
+.brief-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #F1F1F4;font-size:12px;color:#1C1C1E;text-decoration:none}
+.brief-row:first-of-type{border-top:none}
+.chip{font-size:9px;color:#3B6FFF;background:#EDF1FB;border-radius:5px;padding:1px 5px;flex-shrink:0}
+.brief-row .time{margin-left:auto;font-size:10px;color:#8E8E93}
+.badge-ex{font-size:9px;color:#8E8E93;border:1px solid #D1D1D6;border-radius:4px;padding:1px 4px;margin-left:6px;font-weight:400}
+.foot{font-size:10px;color:#8E8E93;text-align:center;padding:4px 0 0}
+.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px;text-decoration:none}
+.tab.active{color:#3B6FFF}
+.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8;position:relative}
+.tab.badge .tab-icon::after{content:"3";position:absolute;top:-4px;right:-5px;min-width:16px;height:16px;border-radius:8px;background:#3B6FFF;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;text-decoration:none}
+.tab.warn .tab-icon::after{content:"";position:absolute;top:0;right:-2px;width:7px;height:7px;border-radius:4px;background:#FF9500}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="demo">原型演示 · 运行时长 —— · 派单→picker · 名册不从首页进</div>
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="header">
+      <div><div class="hl">早上好，Sun</div></div>
+      <div class="hic">
+        <a class="dot bell" href="00-index.html" title="收件箱：本包不做完整屏">🔔</a>
+        <div class="dot">🔍</div>
+        <div class="dot">⋯</div>
+      </div>
+    </div>
+    <div class="sub">Utter Office · 3 位员工在岗</div>
+    <div class="notice">
+      <span>⚠️</span> 有员工工位未绑定，任务可能无法执行
+      <a class="act" href="08-staff-profile.html#cap">去绑定 ›</a>
+    </div>
+    <div class="content">
+      <div class="q">
+        <a href="00-index.html"><div class="ic">＋</div>新建事项</a>
+        <a href="09-staff-picker.html#dispatch"><div class="ic">👥</div>派单</a>
+        <a href="00-index.html"><div class="ic">📁</div>项目</a>
+        <a class="b" href="00-index.html"><div class="ic">📥</div>收件箱</a>
+      </div>
+      <div class="card">
+        <div class="t"><span>数据报告</span><span class="seg"><span>日</span><span class="on">周</span><span>月</span></span></div>
+        <div class="rings">
+          <div class="ring"><div class="circle"><i></i><span>12</span></div><div class="l">新建事项</div></div>
+          <div class="ring"><div class="circle"><i></i><span>8</span></div><div class="l">已完成</div></div>
+          <div class="ring"><div class="circle dash"><i></i><span class="muted">——</span></div><div class="l">员工运行</div></div>
+        </div>
+        <div class="row" style="justify-content:center;gap:12px;color:#8E8E93;border:none">进行中 5 · 待评审 2 · 受阻 1 · 失败 ——</div>
+        <div class="row" style="justify-content:flex-end;border:none;color:#3B6FFF;font-weight:600">查看完整报告 ›</div>
+      </div>
+      <div class="card">
+        <div class="t"><span>待办事项</span><span style="color:#8E8E93;font-weight:400">全部 (14) ›</span></div>
+        <div class="row"><div class="st"></div><span class="ids">MUL-42</span> 重构鉴权中间件 <span class="pri">高</span><span class="due">今天</span></div>
+        <div class="row"><div class="st"></div><span class="ids">MUL-51</span> 补 E2E 用例 <span class="pri">中</span><span class="due">明天</span></div>
+        <div class="row"><div class="st"></div><span class="ids">MUL-38</span> 等 API Key（受阻）<span class="pri">急</span><span class="due over">逾期</span></div>
+      </div>
+      <div class="card">
+        <div class="t"><span>行业简报<span class="badge-ex">示例数据</span></span></div>
+        <a class="brief-row" href="11-brief-detail.html"><span class="chip">AI Infra</span> xxx 发布 xxx，推理成本下降 40% <span class="time">2h 前</span></a>
+        <a class="brief-row" href="11-brief-detail.html"><span class="chip">竞品</span> xxx 上线 xxx 能力 <span class="time">5h 前</span></a>
+      </div>
+      <div class="foot">部分统计接口未上线 · 简报为示例资讯（≠ 主动工作）</div>
+    </div>
+    <div class="tabbar">
+      <a class="tab active badge" href="02-home.html"><div class="tab-icon" style="background:#C9D9FF"></div>首页</a>
+      <a class="tab" href="03-board.html"><div class="tab-icon"></div>看板</a>
+      <a class="center" href="04-voice.html">●</a>
+      <a class="tab warn" href="05-workbench.html"><div class="tab-icon" style="background:#FFE3C7"></div>工作台</a>
+      <a class="tab" href="06-mine.html"><div class="tab-icon"></div>我的</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>05 工作台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
+.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
+.header{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+.cur{display:flex;align-items:center;gap:8px}
+.ava{width:30px;height:30px;border-radius:15px;background:#FFD9D9;color:#C42;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.nm{font-size:15px;font-weight:700}
+.tt{font-size:11px;color:#8E8E93}
+.hic{display:flex;gap:12px}
+.hic .dot{width:22px;height:22px;border-radius:7px;background:#E1E1E8;display:flex;align-items:center;justify-content:center;font-size:12px}
+.notice{display:flex;align-items:center;gap:8px;background:#FFF8E6;border-bottom:1px solid #FFE8B3;padding:8px 14px;font-size:12px;color:#8A6116}
+.notice .act{margin-left:auto;color:#3B6FFF;font-weight:600;text-decoration:none}
+.rail{height:64px;background:#fff;border-bottom:1px solid #E5E5EA;display:flex;align-items:center;gap:10px;padding:0 12px;overflow:hidden}
+.r{display:flex;flex-direction:column;align-items:center;gap:2px;width:48px;flex-shrink:0;text-decoration:none;color:inherit}
+.r .av{width:38px;height:38px;border-radius:19px;background:#E1E1E8;position:relative;display:flex;align-items:center;justify-content:center;font-size:12px}
+.r.sel .av{box-shadow:0 0 0 2px #3B6FFF}
+.r .st{position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:6px;border:2px solid #fff}
+.r .st.ok{background:#34C759}
+.r .st.work{background:#3B6FFF}
+.r .st.block{background:#FFCC00}
+.r .st.off{background:#D1D1D6}
+.r .lb{font-size:9px;color:#8E8E93;width:100%;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r.sel .lb{color:#3B6FFF;font-weight:700}
+.r .cnt{position:absolute;left:-2px;top:-2px;min-width:15px;height:15px;border-radius:8px;background:#3B6FFF;color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.r .dotu{position:absolute;right:-2px;top:-2px;width:10px;height:10px;border-radius:5px;background:#FF3B30;border:2px solid #fff}
+.rail .squad{width:34px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#6E6E73}
+.rail .squad .av{width:34px;height:34px;background:#F2F3F7;color:#6E6E73;border-radius:17px;display:flex;align-items:center;justify-content:center}
+.rail .more{width:34px;color:#3B6FFF;font-size:10px;text-align:center;text-decoration:none}
+.msg{flex:1;overflow:hidden;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.b{max-width:74%;border-radius:14px;padding:9px 12px;font-size:13px;line-height:1.5;color:#1C1C1E}
+.b.you{background:#E1E8FF;align-self:flex-end}
+.b.me{background:#fff;border:1px solid #E5E5EA;align-self:flex-start}
+.b .who{font-size:10px;color:#8E8E93;margin-bottom:3px}
+.tl{background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:9px 12px;font-size:12px;align-self:flex-start;width:100%}
+.tl .row{display:flex;gap:8px;align-items:center;padding:3px 0;font-size:11px;color:#1C1C1E}
+.tl .st{width:7px;height:7px;border-radius:4px;background:#34C759}
+.tl .st.wait{background:#3B6FFF}
+.hitl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid #F1F1F4}
+.btn-sm{font-size:11px;color:#3B6FFF;background:#EDF1FB;border-radius:8px;padding:6px 10px;text-decoration:none}
+.btn-sm.danger{background:#FFEBEC;color:#FF3B30}
+.longpress{font-size:10px;color:#8E8E93;text-align:center;padding:2px 0}
+.composer{background:#fff;border-top:1px solid #E5E5EA;padding:8px 14px;display:flex;align-items:center;gap:8px}
+.composer .in{flex:1;height:34px;background:#F2F3F7;border-radius:17px;padding:0 14px;font-size:13px;color:#8E8E93;display:flex;align-items:center}
+.composer .send{width:34px;height:34px;border-radius:17px;background:#3B6FFF;color:#fff;display:flex;align-items:center;justify-content:center}
+.composer .mic{width:34px;height:34px;border-radius:17px;background:#F2F3F7;color:#3B6FFF;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px;text-decoration:none}
+.tab.active{color:#3B6FFF}
+.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8;position:relative}
+.tab.badge .tab-icon::after{content:"2";position:absolute;top:-4px;right:-5px;min-width:16px;height:16px;border-radius:8px;background:#FF9500;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="demo">原型演示 · 运行中 HITL 三入口同屏 · Rail=员工上下文</div>
+    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
+    <div class="header">
+      <div class="cur"><div class="ava">m</div><span class="nm">mika</span><span class="tt">▾</span><span class="tt">«鉴权重构讨论»</span></div>
+      <div class="hic"><div class="dot">⋯</div><div class="dot">＋</div></div>
+    </div>
+    <div class="notice">
+      <span>⚠️</span> 工位未绑定，员工暂时无法执行任务
+      <a class="act" href="08-staff-profile.html#cap">去绑定 ›</a>
+    </div>
+    <div class="rail">
+      <a class="r sel" href="05-workbench.html"><div class="av" style="background:#FFD9D9;color:#C42">m<span class="st work"></span><span class="cnt">2</span></div><div class="lb">mika</div></a>
+      <a class="r" href="08-staff-profile.html"><div class="av" style="background:#DFE9FF;color:#3B6FFF">c<span class="st ok"></span></div><div class="lb">codex</div></a>
+      <a class="r" href="08-staff-profile.html"><div class="av" style="background:#F0E6FF;color:#8B5CF6">k<span class="st off"></span><span class="dotu"></span></div><div class="lb">kimi</div></a>
+      <div class="squad"><div class="av">👥</div></div>
+      <a class="more" href="07-staff-roster.html">全部 ›</a>
+    </div>
+    <div class="longpress">长按员工头像 → 档案 / 设默认 / 新建会话（原型用「全部」进名册）</div>
+    <div class="msg">
+      <div class="b you">把鉴权中间件重构拆一下，优先级高的先做。</div>
+      <div class="b me"><div class="who">mika · 运行</div>已拆解：① 令牌校验 ② 路由守卫 ③ 迁移旧调用点。先做 ①。</div>
+      <div class="tl">
+        <div class="row"><span class="st"></span>已创建事项 MUL-42 · 重构鉴权中间件</div>
+        <div class="row"><span class="st wait"></span><b>运行中</b> · AI 正在执行</div>
+        <div class="hitl">
+          <a class="btn-sm" href="08-staff-profile.html">查看运行记录</a>
+          <a class="btn-sm danger" href="#">取消任务</a>
+          <a class="btn-sm" href="#">追问 / 追加评论</a>
+        </div>
+      </div>
+      <div class="b me"><div class="who">mika</div>进行中，预计 20 分钟。有疑问随时追问。</div>
+    </div>
+    <div class="composer"><div class="in">输入消息…</div><a class="mic" href="04-voice.html">🎙</a><div class="send">➤</div></div>
+    <div class="tabbar">
+      <a class="tab" href="02-home.html"><div class="tab-icon"></div>首页</a>
+      <a class="tab" href="03-board.html"><div class="tab-icon"></div>看板</a>
+      <a class="center" href="04-voice.html">●</a>
+      <a class="tab active badge" href="05-workbench.html"><div class="tab-icon" style="background:#FFE3C7"></div>工作台</a>
+      <a class="tab" href="06-mine.html"><div class="tab-icon"></div>我的</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

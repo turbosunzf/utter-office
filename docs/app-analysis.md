@@ -1,8 +1,9 @@
 # utter-office 移动端 App 完整分析报告
 
-> 最后更新：2026-08-16
+> 最后更新：2026-08-17
 > 分析对象：`apps/mobile`（@multica/mobile）+ `packages/core`（@multica/core）
 > 文档性质：结构 / 内容 / 原型现状全面分析，供后续开发（语音、BLE、StaffDeck 整合等）作为基础参照。
+> **StaffDeck 整合**：§16 已过期；现行以 `docs/staffdeck-analysis.md` + `docs/app-prd.md` v1.6 + `docs/assets/prototypes/` 为准。
 
 ---
 
@@ -527,26 +528,37 @@ pnpm ios:device:prod:release   # 独立 Release 装到 iPhone
 
 ## 16. 与 StaffDeck 的整合切入点
 
-> 本节省略版。StaffDeck（面壁智能 / OpenBMB，2026-07-16 开源）是「企业数字员工平台」：把 AI agent 当正式员工治理——工号、岗位（财务/法务/HR/IT/行政）、能力边界、工作记录、KPI；agent 遵循 SOP（状态机）、依赖企业知识库（OKF 五层）、靠反馈进化；支持**多智能体团队**（TL、3 轮 HP 竞价 arena、团队黑板、任务生命周期 pending→bidding→in_progress→review→done/cancelled/escalated）、HITL、全链路审计、数字员工市场。
+> ⚠️ **本节已过期（2026-08-17）**。下文仍保留历史草稿，**不得再当作现行整合方案**。
+>
+> 现行依据：
+> - 借鉴边界与 A/B/C 分级：[`docs/staffdeck-analysis.md`](./staffdeck-analysis.md) §10–§11
+> - 移动端落地与分期：[`docs/app-prd.md`](./app-prd.md) v1.6（§2.1 / §2.5 / §7 / M4）
+> - 可点击原型：[`docs/assets/prototypes/00-index.html`](./assets/prototypes/00-index.html)
+>
+> **明确废止的切入点**（与现行 C 级 / PRD §2.1 冲突）：看板加「竞价中」列、移植 OKF、竞标 arena、员工市场/安装带 SOP 的模板。本期只借治理层表达（员工即上下文、能力计数、档案分层、阻断提示、HITL），不移植 SOP 状态机 / OKF / 广场 / 竞标。
+
+> ~~本节省略版。StaffDeck（面壁智能 / OpenBMB，2026-07-16 开源）是「企业数字员工平台」…~~（以下正文为历史草稿，仅供对照）
+
+StaffDeck（面壁智能 / OpenBMB，2026-07-16 开源）是「企业数字员工平台」：把 AI agent 当正式员工治理——工号、岗位（财务/法务/HR/IT/行政）、能力边界、工作记录、KPI；agent 遵循 SOP（状态机）、依赖企业知识库（OKF 五层）、靠反馈进化；支持**多智能体团队**（TL、3 轮 HP 竞价 arena、团队黑板、任务生命周期 pending→bidding→in_progress→review→done/cancelled/escalated）、HITL、全链路审计、数字员工市场。
 
 两者结合点非常自然——utter-office 已经有 agent/squad 实体、issue 任务流、语音/BLE 秘书入口：
 
 | StaffDeck 概念 | utter-office 已有 | 缺的 |
 |---|---|---|
 | 数字员工（工号/岗位/KPI/工作记录） | 后端 `agent` 实体 + `involves_user_id`（MUL-2397） | 员工身份层展示 |
-| 任务生命周期 + 竞价 arena | issue `BOARD_STATUSES` 状态流 | `bidding` 状态 + arena 动作 |
-| 团队 TL / 黑板书 | chat 按 agent 分会话（voice-talk 已能发消息进会话） | team 语义注入、团队会话 |
-| 知识库 OKF / 引用溯源 | 项目资源（`add-resource.tsx`）+ 评论 + pins | 知识分层、溯源 |
-| 进化闭环（负面反馈→SOP 修复） | 评论/回复/状态/实时 WS | 反馈自动分类→修复工单 |
-| 数字员工市场 | 项目新建/选择流程 | 安装带 SOP 的员工 |
+| 任务生命周期 + 竞价 arena | issue `BOARD_STATUSES` 状态流 | ~~`bidding` 状态 + arena 动作~~ **已废止** |
+| 团队 TL / 黑板书 | chat 按 agent 分会话（voice-talk 已能发消息进会话） | ~~team 语义注入~~ **已废止为 StaffDeck 竞标子系统**；战队只读 |
+| 知识库 OKF / 引用溯源 | 项目资源（`add-resource.tsx`）+ 评论 + pins | ~~知识分层~~ **已废止（领域不匹配）** |
+| 进化闭环（负面反馈→SOP 修复） | 评论/回复/状态/实时 WS | 反馈自动分类→修复工单（仍可远期评估，非本期） |
+| 数字员工市场 | 项目新建/选择流程 | 登记 B-7，非本期 |
 
-**三个最自然的切入点**：
+**三个最自然的切入点**（历史草稿；现行以 PRD M4 为准）：
 
-1. **Agents 标签页**（`more/agents.tsx` 占位）→ 数字员工名册（工号/岗位/在手任务/KPI）。
-2. **语音输入 → 秘书派单 → 竞价**：AI 秘书 = StaffDeck 团队 TL/调度 persona；voice-talk 的会话绑定成团队频道后，入站消息获得 TL 语义（派单）。这是 StaffDeck 没有、utter-office 独有的差异化入口。
-3. **看板加「竞价中」列**：`BOARD_STATUSES` 是 StaffDeck 任务状态机的子集，扩展 `bidding` 即可。
+1. **Agents 标签页**（`more/agents.tsx` 占位）→ 数字员工名册（工号/岗位/在手任务/KPI）。**仍有效，见 PRD §7.5。**
+2. ~~**语音输入 → 秘书派单 → 竞价**~~：**废止竞价**；保留语音 → 默认员工 / 派单。
+3. ~~**看板加「竞价中」列**~~：**废止**；`IssueStatus` 扩展需跨端评审，见 PRD §14.2。
 
-**落地路径**：P1 身份层（后端补字段 → Agents 名册渲染）→ P2 任务协作（bidding 状态 + voice 派单 + 团队频道）→ P3 知识层（资源升级为 OKF/黑板 + 引用溯源）→ P4 进化闭环（负面反馈→SOP 修复 issue）→ P5 市场（安装预置数字员工）。
+**落地路径**（历史）：P1 身份层 → … → P5 市场。**现行**：按 PRD M1–M4；后端缺口只登记 §10.2。
 
 **硬约束与风险**：
 - **行为语义一致性**（CLAUDE.md 铁律）：数字员工模型必须先进后端（`packages/core` + Multica 服务端），移动端只是渲染层，不能做成移动端独有覆盖层。
