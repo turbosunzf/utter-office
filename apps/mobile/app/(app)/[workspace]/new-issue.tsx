@@ -4,7 +4,7 @@
  * Prefill: `assigneeId` + `assigneeType` URL params (from staff-picker
  * dispatch) are applied in useLayoutEffect so the assignee chip is set
  * before the first paint (avoids a flash of「负责人」占位).
- * Optional `title` / `description` (e.g. brief dig).
+ * Optional `title` / `description` (e.g. brief squad launch).
  */
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {

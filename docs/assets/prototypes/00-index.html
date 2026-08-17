@@ -1,96 +1,212 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>utter-office 原型目录 · StaffDeck 整合目标态</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;background:#F5F6F8;color:#1C1C1E;line-height:1.55;padding:24px 20px 48px;max-width:720px;margin:0 auto}
-h1{font-size:22px;margin-bottom:6px}
-.sub{font-size:13px;color:#8E8E93;margin-bottom:20px}
-.banner{background:#FFF8E6;border:1px solid #FFE8B3;border-radius:12px;padding:12px 14px;font-size:13px;color:#6B4E0A;margin-bottom:20px}
-.banner b{color:#4A3800}
-h2{font-size:15px;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid #E5E5EA}
-.paths{display:flex;flex-direction:column;gap:8px}
-.path{background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:12px 14px;font-size:13px}
-.path a{color:#3B6FFF;font-weight:600;text-decoration:none}
-.path .n{display:inline-block;width:20px;height:20px;border-radius:6px;background:#EDF1FB;color:#3B6FFF;text-align:center;font-size:11px;font-weight:700;line-height:20px;margin-right:6px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-@media(max-width:560px){.grid{grid-template-columns:1fr}}
-.card{background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:12px 14px;text-decoration:none;color:inherit;display:block}
-.card:hover{border-color:#3B6FFF}
-.card .t{font-size:14px;font-weight:600}
-.card .d{font-size:11px;color:#8E8E93;margin-top:4px}
-.tag{font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:500}
-.tag.a{background:#E6F6EC;color:#1B8A4A}
-.tag.b{background:#EDF1FB;color:#3B6FFF}
-.tag.c{background:#F1F1F4;color:#6E6E73}
-.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;margin-bottom:8px}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.dot{width:10px;height:10px;border-radius:3px}
-.dot.real{background:#34C759}
-.dot.mock{background:#3B6FFF}
-.dot.ph{background:#D1D1D6}
-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E5E5EA}
-th,td{padding:8px 10px;text-align:left;border-top:1px solid #F1F1F4;vertical-align:top}
-th{background:#F8F8FA;font-weight:600;border-top:none}
-.skip{font-size:12px;color:#8E8E93;background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:12px 14px}
-.skip code{font-size:11px;background:#F2F3F7;padding:1px 5px;border-radius:4px}
-</style>
+<title>utter-office 交互原型讲解</title>
+<link rel="stylesheet" href="_shell.css">
 </head>
 <body>
-  <h1>utter-office 移动端原型</h1>
-  <p class="sub">StaffDeck 整合目标态 · 多文件相对链接 · 对齐 PRD v1.6 · 非 M1 中间态</p>
+<div class="shell">
+  <aside class="nav">
+    <div class="nav-brand">
+      <h1>utter-office 原型</h1>
+      <p>左选屏 · 中预览 · 右说明<br>手机内交互按真实 App 路由</p>
+    </div>
+    <div class="nav-scroll" id="nav"></div>
+  </aside>
 
-  <div class="banner">
-    <b>原型演示</b>：本包用于评审交互与信息架构。页内「示例数据」= B 类 mock；A 类决策数字缺接口时画 <b>——</b>，禁止用假成功率/假运行时长冒充。编码按里程碑分批，M1 我的页仍指 <code>more/agents</code>，与原型 <code>/staff</code> 不一致属预期。
-  </div>
+  <main class="stage">
+    <div class="stage-bar">
+      <span>当前预览</span>
+      <span class="route" id="stage-route">/{slug}/home</span>
+    </div>
+    <div class="phone-frame">
+      <iframe id="phone" title="App 预览" src="02-home.html?embed=1"></iframe>
+    </div>
+  </main>
 
-  <h2>数据图例</h2>
-  <div class="legend">
-    <span><i class="dot real"></i>真实 / 有聚合口径</span>
-    <span><i class="dot mock"></i>示例数据（B 类）</span>
-    <span><i class="dot ph"></i>占位 / 暂不支持</span>
-  </div>
+  <aside class="aside">
+    <div class="aside-scroll" id="aside"></div>
+  </aside>
+</div>
 
-  <h2>四条主路径（须点通）</h2>
-  <div class="paths">
-    <div class="path"><span class="n">1</span>首页「派单」→ <a href="09-staff-picker.html#dispatch">picker(dispatch)</a> → <a href="08-staff-profile.html">档案</a> 或工作台</div>
-    <div class="path"><span class="n">2</span><a href="06-mine.html">我的</a>「数字员工」→ <a href="07-staff-roster.html">名册</a> → <a href="08-staff-profile.html">档案</a> →「与他对话」→ <a href="05-workbench.html">工作台</a></div>
-    <div class="path"><span class="n">3</span><a href="05-workbench.html">工作台</a> Rail 切员工；「全部」→ 名册；阻断条「去绑定」→ 档案能力 Tab</div>
-    <div class="path"><span class="n">4</span>我的「秘书设置」→ <a href="10-assistant-settings.html">秘书设置</a> → <a href="09-staff-picker.html#default">picker(default)</a> → 回设置；中央按钮见 <a href="04-voice.html">录音 Overlay</a></div>
-  </div>
+<script>
+(function () {
+  var SCREENS = [
+    { group: "底栏", id: "01", file: "01-tab-ia.html", title: "信息架构", route: "tabs/_layout",
+      lead: "底栏 2+1+2。中央录音不是导航目标：短按 Sheet、长按 Overlay。",
+      points: ["选中 Tab：图标井浅蓝底 + brand 色", "中央按钮 58×58、圆角 18、品牌渐变，栏内居中不突出", "未读 badge 用 brand，非系统红"],
+      tip: "在预览里点底栏可切换真实 Tab，不会跳出讲解壳。" },
+    { group: "底栏", id: "02", file: "02-home.html", title: "首页", route: "/{slug}/home",
+      lead: "决策台：Hero 派单 + Pulse + 工作成果(24h) + 待办 + 简报。",
+      points: ["「一键派单」→ staff-picker?intent=dispatch", "「语音下达」打开 Sheet（录音/翻译/发语音）", "工作成果：热力柱 + 头像（过去 24h 产出浏览）", "待办：决策队列 — 需你介入(主) + 今天/明天双栏(次)", "简报带「示例数据」，≠ 主动工作"],
+      tip: "待办问「谁下一步」；成果问「交了什么」。" },
+    { group: "底栏", id: "03", file: "03-board.html", title: "看板", route: "/{slug}/board",
+      lead: "默认「整盘」；可切「按状态」「按人」（泳道按项目）。",
+      points: ["整盘：sec-bar 分区 — 概况 KPI + 进行中密排 + 员工用量", "去掉报告占位；事项行对齐首页密排（色点/标签/头像）", "按状态：横滑列 + 列内密排事项", "按人：项目泳道白卡 + 密排行；非整盘可切项目"],
+      tip: "切「按状态」左右滑；非整盘点项目 chip。" },
+    { group: "底栏", id: "04", file: "04-voice.html", title: "中央录音入口", route: "VoiceOverlay",
+      lead: "中央按钮短按打开 Sheet；三项进入独立子页。",
+      points: ["录音 → /voice-record（边录边转写）", "翻译 → /voice-translate（实时双语）", "发语音 → /voice-talk（即时下达）", "长按 ≥2s → Overlay，松手 Toast 不发送"],
+      tip: "请从 Sheet 进入三个子页，不要把入口页当成发语音页。" },
+    { group: "底栏", id: "05", file: "05-workbench.html", title: "工作台", route: "/{slug}/workbench",
+      lead: "员工即频道：StaffRail + 会话 + Composer。",
+      points: ["Rail 首项「全部」进名册", "运行中折叠为「N steps」", "Runtime banner 英文：needs a runtime…", "阻断条与首页同文案"],
+      tip: "点 Rail 切换员工名；点「全部」进名册。" },
+    { group: "底栏", id: "06", file: "06-mine.html", title: "我的", route: "/{slug}/mine",
+      lead: "资料卡 → 专业版工作区（首页迁入）→ 工作 / 设置与秘书。",
+      points: ["专业版：当前方案 + 席位/并发 + SVG 权益四宫 + CTA", "数字员工 → /staff 名册", "秘书设置 → assistant", "右上角组织 chip → 切换工作区（列表 + 确认）"],
+      tip: "点专业版卡看占位提示；点右上角组织名可模拟切换。" },
+    { group: "语音子页", id: "13", file: "13-voice-record.html", title: "录音", route: "/{slug}/voice-record",
+      lead: "meet-think 结构：胶囊 + 转写列表 + 底部 Dock。",
+      points: ["状态胶囊：转写中 / 已暂停 / 已停止", "逐句 · 中文→英文", "暂停/停止圆钮 + 工具条", "mock 转写每 3s 追加一行"],
+      tip: "点暂停再点继续；点停止看空态后可重启。" },
+    { group: "语音子页", id: "14", file: "14-voice-translate.html", title: "翻译", route: "/{slug}/voice-translate",
+      lead: "左右对向气泡；按住说话松开出译。",
+      points: ["我（中）靠右 brand；对方（英）靠左 teal", "顶栏：翻译中 · 端侧录音 · 计时", "按住变「松开出译」并追加 mock 行"],
+      tip: "分别按住左右两条 HoldSpeakBar。" },
+    { group: "语音子页", id: "12", file: "12-voice-talk.html", title: "发语音", route: "/{slug}/voice-talk",
+      lead: "选接收员工 + 大 Orb 按住说话（无延迟）。",
+      points: ["「发给谁」横滑头像，选中 brand 描边", "当前接收人卡 + 状态", "按住：正在聆听… + EQ；松开 Toast", "「全部」打开选择接收员工 Modal"],
+      tip: "这是发语音页本身，不是中央按钮演示页。" },
+    { group: "员工", id: "07", file: "07-staff-roster.html", title: "名册", route: "/{slug}/staff",
+      lead: "与档案页头同构：域 → 职能 → 代号 → 职责 → 能力 chip → 工位。",
+      points: ["主标题是职能名（需求派单助理），不是花名", "职责散文含升级条件，不再单独拆行", "chip：技能·工具·在手·定时", "工位条与档案警示同口径"],
+      tip: "点卡片进档案，信息层级应一眼对得上。" },
+    { group: "员工", id: "08", file: "08-staff-profile.html", title: "档案", route: "/{slug}/staff/[id]",
+      lead: "对齐 StaffDeck 详情：域·职能页头 + 绩效 + 今日活动 + 成长 + 能力资产卡。",
+      points: ["页头：调度 / 需求派单助理 + 职责散文（无套话）", "能力 chip：技能·工具·在手·定时", "工作记录：绩效四格 / 今日活动轴 / 成长时间线", "能力资产卡点进「能力」Tab"],
+      tip: "工作记录看活动轴与成长；能力看工位未绑定与工具明细。" },
+    { group: "员工", id: "09", file: "09-staff-picker.html", title: "员工选择器", route: "/{slug}/staff-picker",
+      lead: "formSheet；dispatch / default 双 intent。",
+      points: ["#dispatch：派单预填", "#default：设为默认员工", "行：头像 · 名 · 绑定 · 状态"],
+      tip: "从首页派单或秘书设置进入，intent 文案会变。" },
+    { group: "设置", id: "10", file: "10-assistant-settings.html", title: "秘书设置", route: "/{slug}/more/settings/assistant",
+      lead: "默认员工 + 语音偏好 + 简报占位。",
+      points: ["默认员工扁平行（名 + ›）", "长按录音阈值 0.5/1/2s", "语音入口默认项：录音/翻译/发语音", "简报：B-2 占位说明"],
+      tip: "点默认员工进 picker#default。" },
+    { group: "内容", id: "11", file: "11-brief-detail.html", title: "简报详情", route: "/{slug}/brief/[id]",
+      lead: "任务小队收敛：一句目标 + 横滑成员 +「深入分析探索」。",
+      points: ["主卡：渐变头 + 环头像 + 席位 chip", "点头像 / 点成员行 → 独立换人列表（打勾）", "调整小队：开关席位；保存小队", "CTA：深入分析探索"],
+      tip: "主卡点头像可直接换人；调整里右侧开关席位。" },
+    { group: "内容", id: "15", file: "15-inbox.html", title: "收件箱", route: "/{slug}/inbox",
+      lead: "未读点 + 标题 + 状态图标；副行 type-aware 文案 + 时间。",
+      points: ["右上 ···：全部已读 / 归档菜单", "未读 brand 圆点 + 字重", "点行进事项（原型进工作台）", "从首页 Pulse / 我的进入"],
+      tip: "返回会回到来源页（首页或我的）。" },
+    { group: "内容", id: "16", file: "16-projects.html", title: "项目", route: "/{slug}/more/projects",
+      lead: "项目列表：图标 + 标题 + 状态/优先级 + 完成数/时间。",
+      points: ["按 updated_at 倒序", "右上 + 新建（原型提示）", "从首页 Pulse / 我的进入"],
+      tip: "返回同样跟从来源。" }
+  ];
 
-  <h2>屏目录</h2>
-  <div class="grid">
-    <a class="card" href="01-tab-ia.html"><div class="t">01 信息架构</div><div class="d">底栏 2+1+2</div></a>
-    <a class="card" href="02-home.html"><div class="t">02 首页</div><div class="d">派单 · 阻断条 · 报告降级 · 简报</div></a>
-    <a class="card" href="03-board.html"><div class="t">03 看板</div><div class="d">列视图 · 运行中 → HITL</div></a>
-    <a class="card" href="04-voice.html"><div class="t">04 中央录音</div><div class="d">短按 Sheet · 长按 Overlay</div></a>
-    <a class="card" href="05-workbench.html"><div class="t">05 工作台</div><div class="d">员工 Rail · HITL 三入口</div></a>
-    <a class="card" href="06-mine.html"><div class="t">06 我的</div><div class="d">数字员工 · 秘书设置</div></a>
-    <a class="card" href="07-staff-roster.html"><div class="t">07 名册</div><div class="d">能力三格 · 工具三态 · 战队</div></a>
-    <a class="card" href="08-staff-profile.html"><div class="t">08 档案</div><div class="d">页头 + 工作记录/能力/会话</div></a>
-    <a class="card" href="09-staff-picker.html"><div class="t">09 员工选择器</div><div class="d">dispatch / default 双 intent</div></a>
-    <a class="card" href="10-assistant-settings.html"><div class="t">10 秘书设置</div><div class="d">默认员工 · 语音偏好</div></a>
-    <a class="card" href="11-brief-detail.html"><div class="t">11 简报详情</div><div class="d">示例数据 · 让员工深挖</div></a>
-  </div>
+  var nav = document.getElementById("nav");
+  var aside = document.getElementById("aside");
+  var phone = document.getElementById("phone");
+  var stageRoute = document.getElementById("stage-route");
+  var current = SCREENS[1]; // home
 
-  <h2>借鉴 / 不借鉴</h2>
-  <table>
-    <thead><tr><th>级</th><th>内容</th><th>本包</th></tr></thead>
-    <tbody>
-      <tr><td><span class="tag a">借</span></td><td>员工即上下文、能力计数、档案分层、阻断提示、HITL、空态说明、升级条件描述、工具展开、数据诚实</td><td>必须可见</td></tr>
-      <tr><td><span class="tag c">不借</span></td><td>SOP 状态机、OKF、广场五列、竞标 arena、渠道接入、表格式管理、移动端创建员工</td><td>禁止假流程</td></tr>
-      <tr><td><span class="tag b">登记</span></td><td>B-5 定时/主动工作、B-6 成长记录、B-7 模板广场、B-9 30 天 KPI</td><td>仅说明卡 / ——</td></tr>
-    </tbody>
-  </table>
+  function renderNav() {
+    var html = "";
+    var last = "";
+    SCREENS.forEach(function (s) {
+      if (s.group !== last) {
+        html += '<div class="nav-group">' + s.group + "</div>";
+        last = s.group;
+      }
+      html +=
+        '<button type="button" class="nav-item' +
+        (s.file === current.file ? " on" : "") +
+        '" data-file="' +
+        s.file +
+        '"><span class="id">' +
+        s.id +
+        "</span>" +
+        s.title +
+        "</button>";
+    });
+    nav.innerHTML = html;
+    nav.querySelectorAll(".nav-item").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        go(btn.getAttribute("data-file"), "", { reset: true });
+      });
+    });
+  }
 
-  <h2>本包明确不做</h2>
-  <div class="skip">
-    inbox / my-issues / reports / board-view / 泳道与进度 / 语音三子页展开 / 新建事项完整表单 / 广场 / SOP / 知识库 / 记忆管理 / 定时任务表 / 成长时间线。
-    上述或已有 PRD 线框，或属 B/C 级。编码前以 <code>docs/app-prd.md</code> v1.6 为准。
-  </div>
+  function renderAside(s) {
+    var points = s.points
+      .map(function (p) {
+        return "<li>" + p + "</li>";
+      })
+      .join("");
+    aside.innerHTML =
+      "<h2>" +
+      s.title +
+      '</h2><div class="route-label">' +
+      s.route +
+      '</div><p class="lead">' +
+      s.lead +
+      "</p><h3>对齐要点</h3><ul>" +
+      points +
+      '</ul><div class="tip">' +
+      s.tip +
+      '</div><div class="warn">手机内点击会在预览框内跳转，不会回到本讲解页。用左侧导航可随时换屏。名册返回：首页 / 工作台 / 我的 → 从哪来回哪里。</div>';
+  }
+
+  function go(file, hash, opts) {
+    opts = opts || {};
+    var known = SCREENS.find(function (x) {
+      return x.file === file;
+    });
+    current = known || {
+      file: file,
+      title: file.replace(/\.html$/, ""),
+      route: "/" + file.replace(/\.html$/, ""),
+      lead: "子页预览（左侧未单独登记时仍可在壳内打开）。",
+      points: ["返回：从哪来回哪里（URL ?from=）"],
+      tip: "用左侧导航可切回主屏。",
+      group: "",
+      id: "",
+    };
+    var qs = opts.query || "embed=1";
+    if (qs.indexOf("embed=1") < 0) {
+      qs = qs ? "embed=1&" + qs : "embed=1";
+    }
+    // 左侧直接选屏：不带 from
+    if (opts.reset) qs = "embed=1";
+    var src = file + "?" + qs;
+    if (hash && hash.charAt(0) === "#") src += hash;
+    else if (hash) src += hash;
+    phone.src = src;
+    stageRoute.textContent = current.route;
+    renderNav();
+    renderAside(current);
+    try {
+      history.replaceState({ file: file }, "", "#" + file.replace(".html", ""));
+    } catch (e) {}
+  }
+
+  window.addEventListener("message", function (ev) {
+    var data = ev.data || {};
+    if (data.type !== "proto-nav") return;
+    var file = data.file;
+    if (!file || file.indexOf("00-index") >= 0) return;
+    go(file, data.hash || "", { query: data.query || "embed=1" });
+  });
+
+  // deep link #02-home
+  var boot = (location.hash || "").replace(/^#/, "");
+  if (boot) {
+    var match = SCREENS.find(function (s) {
+      return s.file.replace(".html", "") === boot || s.file === boot + ".html" || s.id === boot;
+    });
+    if (match) current = match;
+  }
+  renderNav();
+  renderAside(current);
+  phone.src = current.file + "?embed=1";
+  stageRoute.textContent = current.route;
+})();
+</script>
 </body>
 </html>

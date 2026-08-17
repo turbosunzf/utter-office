@@ -63,6 +63,20 @@ function statusLine(
   return `● ${st} · 归属 @${ownerName} · 入职 ${formatJoinDate(agent.created_at)}`;
 }
 
+function firstSentence(text: string | undefined | null): string {
+  if (!text) return "";
+  const t = text.trim();
+  if (!t) return "";
+  const m = t.match(/^[^。！？.!?\n]+/);
+  return (m?.[0] ?? t).trim();
+}
+
+function roleTitle(agent: Agent): string {
+  const s = firstSentence(agent.description);
+  if (s && s.length <= 20 && !/[；;]/.test(s)) return s;
+  return agent.name;
+}
+
 function CapPlaceholder({
   title,
   body,
@@ -211,69 +225,77 @@ export default function StaffProfilePage() {
     router.push(`/${wsSlug}/issue/${issueId}`);
   };
 
+  const role = roleTitle(agent);
+  const handleLine =
+    role === agent.name
+      ? [agent.model].filter(Boolean).join(" · ")
+      : agent.name;
+
   return (
     <View className="flex-1 bg-background">
       <View className="bg-card border-b border-border px-4 pt-3 pb-3.5">
         <View className="flex-row gap-3 items-start">
           <ActorAvatar type="agent" id={agent.id} size={64} showPresence />
           <View className="flex-1 min-w-0">
-            <Text className="text-lg font-bold text-foreground" numberOfLines={1}>
-              {agent.name}
-              {agent.model ? ` · ${agent.model}` : ""}
+            <Text className="text-xl font-bold text-foreground" numberOfLines={1}>
+              {role}
             </Text>
-            <Text className="text-xs text-muted-foreground mt-1" numberOfLines={2}>
+            {handleLine ? (
+              <Text className="text-[13px] text-muted-foreground mt-0.5" numberOfLines={1}>
+                {handleLine}
+              </Text>
+            ) : null}
+            <Text className="text-xs text-muted-foreground mt-1.5" numberOfLines={2}>
               {statusLine(agent, availability, workload, ownerName)}
             </Text>
           </View>
         </View>
         {agent.description ? (
           <Text
-            className="text-xs text-foreground mt-2.5 leading-[1.5]"
+            className="text-[13px] text-foreground mt-3 leading-[1.55]"
             numberOfLines={3}
           >
             {agent.description}
           </Text>
         ) : null}
-        <View className="flex-row mt-3 rounded-[10px] border border-border overflow-hidden">
-          {(
-            [
-              [skillCountLabel(agent), "技能", false],
-              [tools.label, "工具", tools.kind !== "count"],
-              [
-                activeCount == null ? "暂无" : String(activeCount),
-                "在手",
-                activeCount == null,
-              ],
-              ["未开放", "定时", true],
-            ] as const
-          ).map(([n, l, soft], i) => (
-            <View
-              key={l}
+        <View className="flex-row flex-wrap gap-1.5 mt-3">
+          <View className="rounded-lg bg-secondary px-2.5 py-1">
+            <Text className="text-[11px] font-semibold">
+              {skillCountLabel(agent)} 技能
+            </Text>
+          </View>
+          <View className="rounded-lg bg-secondary px-2.5 py-1">
+            <Text
               className={cn(
-                "flex-1 items-center py-2",
-                i > 0 && "border-l border-border",
+                "text-[11px] font-semibold",
+                tools.kind !== "count" && "text-muted-foreground",
               )}
             >
-              <Text
-                className={cn(
-                  "font-semibold",
-                  soft
-                    ? "text-[12px] text-muted-foreground"
-                    : "text-[15px] text-foreground",
-                )}
-              >
-                {n}
-              </Text>
-              <Text className="text-[10px] text-muted-foreground mt-0.5">{l}</Text>
-            </View>
-          ))}
+              {tools.kind === "count" ? `${tools.label} 工具` : `${tools.label} 工具`}
+            </Text>
+          </View>
+          <View className="rounded-lg bg-secondary px-2.5 py-1">
+            <Text
+              className={cn(
+                "text-[11px] font-semibold",
+                activeCount == null && "text-muted-foreground",
+              )}
+            >
+              {activeCount == null ? "—" : String(activeCount)} 在手
+            </Text>
+          </View>
+          <View className="rounded-lg bg-secondary px-2.5 py-1">
+            <Text className="text-[11px] font-semibold text-muted-foreground">
+              — 定时
+            </Text>
+          </View>
         </View>
-        <View className="flex-row gap-2 mt-3">
+        <View className="flex-row gap-2 mt-3.5">
           <Pressable
             onPress={openChat}
             className="flex-1 h-10 rounded-[10px] bg-brand items-center justify-center active:opacity-80"
           >
-            <Text className="text-sm font-semibold text-white">与他对话</Text>
+            <Text className="text-sm font-semibold text-white">去对话</Text>
           </Pressable>
           <Pressable
             onPress={openDispatch}

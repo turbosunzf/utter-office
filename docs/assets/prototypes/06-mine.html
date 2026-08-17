@@ -1,89 +1,427 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>06 我的</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>06 我的 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
-.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column}
-.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
-.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
-.header{height:48px;display:flex;align-items:center;padding:0 16px}
-.hl{font-size:17px;font-weight:700}
-.content{flex:1;overflow:hidden;padding:0 16px 12px;display:flex;flex-direction:column;gap:8px}
-.group{background:#fff;border:1px solid #E5E5EA;border-radius:14px;overflow:hidden;flex-shrink:0}
-.gt{font-size:12px;color:#8E8E93;padding:10px 4px 4px}
-.row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid #F1F1F4;font-size:14px;color:#1C1C1E;text-decoration:none}
-.row:first-child{border-top:none}
-.row .ic{width:24px;height:24px;border-radius:7px;background:#EDF1FB;color:#3B6FFF;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.row .chev{margin-left:auto;color:#C7C7CC}
-.row .num{font-size:11px;color:#8E8E93;background:#F1F1F4;border-radius:6px;padding:1px 6px}
-.row .num.blue{color:#3B6FFF;background:#EDF1FB}
-.ident{display:flex;align-items:center;gap:10px;padding:12px 14px}
-.avatar{width:40px;height:40px;border-radius:20px;background:#3B6FFF;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
-.ident .nm{font-size:15px;font-weight:700}
-.ident .em{font-size:11px;color:#8E8E93}
-.wsrow{display:flex;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid #F1F1F4}
-.wsav{width:30px;height:30px;border-radius:8px;background:#E6F6EC;color:#1B8A4A;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
-.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
-.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px;text-decoration:none}
-.tab.active{color:#3B6FFF}
-.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8}
-.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;text-decoration:none}
-.ver{text-align:center;font-size:11px;color:#C7C7CC;padding:6px 0 0}
+.ws-chip {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px 6px 6px;
+  background: #EEF1F8; border-radius: 999px; border: none; cursor: pointer;
+  color: inherit; max-width: 100%; font: inherit; text-align: left;
+}
+.ws-chip .ava { width: 24px; height: 24px; border-radius: 8px; background: var(--brand-hex); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ws-chip .nm { font-size: 13px; font-weight: 600; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-sheet-scrim{
+  position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:50;
+  display:none;align-items:flex-end;padding:8px;box-sizing:border-box;
+}
+.ws-sheet-scrim.show{display:flex}
+.ws-sheet{
+  width:100%;background:#fff;border-radius:24px 24px 0 0;
+  padding:8px 0 calc(var(--safe-bottom) + 12px);
+  animation:sheetUp .22s ease-out;max-height:72%;overflow:hidden;display:flex;flex-direction:column;
+}
+.ws-sheet-h{padding:12px 16px 8px;font-size:16px;font-weight:600}
+.ws-sheet-list{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.ws-row{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;width:100%;
+  border:none;background:transparent;cursor:pointer;font:inherit;text-align:left;color:inherit;
+}
+.ws-row:active{background:var(--secondary)}
+.ws-row.cur{opacity:.95}
+.ws-row .ava{width:24px;height:24px;border-radius:8px;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ws-row .nm{flex:1;font-size:15px;font-weight:500}
+.ws-row .check{color:var(--brand-hex);flex-shrink:0}
+.ws-confirm{
+  position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:55;
+  display:none;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;
+}
+.ws-confirm.show{display:flex}
+.ws-confirm-box{
+  width:100%;max-width:300px;background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,.2);
+}
+.ws-confirm-box .t{padding:20px 16px 8px;font-size:17px;font-weight:600;text-align:center}
+.ws-confirm-box .s{padding:0 16px 16px;font-size:13px;color:var(--muted-fg);text-align:center;line-height:1.4}
+.ws-confirm-box .acts{display:flex;border-top:1px solid var(--border)}
+.ws-confirm-box .acts button{
+  flex:1;height:48px;border:none;background:transparent;font-size:17px;cursor:pointer;
+}
+.ws-confirm-box .acts button+button{border-left:1px solid var(--border);color:var(--brand-hex);font-weight:600}
+.profile-card { display: flex; align-items: center; gap: 12px; padding: 16px; text-decoration: none; color: inherit; }
+.profile-card .avatar.xl {
+  border-radius: 999px !important;
+  overflow: hidden;
+}
+.profile-card .name { font-size: 17px; font-weight: 700; }
+.profile-card .email { font-size: 12px; color: var(--muted-fg); margin-top: 2px; }
+.sec-wrap { margin-top: 4px; }
+.sec-h { font-size: 13px; font-weight: 600; color: var(--muted-fg); letter-spacing: .02em; margin-bottom: 8px; padding: 0 4px; }
+.nav-row {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; text-decoration: none; color: inherit;
+}
+.nav-row .lead {
+  width: 36px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.nav-row .t { font-size: 16px; font-weight: 500; }
+.nav-row .s { font-size: 13px; color: var(--muted-fg); margin-top: 2px; }
+.nav-row .badge {
+  min-width: 18px; height: 18px; border-radius: 9px; background: var(--brand-hex); color: #fff;
+  font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 5px; margin-left: auto; margin-right: 4px;
+}
+.nav-sep { height: 1px; background: var(--border); margin-left: 60px; }
+.mine-body {
+  display: flex; flex-direction: column; gap: 16px;
+  padding: 12px 16px 28px;
+}
+.mine-body > * { flex-shrink: 0; }
+.pro {
+  position: relative; overflow: hidden; border-radius: 16px; padding: 14px 14px 12px;
+  cursor: pointer; color: #fff; margin-bottom: 4px;
+  background: linear-gradient(145deg, #151A2E 0%, #1F2744 48%, #2A3358 100%);
+  box-shadow: 0 8px 24px rgba(26, 31, 54, .22);
+  border: 1px solid rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+.pro::before {
+  content: ""; position: absolute; right: -28px; top: -36px; width: 120px; height: 120px;
+  border-radius: 50%; background: radial-gradient(circle, rgba(158,197,255,.28), transparent 68%);
+  pointer-events: none;
+}
+.pro::after {
+  content: ""; position: absolute; left: -20px; bottom: -40px; width: 100px; height: 100px;
+  border-radius: 50%; background: radial-gradient(circle, rgba(255,212,168,.16), transparent 70%);
+  pointer-events: none;
+}
+.pro > * { position: relative; z-index: 1; }
+.pro-plan {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 10px; font-size: 11px; color: rgba(255,255,255,.62);
+  line-height: 1.3; min-height: 22px;
+}
+.pro-plan .chip {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 700; letter-spacing: .02em; line-height: 1.2;
+  color: #1A1F36; background: linear-gradient(90deg, #C9DCFF, #FFE0B8);
+  border-radius: 999px; padding: 4px 8px;
+}
+.pro-plan .usage { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.pro-plan .usage b { color: rgba(255,255,255,.92); font-weight: 700; }
+.pro-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pro-title { flex: 1; font-size: 16px; font-weight: 800; letter-spacing: -.2px; }
+.pro-cta {
+  font-size: 11px; font-weight: 700; color: #1A1F36; border-radius: 999px;
+  padding: 6px 12px; background: linear-gradient(90deg, #9EC5FF, #FFD4A8);
+  flex-shrink: 0; box-shadow: 0 2px 8px rgba(158,197,255,.25);
+}
+.pro-desc { font-size: 12px; color: rgba(255,255,255,.72); line-height: 1.45; margin-bottom: 12px; }
+.pro-feats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  padding-top: 10px; border-top: 1px solid rgba(255,255,255,.1);
+}
+.pro-feats > div {
+  text-align: center; font-size: 10px; font-weight: 600;
+  color: rgba(255,255,255,.82); line-height: 1.25;
+}
+.pro-feats .fi {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.06);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 5px; color: #E8F0FF;
+}
+.pro-feats .fi .ic { width: 14px; height: 14px; stroke: currentColor; }
+.pro-foot {
+  margin-top: 10px; font-size: 10px; color: rgba(255,255,255,.48);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.pro-foot span { opacity: .9; }
 </style>
 </head>
 <body>
+<p class="stage-note"><b>我的</b> · 对齐 mine.tsx 分区 · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
-    <div class="demo">原型目标态 · 数字员工→/staff · 秘书设置→10 · M1 编码仍可指 more/agents</div>
-    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
-    <div class="header"><div class="hl">我的</div></div>
-    <div class="content">
-      <div class="group">
-        <div class="ident"><div class="avatar">S</div><div style="flex:1"><div class="nm">Sun</div><div class="em">sun@example.com</div></div><span class="chev">›</span></div>
-        <div class="wsrow"><div class="wsav">U</div><div style="flex:1;font-size:14px">Utter Office</div><span class="chev">›</span></div>
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <div class="title-wrap"><div class="title">我的</div></div>
+      <div class="actions">
+        <button type="button" class="ws-chip" id="ws-chip" aria-label="当前组织 Utter Office，点按切换">
+          <div class="ava" id="ws-chip-ava" style="background:#3B6FFF">UO</div>
+          <span class="nm" id="ws-chip-name">Utter Office</span>
+          <svg class="ic" style="width:14px;height:14px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
       </div>
-      <div class="gt">工作</div>
-      <div class="group">
-        <a class="row" href="00-index.html"><div class="ic">📥</div>收件箱<span class="num blue">3</span><span class="chev">›</span></a>
-        <a class="row" href="00-index.html"><div class="ic">☑</div>我的事项<span class="chev">›</span></a>
-        <div class="row"><div class="ic">📌</div>置顶<span class="chev">›</span></div>
-        <div class="row"><div class="ic">☰</div>事项<span class="chev">›</span></div>
-        <div class="row"><div class="ic">▤</div>项目<span class="chev">›</span></div>
-        <a class="row" href="07-staff-roster.html"><div class="ic">👥</div>数字员工<span class="chev">›</span></a>
-      </div>
-      <div class="gt">报告</div>
-      <div class="group">
-        <div class="row"><div class="ic">📊</div>数据报告（日/周/月）<span class="chev">›</span></div>
-      </div>
-      <div class="gt">秘书</div>
-      <div class="group">
-        <a class="row" href="10-assistant-settings.html"><div class="ic">🤖</div>秘书设置（默认员工 · 语音 · 简报）<span class="chev">›</span></a>
-      </div>
-      <div class="gt">设置</div>
-      <div class="group">
-        <div class="row"><div class="ic">⚙</div>设置<span class="chev">›</span></div>
-        <div class="row"><div class="ic">👤</div>个人资料<span class="chev">›</span></div>
-        <div class="row"><div class="ic">🔔</div>通知<span class="chev">›</span></div>
-      </div>
-      <div class="gt">关于</div>
-      <div class="group">
-        <div class="row"><div class="ic">❓</div>帮助与反馈<span class="chev">›</span></div>
-        <div class="row"><div class="ic">ℹ</div>版本 1.0.0 (55)</div>
-      </div>
-      <div class="ver">utter-office · AI 秘书</div>
     </div>
-    <div class="tabbar">
-      <a class="tab" href="02-home.html"><div class="tab-icon"></div>首页</a>
-      <a class="tab" href="03-board.html"><div class="tab-icon"></div>看板</a>
-      <a class="center" href="04-voice.html">●</a>
-      <a class="tab" href="05-workbench.html"><div class="tab-icon"></div>工作台</a>
-      <a class="tab active" href="06-mine.html"><div class="tab-icon" style="background:#C9D9FF"></div>我的</a>
+    <div class="scroll mine-body">
+      <a class="elevated profile-card" href="00-index.html">
+        <div class="avatar xl" style="background:rgba(59,111,255,.15);color:var(--brand-hex)">SU</div>
+        <div class="flex-1" style="min-width:0">
+          <div class="name">Sun</div>
+          <div class="email">sun@utter.office</div>
+        </div>
+        <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+
+      <div class="pro" data-pro-upsell role="button" tabindex="0" aria-label="了解专业版工作区权益">
+        <div class="pro-plan">
+          <span class="chip">当前 · 免费体验</span>
+          <div class="usage">
+            <span>席位 <b>3/5</b></span>
+            <span>并发 <b>1</b></span>
+          </div>
+        </div>
+        <div class="pro-top">
+          <svg class="ic" style="width:18px;height:18px;color:#FFD700" viewBox="0 0 24 24"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
+          <div class="pro-title">专业版工作区</div>
+          <div class="pro-cta">了解权益</div>
+        </div>
+        <div class="pro-desc">更多席位、优先调度与合规审计 —— 让数字员工团队规模化运转。</div>
+        <div class="pro-feats">
+          <div>
+            <div class="fi"><svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            无限员工
+          </div>
+          <div>
+            <div class="fi"><svg class="ic" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></div>
+            优先队列
+          </div>
+          <div>
+            <div class="fi"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16v-5"/><path d="M12 16v-9"/><path d="M17 16V8"/></svg></div>
+            高级报表
+          </div>
+          <div>
+            <div class="fi"><svg class="ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></div>
+            审计日志
+          </div>
+        </div>
+        <div class="pro-foot">
+          <span>展示入口 · 不产生扣费</span>
+          <span>日 / 周 / 月报表在「数据报告」</span>
+        </div>
+      </div>
+
+      <div class="sec-wrap">
+        <div class="sec-h">工作</div>
+        <div class="elevated" style="overflow:hidden">
+          <a class="nav-row" href="15-inbox.html">
+            <div class="lead" style="background:rgba(59,111,255,.12);color:var(--brand-hex)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+            <div class="flex-1"><div class="t">收件箱</div><div class="s">3 条未读</div></div>
+            <span class="badge">3</span>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="00-index.html">
+            <div class="lead" style="background:rgba(13,148,136,.12);color:var(--teal)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></div>
+            <div class="flex-1"><div class="t">我的事项</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="00-index.html">
+            <div class="lead" style="background:rgba(245,158,11,.14);color:var(--priority)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg></div>
+            <div class="flex-1"><div class="t">置顶</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="00-index.html">
+            <div class="lead" style="background:#F0F3FA"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/></svg></div>
+            <div class="flex-1"><div class="t">事项</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="16-projects.html">
+            <div class="lead" style="background:rgba(59,111,255,.1);color:var(--brand-hex)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></div>
+            <div class="flex-1"><div class="t">项目</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="07-staff-roster.html">
+            <div class="lead" style="background:rgba(13,148,136,.1);color:var(--teal)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="flex-1"><div class="t">数字员工</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="sec-wrap">
+        <div class="sec-h">设置与秘书</div>
+        <div class="elevated" style="overflow:hidden">
+          <a class="nav-row" href="10-assistant-settings.html">
+            <div class="lead" style="background:rgba(59,111,255,.12);color:var(--brand-hex)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></div>
+            <div class="flex-1"><div class="t">秘书设置</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="00-index.html">
+            <div class="lead" style="background:rgba(13,148,136,.12);color:var(--teal)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16v-5"/><path d="M12 16v-9"/><path d="M17 16V8"/></svg></div>
+            <div class="flex-1"><div class="t">数据报告</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="00-index.html">
+            <div class="lead" style="background:#F0F3FA"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="flex-1"><div class="t">设置</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="00-index.html">
+            <div class="lead" style="background:#F0F3FA"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg></div>
+            <div class="flex-1"><div class="t">个人资料</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="nav-sep"></div>
+          <a class="nav-row" href="00-index.html">
+            <div class="lead" style="background:rgba(245,158,11,.14);color:var(--priority)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+            <div class="flex-1"><div class="t">通知</div></div>
+            <svg class="ic" style="width:18px;height:18px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="sec-wrap">
+        <div class="sec-h">关于</div>
+        <div class="elevated" style="overflow:hidden">
+          <div class="nav-row" style="opacity:.9">
+            <div class="lead" style="background:#F0F3FA"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+            <div class="flex-1"><div class="t">版本</div><div class="s">1.0.0 (1)</div></div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <nav class="tabbar">
+      <a class="tab" href="02-home.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>首页</a>
+      <a class="tab" href="03-board.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>看板</a>
+      <div class="tab-center-slot"><button type="button" class="record-btn" id="record-btn" aria-label="录音"><svg class="ic mic" style="width:26px;height:26px;color:#fff" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg><span class="eq"><i></i><i></i><i></i><i></i></span></button></div>
+      <a class="tab" href="05-workbench.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>工作台</a>
+      <a class="tab active" href="06-mine.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px;stroke-width:2.35" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>我的</a>
+    </nav>
+
+    <!-- 对齐 switch-workspace：列表 + 确认后切换 -->
+    <div class="ws-sheet-scrim" id="ws-sheet">
+      <div class="ws-sheet" onclick="event.stopPropagation()">
+        <div class="grabber"></div>
+        <div class="ws-sheet-h">切换工作区</div>
+        <div class="ws-sheet-list" id="ws-list"></div>
+      </div>
+    </div>
+    <div class="ws-confirm" id="ws-confirm">
+      <div class="ws-confirm-box">
+        <div class="t">切换工作区</div>
+        <div class="s" id="ws-confirm-msg">切换到该工作区？</div>
+        <div class="acts">
+          <button type="button" id="ws-confirm-cancel">取消</button>
+          <button type="button" id="ws-confirm-ok">切换</button>
+        </div>
+      </div>
+    </div>
+    <div class="toast" id="ws-toast">已切换工作区</div>
   </div>
 </div>
+<script src="_shared.js"></script>
+<script>
+(function () {
+  var WORKSPACES = [
+    { id: "uo", name: "Utter Office", initials: "UO", color: "#3B6FFF" },
+    { id: "acme", name: "Acme Labs", initials: "AL", color: "#0D9488" },
+    { id: "north", name: "Northwind", initials: "NW", color: "#F59E0B" },
+    { id: "pulse", name: "Pulse Team", initials: "PT", color: "#A78BFA" },
+  ];
+  var currentId = "uo";
+  var pending = null;
+
+  var chip = document.getElementById("ws-chip");
+  var chipAva = document.getElementById("ws-chip-ava");
+  var chipName = document.getElementById("ws-chip-name");
+  var sheet = document.getElementById("ws-sheet");
+  var list = document.getElementById("ws-list");
+  var confirmEl = document.getElementById("ws-confirm");
+  var confirmMsg = document.getElementById("ws-confirm-msg");
+  var toast = document.getElementById("ws-toast");
+
+  function currentWs() {
+    return WORKSPACES.find(function (w) { return w.id === currentId; }) || WORKSPACES[0];
+  }
+
+  function renderList() {
+    list.innerHTML = WORKSPACES.map(function (w) {
+      var on = w.id === currentId;
+      return (
+        '<button type="button" class="ws-row' + (on ? " cur" : "") + '" data-ws-id="' + w.id + '"' +
+        (on ? " disabled" : "") + ' aria-label="' +
+        (on ? w.name + "，当前工作区" : "切换到 " + w.name) + '">' +
+        '<div class="ava" style="background:' + w.color + '">' + w.initials + "</div>" +
+        '<span class="nm">' + w.name + "</span>" +
+        (on
+          ? '<svg class="ic check" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>'
+          : "") +
+        "</button>"
+      );
+    }).join("");
+  }
+
+  function applyChip(ws) {
+    chipAva.textContent = ws.initials;
+    chipAva.style.background = ws.color;
+    chipName.textContent = ws.name;
+    chip.setAttribute("aria-label", "当前组织 " + ws.name + "，点按切换");
+  }
+
+  function openSheet() {
+    renderList();
+    sheet.classList.add("show");
+  }
+  function closeSheet() {
+    sheet.classList.remove("show");
+  }
+  function openConfirm(ws) {
+    pending = ws;
+    confirmMsg.textContent = '切换到「' + ws.name + '」？';
+    confirmEl.classList.add("show");
+  }
+  function closeConfirm() {
+    pending = null;
+    confirmEl.classList.remove("show");
+  }
+  function doSwitch() {
+    if (!pending) return;
+    var ws = pending;
+    currentId = ws.id;
+    applyChip(ws);
+    closeConfirm();
+    closeSheet();
+    toast.textContent = "已切换到 " + ws.name;
+    toast.classList.add("show");
+    setTimeout(function () {
+      toast.classList.remove("show");
+    }, 1800);
+  }
+
+  chip.addEventListener("click", function (e) {
+    e.preventDefault();
+    openSheet();
+  });
+  sheet.addEventListener("click", function (e) {
+    if (e.target === sheet) closeSheet();
+  });
+  list.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-ws-id]");
+    if (!btn || btn.disabled) return;
+    var id = btn.getAttribute("data-ws-id");
+    var ws = WORKSPACES.find(function (w) { return w.id === id; });
+    if (ws) openConfirm(ws);
+  });
+  document.getElementById("ws-confirm-cancel").addEventListener("click", closeConfirm);
+  document.getElementById("ws-confirm-ok").addEventListener("click", doSwitch);
+  confirmEl.addEventListener("click", function (e) {
+    if (e.target === confirmEl) closeConfirm();
+  });
+
+  applyChip(currentWs());
+  renderList();
+})();
+</script>
 </body>
 </html>

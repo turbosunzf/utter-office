@@ -1,6 +1,6 @@
 /**
- * 首页 — PRD §4 Today shell (M1):
- *   greeting → hero → 组织在岗可视化 → 报告 → 待办 → 简报
+ * 首页 — PRD §4 Today shell:
+ *   greeting → hero → 组织在岗 → 工作成果(24h) → 待办 → 简报
  */
 import { useMemo } from "react";
 import { Pressable, ScrollView, View } from "react-native";
@@ -13,7 +13,7 @@ import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { QuickActions } from "@/components/home/quick-actions";
 import { HomeHero } from "@/components/home/home-hero";
-import { ReportCard } from "@/components/home/report-card";
+import { OutcomeFeed } from "@/components/home/outcome-feed";
 import { TodoList } from "@/components/home/todo-list";
 import { BriefList } from "@/components/home/brief-list";
 import { ProUpsellCard } from "@/components/shared/pro-upsell-card";
@@ -194,7 +194,7 @@ export default function Home() {
           onPressInbox={() => go("/inbox")}
           onPressStaff={() => go("/staff")}
         />
-        <ReportCard />
+        <OutcomeFeed />
         <View className="px-4">
           <TodoList
             issues={todos}

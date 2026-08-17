@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>16 项目 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.back{display:flex;align-items:center;gap:4px;color:var(--brand-hex);text-decoration:none;font-size:17px;padding:8px}
+.row{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;text-decoration:none;color:inherit}
+.row:active{background:var(--secondary)}
+.pic{
+  width:36px;height:36px;border-radius:10px;background:rgba(59,111,255,.12);color:var(--brand-hex);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.mid{flex:1;min-width:0}
+.name{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;align-items:center;gap:12px;margin-top:4px;font-size:12px;color:var(--muted-fg)}
+.meta .chip{display:inline-flex;align-items:center;gap:4px}
+.ic-dot{width:10px;height:10px;border-radius:3px}
+.right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.cnt{font-size:12px;color:var(--muted-fg);font-variant-numeric:tabular-nums}
+.ago{font-size:11px;color:rgba(115,115,115,.7)}
+.sep{height:1px;background:var(--border);margin-left:16px}
+</style>
+</head>
+<body>
+<p class="stage-note"><b>项目</b> · 对齐 more/projects.tsx · <a href="00-index.html">目录</a></p>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <a class="back" href="06-mine.html" data-back data-back-fallback="06-mine.html" data-back-fallback-label="我的">
+        <svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        <span data-back-label>我的</span>
+      </a>
+      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">项目</div></div>
+      <button class="icon-btn" type="button" aria-label="新建项目" onclick="alert('新建项目（原型）')">
+        <svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      </button>
+    </div>
+    <div class="scroll" style="padding:0">
+      <a class="row" href="03-board.html">
+        <div class="pic"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9l-.81-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
+        <div class="mid">
+          <div class="name">鉴权重构</div>
+          <div class="meta">
+            <span class="chip"><span class="ic-dot" style="background:var(--brand-hex)"></span>进行中</span>
+            <span class="chip"><span class="ic-dot" style="background:var(--priority)"></span>高</span>
+          </div>
+        </div>
+        <div class="right"><span class="cnt">3/12</span><span class="ago">2 小时前</span></div>
+      </a>
+      <div class="sep"></div>
+      <a class="row" href="03-board.html">
+        <div class="pic" style="background:rgba(13,148,136,.12);color:var(--teal)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+        <div class="mid">
+          <div class="name">移动端语音</div>
+          <div class="meta">
+            <span class="chip"><span class="ic-dot" style="background:var(--brand-hex)"></span>进行中</span>
+            <span class="chip"><span class="ic-dot" style="background:#3B82F6"></span>中</span>
+          </div>
+        </div>
+        <div class="right"><span class="cnt">5/18</span><span class="ago">昨天</span></div>
+      </a>
+      <div class="sep"></div>
+      <a class="row" href="03-board.html">
+        <div class="pic" style="background:rgba(245,158,11,.14);color:var(--priority)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>
+        <div class="mid">
+          <div class="name">看板体验</div>
+          <div class="meta">
+            <span class="chip"><span class="ic-dot" style="background:var(--teal)"></span>规划中</span>
+            <span class="chip"><span class="ic-dot" style="background:#9CA3AF"></span>低</span>
+          </div>
+        </div>
+        <div class="right"><span class="cnt">1/6</span><span class="ago">3 天前</span></div>
+      </a>
+      <div class="sep"></div>
+      <a class="row" href="03-board.html">
+        <div class="pic" style="background:#F0F3FA;color:var(--muted-fg)"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="mid">
+          <div class="name">数字员工运营</div>
+          <div class="meta">
+            <span class="chip"><span class="ic-dot" style="background:var(--brand-hex)"></span>进行中</span>
+          </div>
+        </div>
+        <div class="right"><span class="cnt">8/20</span><span class="ago">上周</span></div>
+      </a>
+    </div>
+  </div>
+</div>
+<script src="_shared.js"></script>
+</body>
+</html>

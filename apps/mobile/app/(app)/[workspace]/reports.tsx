@@ -1,5 +1,6 @@
 /**
- * Full reports page — aligned with home report card visual language.
+ * Full reports page — day/week/month metrics sunk from home (PRD §4.4).
+ * Entry: home「完整报告 ›」or Mine → 数据报告.
  */
 import { useEffect, useRef } from "react";
 import { Animated, Pressable, ScrollView, View } from "react-native";

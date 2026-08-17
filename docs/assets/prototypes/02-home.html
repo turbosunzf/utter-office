@@ -1,120 +1,801 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>02 首页</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>02 首页 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
-.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column}
-.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
-.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600;background:#F5F6F8}
-.header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#F5F6F8}
-.hl{font-size:17px;font-weight:700;color:#1C1C1E}
-.sub{font-size:12px;color:#8E8E93;background:#F5F6F8;padding:0 16px 8px}
-.hic{display:flex;gap:14px}
-.hic .dot{width:24px;height:24px;border-radius:8px;background:#E1E1E8;position:relative;text-decoration:none;display:flex;align-items:center;justify-content:center;font-size:12px}
-.hic .dot.bell::after{content:"3";position:absolute;top:-5px;right:-6px;min-width:16px;height:16px;border-radius:8px;background:#FF3B30;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
-.notice{display:flex;align-items:center;gap:8px;background:#FFF8E6;border-bottom:1px solid #FFE8B3;padding:8px 14px;font-size:12px;color:#8A6116}
-.notice .act{margin-left:auto;color:#3B6FFF;font-weight:600;text-decoration:none;font-size:12px}
-.content{flex:1;overflow:hidden;padding:8px 16px 0;display:flex;flex-direction:column;gap:10px}
-.q{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.q a{height:72px;border-radius:14px;background:#fff;border:1px solid #E5E5EA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:#1C1C1E;text-decoration:none;position:relative}
-.q .ic{width:26px;height:26px;border-radius:8px;background:#EDF1FB;color:#3B6FFF;display:flex;align-items:center;justify-content:center;font-size:14px}
-.q .b::after{content:"3";position:absolute;top:6px;right:10px;min-width:14px;height:14px;border-radius:7px;background:#3B6FFF;color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;padding:0 2px}
-.card{background:#fff;border:1px solid #E5E5EA;border-radius:14px;padding:12px;flex-shrink:0}
-.card .t{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:#1C1C1E;margin-bottom:8px}
-.seg{display:flex;border:1px solid #E1E1E8;border-radius:8px;overflow:hidden}
-.seg span{font-size:11px;padding:3px 10px;color:#8E8E93}
-.seg span.on{background:#3B6FFF;color:#fff}
-.rings{display:flex;justify-content:space-around;margin:6px 0 4px}
-.ring{display:flex;flex-direction:column;align-items:center;gap:4px}
-.circle{width:56px;height:56px;border-radius:50%;border:6px solid #E7ECFA;position:relative}
-.circle i{position:absolute;inset:0;border-radius:50%;border:6px solid transparent;border-top-color:#3B6FFF;transform:rotate(20deg)}
-.circle.dash{border-color:#E5E5EA}
-.circle.dash i{border-top-color:#C7C7CC}
-.circle span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#1C1C1E}
-.circle span.muted{color:#8E8E93;font-size:14px}
-.ring .l{font-size:10px;color:#8E8E93}
-.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #F1F1F4;font-size:12px;color:#1C1C1E}
-.row:first-of-type{border-top:none}
-.st{width:16px;height:16px;border-radius:5px;background:#E1E1E8;flex-shrink:0}
-.ids{font-size:10px;color:#3B6FFF;font-weight:600}
-.pri{font-size:10px;color:#FF9500}
-.due{font-size:10px;color:#8E8E93;background:#F1F1F4;border-radius:6px;padding:1px 5px}
-.due.over{color:#FF3B30;background:#FFEBEC}
-.brief-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #F1F1F4;font-size:12px;color:#1C1C1E;text-decoration:none}
-.brief-row:first-of-type{border-top:none}
-.chip{font-size:9px;color:#3B6FFF;background:#EDF1FB;border-radius:5px;padding:1px 5px;flex-shrink:0}
-.brief-row .time{margin-left:auto;font-size:10px;color:#8E8E93}
-.badge-ex{font-size:9px;color:#8E8E93;border:1px solid #D1D1D6;border-radius:4px;padding:1px 4px;margin-left:6px;font-weight:400}
-.foot{font-size:10px;color:#8E8E93;text-align:center;padding:4px 0 0}
-.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
-.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px;text-decoration:none}
-.tab.active{color:#3B6FFF}
-.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8;position:relative}
-.tab.badge .tab-icon::after{content:"3";position:absolute;top:-4px;right:-5px;min-width:16px;height:16px;border-radius:8px;background:#3B6FFF;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
-.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;text-decoration:none}
-.tab.warn .tab-icon::after{content:"";position:absolute;top:0;right:-2px;width:7px;height:7px;border-radius:4px;background:#FF9500}
+.home-body { display: flex; flex-direction: column; gap: 14px; padding: 10px 0 28px; }
+/* 首页分区：标题收进白卡，块与块拉开节奏 */
+.home-sec { padding: 0 16px; }
+.home-sec > .elevated {
+  border: 1px solid rgba(15,23,42,.06);
+  overflow: hidden;
+}
+.home-sec + .home-sec { margin-top: 10px; }
+.sec-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 11px 14px 10px;
+  background: linear-gradient(180deg, #FAFBFD, #fff);
+  border-bottom: 1px solid rgba(220,224,232,.85);
+}
+.sec-bar .tit {
+  display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap;
+  font-size: 15px; font-weight: 800; color: var(--foreground); letter-spacing: -.2px;
+}
+.sec-bar .tit::before {
+  content: ""; width: 3px; height: 14px; border-radius: 2px;
+  background: var(--brand-hex); flex-shrink: 0;
+}
+.sec-bar .meta {
+  font-size: 11px; font-weight: 500; color: var(--muted-fg);
+}
+.sec-bar .meta b { color: var(--foreground); font-weight: 700; }
+.sec-bar .meta.danger b { color: var(--destructive); }
+.sec-bar .badge {
+  font-size: 10px; color: var(--muted-fg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 5px; font-weight: 500;
+}
+.sec-body { padding: 10px 12px 12px; }
+.sec-body.flush { padding: 0; }
+.sec-body .brief-tabs { padding: 10px 12px 0; margin: 0; }
+.home-sec.pulse-sec .pulse { margin: 0; }
+.hero { display: flex; gap: 10px; padding: 0 16px; height: 118px; }
+.hero-dispatch {
+  flex: 5; border-radius: 16px; padding: 14px; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #2F62F0 0%, #3B6FFF 45%, #5B8AFF 100%);
+  box-shadow: 0 3px 8px rgba(47,98,240,.14);
+  color: #fff; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between;
+}
+.hero-dispatch::after {
+  content: ""; position: absolute; inset: 0; border-radius: 16px;
+  border: 1.1px solid rgba(255,255,255,.28); pointer-events: none;
+}
+.hero-blob-1 {
+  position: absolute; right: -12px; top: -16px; width: 72px; height: 72px;
+  border-radius: 36px; background: rgba(255,255,255,.14);
+}
+.hero-blob-2 {
+  position: absolute; left: -20px; bottom: -36px; width: 90px; height: 90px;
+  border-radius: 45px; background: rgba(6,182,212,.22);
+}
+.hero-icon {
+  width: 32px; height: 32px; border-radius: 12px; background: rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.hero-tag { font-size: 11px; font-weight: 500; opacity: .8; display: flex; align-items: center; gap: 8px; }
+.hero-title { font-size: 18px; font-weight: 700; }
+.hero-sub { font-size: 12px; opacity: .8; margin-top: 2px; }
+.hero-side { flex: 4; display: flex; flex-direction: column; gap: 10px; }
+.glass-card {
+  flex: 1; border-radius: 14px; padding: 0 12px; display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: inherit; position: relative; overflow: hidden;
+  border: 1px solid rgba(59,111,255,.12);
+  background: linear-gradient(135deg, rgba(59,111,255,.14), rgba(59,111,255,.06));
+}
+.glass-card .gi {
+  width: 32px; height: 32px; border-radius: 10px; background: rgba(255,255,255,.72);
+  display: flex; align-items: center; justify-content: center; color: var(--brand-hex); flex-shrink: 0;
+}
+.glass-card .gt { font-size: 13px; font-weight: 700; }
+.glass-card .gs { font-size: 10px; color: var(--muted-fg); }
+
+.pulse { margin: 0 16px; }
+.pulse-top { display: flex; align-items: center; gap: 12px; padding: 14px; text-decoration: none; color: inherit; }
+.pulse-icon {
+  width: 44px; height: 44px; border-radius: 16px; background: rgba(59,111,255,.12);
+  display: flex; align-items: center; justify-content: center; color: var(--brand-hex); flex-shrink: 0;
+}
+.pulse-name { font-size: 15px; font-weight: 700; }
+.pulse-sub { font-size: 11px; color: var(--muted-fg); margin-top: 2px; }
+.pulse-stack { display: flex; align-items: center; margin-right: 4px; }
+.pulse-stack .avatar {
+  margin-left: -10px;
+  border: 2px solid #fff;
+  border-radius: 999px !important;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.pulse-stack .avatar:first-child { margin-left: 0; }
+.pulse-div { height: 1px; background: var(--border); margin: 0 14px; }
+.pulse-bottom { display: flex; }
+.pulse-cell {
+  flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  text-decoration: none; color: inherit; position: relative;
+}
+.pulse-cell .pi {
+  width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pulse-cell .pl { font-size: 13px; font-weight: 600; }
+.pulse-cell .ps { font-size: 10px; color: var(--muted-fg); }
+.pulse-vdiv { width: 1px; background: var(--border); margin: 10px 0; }
+.inbox-badge {
+  position: absolute; top: 10px; right: 14px; min-width: 16px; height: 16px;
+  border-radius: 8px; background: var(--brand-hex); color: #fff; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; padding: 0 4px;
+}
+
+.outcome-wrap { padding: 0; } /* nested in home-sec */
+.outcome-head { display: none; }
+.outcome-head .left { display: flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap; }
+.outcome-head .sub { font-size: 11px; color: var(--muted-fg); }
+.outcome-badge {
+  font-size: 10px; color: var(--muted-fg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 5px;
+}
+.outcome-panel { overflow: visible; padding: 0 0 10px; box-shadow: none; border: none; background: transparent; }
+
+/* 活动热力柱 + 头像落点（无说明文案） */
+.tl { padding: 10px 12px 4px; }
+.tl-stats {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 8px; font-size: 11px; color: var(--muted-fg);
+}
+.tl-stats b {
+  color: var(--foreground); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.tl-stats .sep { width: 1px; height: 10px; background: var(--border); }
+.tl-chart {
+  position: relative; height: 48px;
+}
+.tl-bars {
+  position: absolute; left: 0; right: 0; bottom: 0; top: 20px;
+  display: flex; align-items: flex-end; gap: 2px;
+}
+.tl-bars i {
+  flex: 1; border-radius: 2px 2px 0 0; min-height: 3px;
+  background: rgba(59,111,255,.12);
+}
+.tl-bars i.l { background: rgba(59,111,255,.22); }
+.tl-bars i.m { background: rgba(59,111,255,.45); }
+.tl-bars i.h { background: rgba(59,111,255,.72); }
+.tl-bars i.peak { background: var(--brand-hex); }
+.tl-pins {
+  position: absolute; left: 0; right: 0; top: 0; height: 20px;
+  pointer-events: none;
+}
+.tl-ev {
+  position: absolute; top: 0; transform: translateX(-50%);
+  z-index: 2;
+}
+.tl-stack {
+  display: flex; align-items: center; height: 20px;
+}
+.tl-stack .av {
+  width: 20px; height: 20px; border-radius: 999px;
+  border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; color: #fff;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(15,23,42,.12);
+}
+.tl-stack .av + .av { margin-left: -7px; }
+/* 钟点单独一行，在柱图下方，与头像同列对齐 */
+.tl-times {
+  position: relative; height: 16px; margin-top: 4px;
+}
+.tl-times .t {
+  position: absolute; top: 0; transform: translateX(-50%);
+  font-size: 9px; font-weight: 600; color: var(--muted-fg);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.tl-ends {
+  display: flex; justify-content: space-between;
+  margin-top: 2px; font-size: 9px; color: #C0C6D4;
+}
+
+/* 下方：矮卡横滑 */
+.outcome-rail {
+  display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  padding: 6px 12px 0; scrollbar-width: none;
+}
+.outcome-rail::-webkit-scrollbar { display: none; }
+.out-tile {
+  flex: 0 0 132px; width: 132px;
+  border-radius: 12px; padding: 8px;
+  text-decoration: none; color: inherit;
+  background: #F5F7FC;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.out-tile .who { display: flex; align-items: center; gap: 6px; }
+.out-tile .avatar {
+  width: 20px; height: 20px; border-radius: 999px !important;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.out-tile .nm { font-size: 11px; font-weight: 700; flex: 1; min-width: 0; }
+.out-tile .clk {
+  font-size: 9px; color: var(--muted-fg); font-variant-numeric: tabular-nums;
+}
+.out-tile .viz {
+  height: 40px; border-radius: 8px; background: #fff;
+  padding: 6px 8px; display: flex; align-items: center; gap: 6px;
+  position: relative; overflow: hidden;
+}
+.out-tile .kind {
+  font-size: 9px; font-weight: 700; color: var(--brand-hex);
+}
+.out-tile .out-title {
+  font-size: 11px; font-weight: 600; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.viz-news .chart,
+.viz-metric .chart,
+.viz-done .chart { flex: 1; height: 28px; }
+.viz-news .num,
+.viz-metric .num,
+.viz-done .num {
+  font-size: 14px; font-weight: 800; line-height: 1; flex-shrink: 0;
+}
+.viz-news .num { color: #7C3AED; }
+.viz-metric .num { color: var(--brand-hex); }
+.viz-done .num { color: #F87171; }
+.viz-news .num small,
+.viz-metric .num small,
+.viz-done .num small {
+  display: block; font-size: 8px; font-weight: 600; color: var(--muted-fg); margin-top: 1px;
+}
+
+.block { padding: 0; }
+.block-head { display: none; } /* 标题改用 sec-bar */
+
+/* 待办：决策队列 · 密排实用版
+   业务：需你介入 vs 员工推进；布局：一条行动条 + 密排推进行 */
+.todo-board { padding: 0; box-shadow: none; border: none; background: transparent; }
+.todo-hitl {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: inherit;
+  border-radius: 10px; padding: 8px 10px;
+  background: #FFF5F5; border: 1px solid rgba(239,68,68,.16);
+  margin-bottom: 8px;
+}
+.todo-hitl .mark {
+  flex-shrink: 0; font-size: 9px; font-weight: 800; color: #fff;
+  background: var(--destructive); border-radius: 5px; padding: 4px 5px;
+  line-height: 1.15; text-align: center;
+}
+.todo-hitl .body { flex: 1; min-width: 0; }
+.todo-hitl .ttl {
+  font-size: 13px; font-weight: 700; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.todo-hitl .sub {
+  margin-top: 2px; font-size: 10px; color: var(--muted-fg);
+  display: flex; align-items: center; gap: 5px; min-width: 0;
+}
+.todo-hitl .sub .id { color: var(--brand-hex); font-weight: 700; }
+.todo-hitl .sub .av {
+  width: 14px; height: 14px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 7px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.todo-hitl .cta {
+  flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--destructive);
+}
+
+.todo-push { display: flex; flex-direction: column; }
+.todo-push .cap {
+  font-size: 10px; font-weight: 700; color: var(--muted-fg);
+  padding: 0 2px 4px;
+}
+.todo-push .cap b { color: var(--foreground); }
+.todo-row {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: inherit;
+  padding: 8px 2px; border-top: 1px solid rgba(220,224,232,.7);
+}
+.todo-row .due {
+  flex-shrink: 0; width: 28px; font-size: 10px; font-weight: 700;
+  color: var(--brand-hex); line-height: 1.2;
+}
+.todo-row .due.tmr { color: var(--muted-fg); }
+.todo-row .mid { flex: 1; min-width: 0; }
+.todo-row .ttl {
+  font-size: 13px; font-weight: 600; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.todo-row .bar {
+  margin-top: 4px; height: 3px; border-radius: 2px; background: #E8ECF4; overflow: hidden;
+}
+.todo-row .bar i { display: block; height: 100%; border-radius: 2px; background: var(--brand-hex); }
+.todo-row .right {
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+.todo-row .right .av {
+  width: 18px; height: 18px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; color: #fff;
+}
+.todo-row .right .st { font-size: 9px; color: var(--muted-fg); font-weight: 600; }
+
+/* 行业简报：密排 + 分类色块/要点 chip，避免大封面又不死板 */
+.brief-panel { overflow: hidden; padding: 0; box-shadow: none; border: none; background: transparent; }
+.brief-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; text-decoration: none; color: inherit;
+  border-bottom: 1px solid rgba(220,224,232,.55);
+}
+.brief-row:last-child { border-bottom: none; }
+.brief-row.unread.infra { background: linear-gradient(90deg, rgba(47,98,240,.06), transparent 72%); }
+.brief-row.unread.comp { background: linear-gradient(90deg, rgba(13,148,136,.07), transparent 72%); }
+.brief-row.unread.pol { background: linear-gradient(90deg, rgba(124,58,237,.06), transparent 72%); }
+.brief-row .thumb {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff;
+  position: relative;
+}
+.brief-row .thumb.infra { background: linear-gradient(145deg, #2F62F0, #6B9BFF); }
+.brief-row .thumb.comp { background: linear-gradient(145deg, #0D9488, #2DD4BF); }
+.brief-row .thumb.pol { background: linear-gradient(145deg, #7C3AED, #A78BFA); }
+.brief-row .thumb .u {
+  position: absolute; top: -3px; right: -3px;
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--brand-hex); border: 2px solid #fff;
+}
+.brief-row.read .thumb { opacity: .55; filter: grayscale(.25); }
+.brief-row .main { flex: 1; min-width: 0; }
+.brief-row .ttl {
+  font-size: 13px; font-weight: 700; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.brief-row.read .ttl { font-weight: 500; color: #5B6472; }
+.brief-row .meta {
+  margin-top: 3px; display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: var(--muted-fg);
+}
+.brief-row .meta .src { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brief-row .hit {
+  flex-shrink: 0; min-width: 44px; text-align: right;
+}
+.brief-row .hit .n {
+  font-size: 14px; font-weight: 800; letter-spacing: -.3px; line-height: 1.1;
+}
+.brief-row .hit .n.down { color: #0D9488; }
+.brief-row .hit .n.new { color: #2F62F0; }
+.brief-row .hit .n.mute { color: #8B93A3; font-size: 12px; }
+.brief-row .hit .l {
+  margin-top: 2px; font-size: 9px; color: var(--muted-fg); font-weight: 600;
+}
+.brief-row.unread.fund { background: linear-gradient(90deg, rgba(245,158,11,.08), transparent 72%); }
+.brief-row .thumb.fund { background: linear-gradient(145deg, #D97706, #FBBF24); }
+.brief-tabs {
+  display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  padding: 0 0 8px; margin: 0 0 2px; scrollbar-width: none;
+}
+.brief-tabs::-webkit-scrollbar { display: none; }
+.brief-tabs button {
+  flex: 0 0 auto; height: 28px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--border); background: #fff; color: var(--muted-fg);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.brief-tabs button.on {
+  background: var(--brand-hex); border-color: var(--brand-hex); color: #fff;
+}
+.brief-row[hidden] { display: none !important; }
+.brief-empty {
+  display: none; padding: 20px 12px; text-align: center;
+  font-size: 12px; color: var(--muted-fg);
+}
+.brief-empty.show { display: block; }
+
 </style>
 </head>
 <body>
+<p class="stage-note"><b>像素级交互原型</b> · 对齐 <code>apps/mobile</code> 首页实装 · <a href="00-index.html">返回目录</a></p>
 <div class="phone">
   <div class="screen">
-    <div class="demo">原型演示 · 运行时长 —— · 派单→picker · 名册不从首页进</div>
-    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
-    <div class="header">
-      <div><div class="hl">早上好，Sun</div></div>
-      <div class="hic">
-        <a class="dot bell" href="00-index.html" title="收件箱：本包不做完整屏">🔔</a>
-        <div class="dot">🔍</div>
-        <div class="dot">⋯</div>
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <div class="title-wrap"><div class="title">早上好，Sun</div></div>
+      <div class="actions">
+        <a class="icon-btn" href="15-inbox.html" title="收件箱" aria-label="收件箱，3 条未读">
+          <svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/><path d="m14 6 1.5-3"/><path d="m10 6-1.5-3"/></svg>
+          <span class="badge">3</span>
+        </a>
+        <a class="icon-btn" href="00-index.html" aria-label="搜索">
+          <svg class="ic" style="width:20px;height:20px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </a>
       </div>
     </div>
-    <div class="sub">Utter Office · 3 位员工在岗</div>
     <div class="notice">
-      <span>⚠️</span> 有员工工位未绑定，任务可能无法执行
+      <span>⚠️</span>
+      <span style="flex:1">有员工工位未绑定，任务可能无法执行</span>
       <a class="act" href="08-staff-profile.html#cap">去绑定 ›</a>
     </div>
-    <div class="content">
-      <div class="q">
-        <a href="00-index.html"><div class="ic">＋</div>新建事项</a>
-        <a href="09-staff-picker.html#dispatch"><div class="ic">👥</div>派单</a>
-        <a href="00-index.html"><div class="ic">📁</div>项目</a>
-        <a class="b" href="00-index.html"><div class="ic">📥</div>收件箱</a>
-      </div>
-      <div class="card">
-        <div class="t"><span>数据报告</span><span class="seg"><span>日</span><span class="on">周</span><span>月</span></span></div>
-        <div class="rings">
-          <div class="ring"><div class="circle"><i></i><span>12</span></div><div class="l">新建事项</div></div>
-          <div class="ring"><div class="circle"><i></i><span>8</span></div><div class="l">已完成</div></div>
-          <div class="ring"><div class="circle dash"><i></i><span class="muted">——</span></div><div class="l">员工运行</div></div>
+    <div class="scroll">
+      <div class="home-body">
+        <!-- Hero -->
+        <div class="hero">
+          <a class="hero-dispatch" href="09-staff-picker.html#dispatch">
+            <div class="hero-blob-1"></div><div class="hero-blob-2"></div>
+            <div class="hero-tag">
+              <div class="hero-icon"><svg class="ic" style="width:16px;height:16px;color:#fff" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              一键派单
+            </div>
+            <div>
+              <div class="hero-title">交给数字员工</div>
+              <div class="hero-sub">选人 · 预填 · 立刻开工</div>
+            </div>
+          </a>
+          <div class="hero-side">
+            <a class="glass-card" href="00-index.html">
+              <div class="gi"><svg class="ic" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg></div>
+              <div><div class="gt">新建事项</div><div class="gs">手动建单</div></div>
+            </a>
+            <a class="glass-card" href="#" onclick="event.preventDefault();openSheet()">
+              <div class="gi"><svg class="ic" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+              <div><div class="gt">语音下达</div><div class="gs">底部中央按钮</div></div>
+            </a>
+          </div>
         </div>
-        <div class="row" style="justify-content:center;gap:12px;color:#8E8E93;border:none">进行中 5 · 待评审 2 · 受阻 1 · 失败 ——</div>
-        <div class="row" style="justify-content:flex-end;border:none;color:#3B6FFF;font-weight:600">查看完整报告 ›</div>
+
+        <!-- Workspace pulse -->
+        <div class="home-sec pulse-sec">
+        <div class="pulse elevated">
+          <a class="pulse-top" href="07-staff-roster.html">
+            <div class="pulse-icon"><svg class="ic" style="width:20px;height:20px" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg></div>
+            <div class="flex-1" style="min-width:0">
+              <div class="pulse-name">Utter Office</div>
+              <div class="pulse-sub">3 位员工在岗</div>
+            </div>
+            <div class="pulse-stack">
+              <div class="avatar sm" style="background:#F87171;z-index:3">m</div>
+              <div class="avatar sm" style="background:#60A5FA;z-index:2">c</div>
+              <div class="avatar sm" style="background:#A78BFA;z-index:1">k</div>
+            </div>
+            <svg class="ic" style="width:16px;height:16px;color:var(--muted-fg)" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <div class="pulse-div"></div>
+          <div class="pulse-bottom">
+            <a class="pulse-cell" href="16-projects.html">
+              <div class="pi" style="background:rgba(13,148,136,.12);color:var(--teal)"><svg class="ic" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></div>
+              <div><div class="pl">项目</div><div class="ps">4 个进行中</div></div>
+            </a>
+            <div class="pulse-vdiv"></div>
+            <a class="pulse-cell" href="15-inbox.html">
+              <div class="pi" style="background:rgba(245,158,11,.14);color:var(--priority)"><svg class="ic" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+              <div><div class="pl">收件箱</div><div class="ps">3 条未读</div></div>
+              <span class="inbox-badge">3</span>
+            </a>
+          </div>
+        </div>
+        </div>
+
+        <!-- 工作成果 -->
+        <div class="home-sec">
+          <div class="elevated">
+            <div class="sec-bar">
+              <div class="tit">工作成果 <span class="meta">过去 24h · <b>3</b> 份</span> <span class="badge">示例</span></div>
+              <a class="link-brand" href="06-mine.html">完整报告 ›</a>
+            </div>
+            <div class="sec-body flush">
+          <div class="outcome-panel">
+            <div class="tl">
+              <!-- 有意义的摘要，不是操作说明 -->
+              <div class="tl-stats">
+                <span>高峰 <b>07:40</b></span>
+                <span class="sep"></span>
+                <span>并行 <b>2</b> 人</span>
+                <span class="sep"></span>
+                <span>活跃 <b>3</b> 人</span>
+              </div>
+              <div class="tl-chart">
+                <!-- 高度=忙碌程度；颜色深度=投入强度 -->
+                <div class="tl-bars" aria-hidden="true">
+                  <i style="height:18%"></i>
+                  <i class="l" style="height:28%"></i>
+                  <i class="m" style="height:55%"></i>
+                  <i class="l" style="height:32%"></i>
+                  <i style="height:16%"></i>
+                  <i class="l" style="height:24%"></i>
+                  <i class="peak" style="height:100%"></i>
+                  <i class="h" style="height:78%"></i>
+                  <i class="m" style="height:48%"></i>
+                  <i class="l" style="height:30%"></i>
+                  <i class="h" style="height:70%"></i>
+                  <i class="m" style="height:42%"></i>
+                </div>
+                <div class="tl-pins">
+                  <div class="tl-ev" style="left:18%">
+                    <div class="tl-stack"><span class="av" style="background:#A78BFA">k</span></div>
+                  </div>
+                  <div class="tl-ev" style="left:52%">
+                    <div class="tl-stack">
+                      <span class="av" style="background:#A78BFA">k</span>
+                      <span class="av" style="background:#60A5FA">c</span>
+                    </div>
+                  </div>
+                  <div class="tl-ev" style="left:78%">
+                    <div class="tl-stack"><span class="av" style="background:#F87171">m</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="tl-times">
+                <span class="t" style="left:18%">02:14</span>
+                <span class="t" style="left:52%">07:40</span>
+                <span class="t" style="left:78%">14:20</span>
+              </div>
+              <div class="tl-ends"><span>昨天此时</span><span>现在</span></div>
+            </div>
+
+            <div class="outcome-rail">
+              <a class="out-tile" href="11-brief-detail.html">
+                <div class="who">
+                  <div class="avatar" style="background:#A78BFA">k</div>
+                  <span class="nm">kimi</span>
+                  <span class="clk">02:14</span>
+                </div>
+                <div class="viz viz-news">
+                  <svg class="chart" viewBox="0 0 64 28" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M0 22 L10 18 L20 20 L32 12 L44 14 L54 8 L64 10" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M0 22 L10 18 L20 20 L32 12 L44 14 L54 8 L64 10 L64 28 L0 28 Z" fill="rgba(167,139,250,.18)"/>
+                  </svg>
+                  <div class="num">3<small>条新闻</small></div>
+                </div>
+                <div class="kind">每日新闻</div>
+                <div class="out-title">AI Infra 早报 · 成本 ↓40%</div>
+              </a>
+
+              <a class="out-tile" href="03-board.html">
+                <div class="who">
+                  <div class="avatar" style="background:#60A5FA">c</div>
+                  <span class="nm">codex</span>
+                  <span class="clk">07:40</span>
+                </div>
+                <div class="viz viz-metric">
+                  <svg class="chart" viewBox="0 0 64 28" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M0 24 L12 20 L24 21 L36 14 L48 16 L64 6" fill="none" stroke="#3B6FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M0 24 L12 20 L24 21 L36 14 L48 16 L64 6 L64 28 L0 28 Z" fill="rgba(59,111,255,.16)"/>
+                  </svg>
+                  <div class="num">+12%<small>转化</small></div>
+                </div>
+                <div class="kind">数据分析</div>
+                <div class="out-title">支付漏斗 · 卡点短信验证</div>
+              </a>
+
+              <a class="out-tile" href="05-workbench.html">
+                <div class="who">
+                  <div class="avatar" style="background:#F87171">m</div>
+                  <span class="nm">mika</span>
+                  <span class="clk">14:20</span>
+                </div>
+                <div class="viz viz-done">
+                  <svg class="chart" viewBox="0 0 64 28" preserveAspectRatio="none" aria-hidden="true">
+                    <rect x="2" y="18" width="7" height="8" rx="1.5" fill="rgba(248,113,113,.35)"/>
+                    <rect x="12" y="12" width="7" height="14" rx="1.5" fill="rgba(248,113,113,.5)"/>
+                    <rect x="22" y="8" width="7" height="18" rx="1.5" fill="rgba(248,113,113,.65)"/>
+                    <rect x="32" y="4" width="7" height="22" rx="1.5" fill="#F87171"/>
+                    <rect x="42" y="10" width="7" height="16" rx="1.5" fill="rgba(248,113,113,.55)"/>
+                    <rect x="52" y="14" width="7" height="12" rx="1.5" fill="rgba(248,113,113,.3)"/>
+                  </svg>
+                  <div class="num">6<small>项 · 75%</small></div>
+                </div>
+                <div class="kind">事项交付</div>
+                <div class="out-title">站会摘要 · 解阻 API Key</div>
+              </a>
+            </div>
+          </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 待办 -->
+        <div class="home-sec">
+          <div class="elevated">
+            <div class="sec-bar">
+              <div class="tit">待办事项 <span class="meta danger">介入 <b>1</b></span> <span class="meta">· 推进 <b>2</b></span></div>
+              <a class="link-brand" href="03-board.html">全部 (14) ›</a>
+            </div>
+            <div class="sec-body">
+          <div class="todo-board">
+            <a class="todo-hitl" href="03-board.html">
+              <div class="mark">受阻<br>2天</div>
+              <div class="body">
+                <div class="ttl">等 API Key</div>
+                <div class="sub">
+                  <span class="id">MUL-38</span>
+                  <span>·</span>
+                  <span class="av" style="background:#F87171">m</span>
+                  <span>mika · 卡密钥</span>
+                  <span>·</span>
+                  <span>逾期</span>
+                </div>
+              </div>
+              <span class="cta">处理 ›</span>
+            </a>
+            <div class="todo-push">
+              <div class="cap">员工在推进 · <b>2</b></div>
+              <a class="todo-row" href="03-board.html">
+                <div class="due">今天</div>
+                <div class="mid">
+                  <div class="ttl">MUL-42 · 重构鉴权中间件</div>
+                  <div class="bar"><i style="width:60%"></i></div>
+                </div>
+                <div class="right">
+                  <span class="av" style="background:#60A5FA">c</span>
+                  <span class="st">60%</span>
+                </div>
+              </a>
+              <a class="todo-row" href="03-board.html">
+                <div class="due tmr">明天</div>
+                <div class="mid">
+                  <div class="ttl">MUL-51 · 补 E2E 用例</div>
+                  <div class="bar"><i style="width:12%;background:#D1D5DB"></i></div>
+                </div>
+                <div class="right">
+                  <span class="av" style="background:#A78BFA">k</span>
+                  <span class="st">排队</span>
+                </div>
+              </a>
+            </div>
+          </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 行业简报 -->
+        <div class="home-sec" data-brief-block>
+          <div class="elevated">
+            <div class="sec-bar">
+              <div class="tit">行业简报 <span class="pill pill-brand" data-brief-unread style="font-weight:600">4 未读</span> <span class="badge">示例</span></div>
+            </div>
+            <div class="sec-body flush">
+          <div class="brief-tabs" role="tablist" aria-label="简报行业">
+            <button type="button" class="on" data-brief-tab="all">全部</button>
+            <button type="button" data-brief-tab="infra">AI Infra</button>
+            <button type="button" data-brief-tab="comp">竞品</button>
+            <button type="button" data-brief-tab="pol">政策</button>
+            <button type="button" data-brief-tab="fund">融资</button>
+          </div>
+          <div class="brief-panel" data-brief-list>
+            <a class="brief-row unread infra" data-brief-cat="infra" href="11-brief-detail.html">
+              <div class="thumb infra">讯<span class="u"></span></div>
+              <div class="main">
+                <div class="ttl">某推理框架发布新版本，推理成本下降约 40%</div>
+                <div class="meta"><span class="src">AI Infra · 36Kr · 2 小时前</span></div>
+              </div>
+              <div class="hit"><div class="n down">↓40%</div><div class="l">成本</div></div>
+            </a>
+            <a class="brief-row unread comp" data-brief-cat="comp" href="11-brief-detail.html">
+              <div class="thumb comp">竞<span class="u"></span></div>
+              <div class="main">
+                <div class="ttl">竞品上线「数字员工工位绑定」，强调本地 runtime</div>
+                <div class="meta"><span class="src">竞品 · TechNode · 5 小时前</span></div>
+              </div>
+              <div class="hit"><div class="n new">新</div><div class="l">能力</div></div>
+            </a>
+            <a class="brief-row unread fund" data-brief-cat="fund" href="11-brief-detail.html">
+              <div class="thumb fund">融<span class="u"></span></div>
+              <div class="main">
+                <div class="ttl">垂直 Agent 平台完成 A 轮，估值报 3 亿美元</div>
+                <div class="meta"><span class="src">融资 · 36Kr · 8 小时前</span></div>
+              </div>
+              <div class="hit"><div class="n new">$3亿</div><div class="l">估值</div></div>
+            </a>
+            <a class="brief-row unread infra" data-brief-cat="infra" href="11-brief-detail.html">
+              <div class="thumb infra">讯<span class="u"></span></div>
+              <div class="main">
+                <div class="ttl">开源向量库发布增量索引，长上下文检索延迟腰斩</div>
+                <div class="meta"><span class="src">AI Infra · Hacker News · 12 小时前</span></div>
+              </div>
+              <div class="hit"><div class="n down">↓50%</div><div class="l">延迟</div></div>
+            </a>
+            <a class="brief-row read pol" data-brief-cat="pol" href="11-brief-detail.html">
+              <div class="thumb pol">政</div>
+              <div class="main">
+                <div class="ttl">生成式 AI 服务备案指引更新（摘要）</div>
+                <div class="meta"><span class="src">政策 · 政策摘要 · 昨天</span></div>
+              </div>
+              <div class="hit"><div class="n mute">摘要</div><div class="l">合规</div></div>
+            </a>
+            <div class="brief-empty" data-brief-empty>该分类暂无简报</div>
+          </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <div class="t"><span>待办事项</span><span style="color:#8E8E93;font-weight:400">全部 (14) ›</span></div>
-        <div class="row"><div class="st"></div><span class="ids">MUL-42</span> 重构鉴权中间件 <span class="pri">高</span><span class="due">今天</span></div>
-        <div class="row"><div class="st"></div><span class="ids">MUL-51</span> 补 E2E 用例 <span class="pri">中</span><span class="due">明天</span></div>
-        <div class="row"><div class="st"></div><span class="ids">MUL-38</span> 等 API Key（受阻）<span class="pri">急</span><span class="due over">逾期</span></div>
-      </div>
-      <div class="card">
-        <div class="t"><span>行业简报<span class="badge-ex">示例数据</span></span></div>
-        <a class="brief-row" href="11-brief-detail.html"><span class="chip">AI Infra</span> xxx 发布 xxx，推理成本下降 40% <span class="time">2h 前</span></a>
-        <a class="brief-row" href="11-brief-detail.html"><span class="chip">竞品</span> xxx 上线 xxx 能力 <span class="time">5h 前</span></a>
-      </div>
-      <div class="foot">部分统计接口未上线 · 简报为示例资讯（≠ 主动工作）</div>
     </div>
-    <div class="tabbar">
-      <a class="tab active badge" href="02-home.html"><div class="tab-icon" style="background:#C9D9FF"></div>首页</a>
-      <a class="tab" href="03-board.html"><div class="tab-icon"></div>看板</a>
-      <a class="center" href="04-voice.html">●</a>
-      <a class="tab warn" href="05-workbench.html"><div class="tab-icon" style="background:#FFE3C7"></div>工作台</a>
-      <a class="tab" href="06-mine.html"><div class="tab-icon"></div>我的</a>
+
+    <!-- Tab bar -->
+    <nav class="tabbar">
+      <a class="tab active" href="02-home.html">
+        <div class="glyph"><svg class="ic" style="width:22px;height:22px;stroke-width:2.35" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        首页<span class="tab-badge">3</span>
+      </a>
+      <a class="tab" href="03-board.html">
+        <div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>
+        看板
+      </a>
+      <div class="tab-center-slot">
+        <button type="button" class="record-btn" id="record-btn" aria-label="录音">
+          <svg class="ic mic" style="width:26px;height:26px;color:#fff" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+          <span class="eq"><i></i><i></i><i></i><i></i></span>
+        </button>
+      </div>
+      <a class="tab" href="05-workbench.html">
+        <div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>
+        工作台
+      </a>
+      <a class="tab" href="06-mine.html">
+        <div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        我的
+      </a>
+    </nav>
+
+    <!-- Voice sheet -->
+    <div class="scrim" id="voice-scrim">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="grabber"></div>
+        <div style="font-size:13px;font-weight:600;text-align:center;margin-bottom:14px">选择语音方式</div>
+        <div style="display:flex;gap:10px;margin-bottom:14px">
+          <a href="13-voice-record.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
+            <div style="width:48px;height:48px;border-radius:16px;background:rgba(59,111,255,.12);color:var(--brand-hex);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
+              <svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+            </div>
+            <div style="font-size:14px;font-weight:700">录音</div>
+            <div style="font-size:10px;color:var(--muted-fg);margin-top:2px">边录边转写</div>
+            <div style="font-size:9px;color:var(--muted-fg);background:var(--secondary);display:inline-block;margin-top:6px;padding:2px 6px;border-radius:4px">原型</div>
+          </a>
+          <a href="14-voice-translate.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
+            <div style="width:48px;height:48px;border-radius:16px;background:rgba(13,148,136,.12);color:var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
+              <svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+            </div>
+            <div style="font-size:14px;font-weight:700">翻译</div>
+            <div style="font-size:10px;color:var(--muted-fg);margin-top:2px">实时双语</div>
+            <div style="font-size:9px;color:var(--muted-fg);background:var(--secondary);display:inline-block;margin-top:6px;padding:2px 6px;border-radius:4px">原型</div>
+          </a>
+          <a href="12-voice-talk.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
+            <div style="width:48px;height:48px;border-radius:16px;background:rgba(245,158,11,.14);color:var(--priority);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
+              <svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg>
+            </div>
+            <div style="font-size:14px;font-weight:700">发语音</div>
+            <div style="font-size:10px;color:var(--muted-fg);margin-top:2px">即时下达</div>
+            <div style="height:18px;margin-top:6px"></div>
+          </a>
+        </div>
+        <button type="button" data-close-sheet style="width:100%;height:48px;border:none;border-radius:12px;background:var(--secondary);font-size:15px;font-weight:600;cursor:pointer">取消</button>
+      </div>
     </div>
+    <div class="toast" id="proto-toast">原型示例 · 当前不会发送到对话</div>
   </div>
 </div>
+<script src="_shared.js"></script>
+
+<script>
+(function () {
+  var root = document.querySelector("[data-brief-block]");
+  if (!root) return;
+  var tabs = root.querySelectorAll("[data-brief-tab]");
+  var rows = root.querySelectorAll("[data-brief-cat]");
+  var empty = root.querySelector("[data-brief-empty]");
+  var unreadEl = root.querySelector("[data-brief-unread]");
+
+  function apply(cat) {
+    var visible = 0;
+    var unread = 0;
+    rows.forEach(function (row) {
+      var match = cat === "all" || row.getAttribute("data-brief-cat") === cat;
+      row.hidden = !match;
+      if (match) {
+        visible += 1;
+        if (row.classList.contains("unread")) unread += 1;
+      }
+    });
+    if (empty) empty.classList.toggle("show", visible === 0);
+    if (unreadEl) unreadEl.textContent = unread + " 未读";
+  }
+
+  tabs.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      tabs.forEach(function (b) { b.classList.toggle("on", b === btn); });
+      apply(btn.getAttribute("data-brief-tab"));
+    });
+  });
+})();
+</script>
 </body>
 </html>

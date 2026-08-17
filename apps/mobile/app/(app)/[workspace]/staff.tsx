@@ -70,6 +70,26 @@ function isOnline(presence: AgentPresenceDetail): boolean {
   );
 }
 
+function firstSentence(text: string | undefined | null): string {
+  if (!text) return "";
+  const t = text.trim();
+  if (!t) return "";
+  const m = t.match(/^[^。！？.!?\n]+/);
+  return (m?.[0] ?? t).trim();
+}
+
+/** 岗位：短首句作职能名；过长则回退员工名（与档案「职能 · handle」同构）。 */
+function roleTitle(agent: Agent): string {
+  const s = firstSentence(agent.description);
+  if (s && s.length <= 20 && !/[；;]/.test(s)) return s;
+  return agent.name;
+}
+
+function empCode(agent: Agent): string {
+  const id = agent.id.replace(/-/g, "").slice(-4).toUpperCase();
+  return `EMP-${id}`;
+}
+
 function StaffCard({
   agent,
   presence,
@@ -86,76 +106,114 @@ function StaffCard({
   const badge = statusBadge(presence);
   const tools = resolveToolCount(agent);
   const skills = skillCountLabel(agent);
-  const activeLabel = activeCount == null ? "暂无" : String(activeCount);
+  const activeLabel = activeCount == null ? "—" : String(activeCount);
+  const role = roleTitle(agent);
+  const unbound = runtimeLabel.includes("未绑定");
+  const handleLine =
+    role === agent.name
+      ? [empCode(agent), agent.model].filter(Boolean).join(" · ")
+      : `${agent.name} · ${empCode(agent)}`;
 
   return (
     <Pressable
       onPress={onPress}
-      className="rounded-2xl border border-border bg-card p-3 mb-2.5 active:bg-secondary"
+      className="rounded-2xl border border-border bg-card p-3.5 mb-2.5 active:bg-secondary"
     >
-      <View className="flex-row items-start gap-2.5">
+      <View className="flex-row items-start gap-3">
         <ActorAvatar type="agent" id={agent.id} size={44} showPresence />
         <View className="flex-1 min-w-0">
-          <Text className="text-[15px] font-bold text-foreground" numberOfLines={1}>
-            {agent.name}
+          <Text
+            className="text-[16px] font-bold text-foreground leading-[1.25]"
+            numberOfLines={1}
+          >
+            {role}
           </Text>
-          <Text className="text-[11px] text-muted-foreground mt-0.5" numberOfLines={1}>
-            {agent.model ? `模型 ${agent.model}` : "未设置岗位"}
-          </Text>
-        </View>
-        <View className={cn("rounded-md px-1.5 py-0.5", badge.className)}>
-          <Text className={cn("text-[10px]", badge.className.split(" ")[1])}>
-            {badge.label}
-          </Text>
+          <View className="flex-row items-center gap-1.5 mt-1 flex-wrap">
+            <Text className="text-[12px] text-muted-foreground" numberOfLines={1}>
+              {handleLine || "未设置岗位"}
+            </Text>
+            <View className={cn("rounded-md px-1.5 py-0.5", badge.className)}>
+              <Text
+                className={cn(
+                  "text-[10px] font-semibold",
+                  badge.className.includes("text-brand")
+                    ? "text-brand"
+                    : badge.className.includes("text-success")
+                      ? "text-success"
+                      : "text-muted-foreground",
+                )}
+              >
+                {badge.label}
+              </Text>
+            </View>
+          </View>
         </View>
       </View>
+
       {agent.description ? (
         <Text
-          className="text-xs text-foreground mt-2 leading-[1.45]"
-          numberOfLines={2}
+          className="text-[13px] text-foreground mt-2.5 leading-[1.55]"
+          numberOfLines={3}
         >
           {agent.description}
         </Text>
-      ) : null}
-      <Text
+      ) : (
+        <Text className="text-[13px] text-muted-foreground mt-2.5">
+          暂无岗位描述
+        </Text>
+      )}
+
+      <View className="flex-row flex-wrap gap-1.5 mt-2.5">
+        <View className="rounded-lg bg-secondary px-2.5 py-1">
+          <Text className="text-[11px] font-semibold text-foreground">
+            {skills} 技能
+          </Text>
+        </View>
+        <View className="rounded-lg bg-secondary px-2.5 py-1">
+          <Text
+            className={cn(
+              "text-[11px] font-semibold",
+              tools.kind === "count"
+                ? "text-foreground"
+                : "text-muted-foreground",
+            )}
+          >
+            {tools.kind === "count" ? `${tools.label} 工具` : `${tools.label} 工具`}
+          </Text>
+        </View>
+        <View className="rounded-lg bg-secondary px-2.5 py-1">
+          <Text
+            className={cn(
+              "text-[11px] font-semibold",
+              activeCount == null
+                ? "text-muted-foreground"
+                : "text-foreground",
+            )}
+          >
+            {activeLabel} 在手
+          </Text>
+        </View>
+        <View className="rounded-lg bg-secondary px-2.5 py-1">
+          <Text className="text-[11px] font-semibold text-muted-foreground">
+            — 定时
+          </Text>
+        </View>
+      </View>
+
+      <View
         className={cn(
-          "text-[11px] mt-1.5 pt-1.5 border-t border-border",
-          runtimeLabel.includes("未绑定")
-            ? "text-warning"
-            : "text-muted-foreground",
+          "mt-2.5 rounded-lg px-2.5 py-1.5",
+          unbound ? "bg-warning/15" : "bg-secondary/80",
         )}
       >
-        {runtimeLabel}
-      </Text>
-      <View className="flex-row pt-2 border-t border-border mt-1">
-        <View className="flex-1 items-center">
-          <Text className="text-[17px] font-semibold text-foreground">{skills}</Text>
-          <Text className="text-[10px] text-muted-foreground">技能</Text>
-        </View>
-        <View className="flex-1 items-center">
-          <Text
-            className={cn(
-              "font-semibold text-foreground",
-              tools.kind === "count" ? "text-[17px]" : "text-[13px] pt-1",
-            )}
-          >
-            {tools.label}
-          </Text>
-          <Text className="text-[10px] text-muted-foreground">工具</Text>
-        </View>
-        <View className="flex-1 items-center">
-          <Text
-            className={cn(
-              "font-semibold",
-              activeCount == null
-                ? "text-[13px] text-muted-foreground pt-1"
-                : "text-[17px] text-foreground",
-            )}
-          >
-            {activeLabel}
-          </Text>
-          <Text className="text-[10px] text-muted-foreground">在手</Text>
-        </View>
+        <Text
+          className={cn(
+            "text-[11px]",
+            unbound ? "text-warning" : "text-muted-foreground",
+          )}
+        >
+          {unbound ? `⚠️ ${runtimeLabel}` : `✓ ${runtimeLabel}`}
+        </Text>
       </View>
     </Pressable>
   );

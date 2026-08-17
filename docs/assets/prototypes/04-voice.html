@@ -1,94 +1,109 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>中央录音入口 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#2A2A2E;display:flex;gap:24px;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
-.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column}
-.status{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 10px;font-size:15px;font-weight:600}
-.dim{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:5}
-.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;z-index:6;padding:8px 0 30px}
-.grab{width:36px;height:5px;border-radius:3px;background:#D1D1D6;margin:0 auto 12px}
-.sheet .ti{text-align:center;font-size:13px;color:#8E8E93;margin-bottom:6px}
-.sheet .item{display:flex;align-items:center;gap:14px;padding:14px 20px}
-.sheet .ic{width:40px;height:40px;border-radius:12px;background:#EDF1FB;color:#3B6FFF;display:flex;align-items:center;justify-content:center;font-size:18px}
-.sheet .ic.t{background:#F2F3F7;color:#6E6E73}
-.sheet .nm{font-size:16px;font-weight:600;color:#1C1C1E;display:flex;align-items:center;gap:8px}
-.sheet .proto{font-size:9px;color:#8E8E93;border:1px solid #D1D1D6;border-radius:4px;padding:1px 5px}
-.sheet .ic.rec{background:#FFEDEB;color:#FF3B30}
-.sheet .item .dl{margin-left:auto;color:#C7C7CC;font-size:18px}
-.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
-.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px}
-.tab.active{color:#3B6FFF}
-.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8}
-.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px}
-/* overlay phone B */
-.ovl{position:absolute;inset:0;background:linear-gradient(180deg,#1B2B5E,#2F62F0 60%,#3B6FFF);z-index:6;display:flex;flex-direction:column;align-items:center}
-.ovl .target{position:absolute;top:64px;left:0;right:0;text-align:center;color:#fff;font-size:13px}
-.ovl .target b{color:#FFE9A8}
-.ovl .ring{position:absolute;top:300px;left:50%;transform:translateX(-50%);width:240px;height:240px;border-radius:50%;border:1px solid rgba(255,255,255,.35)}
-.ovl .ring.r2{top:328px;width:184px;height:184px}
-.ovl .ring.r3{top:356px;width:128px;height:128px}
-.ovl .btn{position:absolute;top:352px;left:50%;transform:translateX(-50%);width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid #fff;display:flex;align-items:center;justify-content:center}
-.ovl .eq{position:absolute;top:392px;left:50%;transform:translateX(-50%);display:flex;gap:5px;align-items:flex-end;height:40px}
-.ovl .eq i{width:5px;height:14px;border-radius:3px;background:#fff;animation:eq 1s infinite}
-.ovl .eq i:nth-child(2){animation-delay:.15s}
-.ovl .eq i:nth-child(3){animation-delay:.3s}
-.ovl .eq i:nth-child(4){animation-delay:.45s}
-.ovl .eq i:nth-child(5){animation-delay:.6s}
-@keyframes eq{50%{height:34px}}
-.ovl .time{position:absolute;top:470px;left:0;right:0;text-align:center;color:rgba(255,255,255,.9);font-size:15px;font-variant-numeric:tabular-nums}
-.ovl .protobar{position:absolute;bottom:60px;left:20px;right:20px;background:rgba(0,0,0,.25);border-radius:10px;color:#fff;font-size:11px;text-align:center;padding:8px}
-.cap{color:#8E8E93;font-size:12px;margin-top:16px;position:absolute;bottom:-26px;left:0;right:0;text-align:center}
-.wrap{position:relative}
+.page{display:flex;flex-direction:column;height:100%}
+.demo{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px;text-align:center}
+.demo h2{font-size:18px;font-weight:700}
+.demo p{font-size:13px;color:var(--muted-fg);line-height:1.5;max-width:280px}
+.links{width:100%;display:flex;flex-direction:column;gap:8px}
+.links a{
+  display:flex;align-items:center;gap:12px;padding:14px;background:#fff;border:1px solid var(--border);
+  border-radius:14px;text-decoration:none;color:inherit;text-align:left;
+}
+.links .icw{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.links .t{font-size:15px;font-weight:700}
+.links .s{font-size:12px;color:var(--muted-fg);margin-top:2px}
+.links .tag{margin-left:auto;font-size:9px;border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--muted-fg)}
 </style>
 </head>
 <body>
-<!-- 左：短按 → 语音 Sheet -->
-<div class="wrap">
+<p class="stage-note"><b>中央按钮</b> · Sheet 三入口对齐实装路由 · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
-    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
-    <div class="dim"></div>
-    <div class="sheet">
-      <div class="grab"></div>
-      <div class="ti">选择语音方式</div>
-      <div class="item"><div class="ic rec">🎙</div><div class="nm">录音 <span class="proto">原型</span></div><div class="dl">›</div></div>
-      <div class="item"><div class="ic t">🈯</div><div class="nm">翻译 <span class="proto">原型</span></div><div class="dl">›</div></div>
-      <div class="item"><div class="ic">📤</div><div class="nm">发语音</div><div class="dl">›</div></div>
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="page">
+      <div class="app-header">
+        <div class="title-wrap"><div class="title">选择语音方式</div><div class="subtitle">对齐 VoiceOverlay Sheet</div></div>
+      </div>
+      <div class="demo">
+        <p>短按中央按钮打开 Sheet；以下三项分别进入三个独立页面（与 App 路由一致）。</p>
+        <div class="links">
+          <a href="13-voice-record.html">
+            <div class="icw" style="background:rgba(59,111,255,.12);color:var(--brand-hex)"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+            <div><div class="t">录音</div><div class="s">边录边转写 · /voice-record</div></div>
+            <span class="tag">原型</span>
+          </a>
+          <a href="14-voice-translate.html">
+            <div class="icw" style="background:rgba(13,148,136,.12);color:var(--teal)"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
+            <div><div class="t">翻译</div><div class="s">实时双语 · /voice-translate</div></div>
+            <span class="tag">原型</span>
+          </a>
+          <a href="12-voice-talk.html">
+            <div class="icw" style="background:rgba(245,158,11,.14);color:var(--priority)"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></div>
+            <div><div class="t">发语音</div><div class="s">即时下达 · /voice-talk</div></div>
+          </a>
+        </div>
+        <button type="button" onclick="openSheet()" style="margin-top:8px;height:44px;padding:0 20px;border:none;border-radius:12px;background:var(--brand-hex);color:#fff;font-weight:600;cursor:pointer">演示底部 Sheet</button>
+      </div>
+      <nav class="tabbar">
+        <a class="tab" href="02-home.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>首页</a>
+        <a class="tab" href="03-board.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>看板</a>
+        <div class="tab-center-slot">
+          <button type="button" class="record-btn" id="record-btn" aria-label="录音">
+            <svg class="ic mic" style="width:26px;height:26px;color:#fff" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+            <span class="eq"><i></i><i></i><i></i><i></i></span>
+          </button>
+        </div>
+        <a class="tab" href="05-workbench.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>工作台</a>
+        <a class="tab" href="06-mine.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>我的</a>
+      </nav>
     </div>
-    <div class="tabbar">
-      <a class="tab active" href="02-home.html" style="text-decoration:none;color:inherit"><div class="tab-icon" style="background:#C9D9FF"></div>首页</a>
-      <a class="tab" href="03-board.html" style="text-decoration:none;color:inherit"><div class="tab-icon"></div>看板</a>
-      <a class="center" href="04-voice.html" style="text-decoration:none">●</a>
-      <a class="tab" href="05-workbench.html" style="text-decoration:none;color:inherit"><div class="tab-icon"></div>工作台</a>
-      <a class="tab" href="06-mine.html" style="text-decoration:none;color:inherit"><div class="tab-icon"></div>我的</a>
-    </div>
-  </div>
-</div>
-<div class="cap">短按 &lt; 2s → 语音 Sheet（录音/翻译带原型徽标） · <a href="00-index.html" style="color:#3B6FFF">目录</a></div>
-</div>
 
-<!-- 右：长按 ≥2s → 录音 Overlay -->
-<div class="wrap">
-<div class="phone">
-  <div class="screen">
-    <div class="status" style="color:#fff"><span>9:41</span><span>●●● 5G 🔋</span></div>
-    <div class="ovl">
-      <div class="target">将发送给 · <b>mika</b>（默认员工）</div>
-      <div class="ring"></div>
-      <div class="ring r2"></div>
-      <div class="ring r3"></div>
-      <div class="btn"></div>
-      <div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
-      <div class="time">0:03</div>
-      <div class="protobar">原型演示 · 尚未接入真实录音与转写 · 松手发送 → <a href="05-workbench.html" style="color:#FFE9A8">工作台</a></div>
+    <div class="scrim" id="voice-scrim">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="grabber"></div>
+        <div style="font-size:13px;font-weight:500;color:var(--muted-fg);text-align:center;padding:4px 0 12px">选择语音方式</div>
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <a href="13-voice-record.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
+            <div style="width:48px;height:48px;border-radius:16px;background:rgba(59,111,255,.12);color:var(--brand-hex);display:flex;align-items:center;justify-content:center;margin:0 auto 8px"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+            <div style="font-size:14px;font-weight:700">录音</div>
+            <div style="font-size:10px;color:var(--muted-fg);margin-top:2px">边录边转写</div>
+            <div style="font-size:9px;color:var(--muted-fg);background:var(--secondary);display:inline-block;margin-top:6px;padding:2px 6px;border-radius:4px">原型</div>
+          </a>
+          <a href="14-voice-translate.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
+            <div style="width:48px;height:48px;border-radius:16px;background:rgba(13,148,136,.12);color:var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 8px"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
+            <div style="font-size:14px;font-weight:700">翻译</div>
+            <div style="font-size:10px;color:var(--muted-fg);margin-top:2px">实时双语</div>
+            <div style="font-size:9px;color:var(--muted-fg);background:var(--secondary);display:inline-block;margin-top:6px;padding:2px 6px;border-radius:4px">原型</div>
+          </a>
+          <a href="12-voice-talk.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
+            <div style="width:48px;height:48px;border-radius:16px;background:rgba(245,158,11,.14);color:var(--priority);display:flex;align-items:center;justify-content:center;margin:0 auto 8px"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></div>
+            <div style="font-size:14px;font-weight:700">发语音</div>
+            <div style="font-size:10px;color:var(--muted-fg);margin-top:2px">即时下达</div>
+            <div style="height:18px;margin-top:6px"></div>
+          </a>
+        </div>
+        <button type="button" data-close-sheet style="width:100%;height:48px;border:none;border-radius:12px;background:var(--secondary);font-size:16px;cursor:pointer">取消</button>
+      </div>
+    </div>
+    <div class="toast" id="proto-toast">原型示例 · 当前不会发送到对话</div>
+    <div class="overlay-panel" id="voice-overlay" style="position:absolute;left:0;right:0;bottom:0;height:48%;min-height:320px;border-radius:28px 28px 0 0;background:rgba(28,36,64,.78);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:45;padding-bottom:40px">
+      <div style="font-size:15px;font-weight:500">正在说话（原型演示）</div>
+      <div style="font-size:13px;opacity:.62">手指上滑可取消</div>
+      <div style="width:84px;height:84px;border-radius:42px;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center">
+        <svg class="ic" style="width:28px;height:28px;color:#fff" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+      </div>
+      <div style="font-size:15px;opacity:.92">松开结束</div>
     </div>
   </div>
 </div>
-<div class="cap">长按 ≥ 2s → EQ 动画 + 波纹 + 目标员工名（M1 显示首可用员工，M2 起显示默认员工）· 松手落 <a href="05-workbench.html" style="color:#3B6FFF">工作台</a></div>
-</div>
+<script src="_shared.js"></script>
+<style>.overlay-panel.show{display:flex!important}</style>
 </body>
 </html>

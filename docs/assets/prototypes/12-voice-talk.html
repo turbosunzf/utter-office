@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>发语音 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.page { display:flex; flex-direction:column; height:100%; background:var(--background); }
+.nav {
+  display:flex; align-items:center; min-height:44px; padding:0 8px;
+  background:var(--background); border-bottom:1px solid var(--hairline);
+}
+.nav .back { color:var(--brand-hex); text-decoration:none; display:flex; align-items:center; gap:2px; font-size:17px; padding:8px; }
+.nav .title { flex:1; text-align:center; font-size:17px; font-weight:600; margin-right:44px; }
+.banner {
+  margin:8px 16px 4px; padding:8px 12px; border-radius:8px; background:var(--secondary);
+  display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted-fg); text-align:center;
+}
+.banner .tag { font-size:9px; border:1px solid var(--border); border-radius:4px; padding:1px 5px; flex-shrink:0; }
+.body { flex:1; overflow-y:auto; padding:12px 16px 24px; display:flex; flex-direction:column; gap:20px; }
+.sec-h { display:flex; align-items:center; justify-content:space-between; padding:0 4px; margin-bottom:8px; }
+.sec-h .l { font-size:13px; font-weight:600; color:var(--muted-fg); }
+.sec-h a { font-size:12px; font-weight:500; color:var(--brand-hex); text-decoration:none; display:flex; align-items:center; gap:2px; }
+.rail { display:flex; gap:10px; overflow-x:auto; padding:2px 0; }
+.rail::-webkit-scrollbar{display:none}
+.agent {
+  width:64px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:6px;
+  text-decoration:none; color:var(--muted-fg); cursor:pointer; border:none; background:none;
+}
+.agent .ring { border-radius:22px; padding:0; }
+.agent.sel .ring { padding:2px; border:2px solid var(--brand-hex); border-radius:24px; }
+.agent .nm { font-size:11px; font-weight:500; max-width:64px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.agent.sel .nm { color:var(--brand-hex); font-weight:600; }
+.recv {
+  display:flex; align-items:center; gap:12px; padding:12px 16px; background:#fff;
+  border-radius:16px; box-shadow:var(--shadow-card); margin-top:4px;
+}
+.recv .lbl { font-size:11px; color:var(--muted-fg); margin-bottom:2px; }
+.recv .name { font-size:15px; font-weight:700; }
+.recv .st { font-size:12px; color:var(--brand-hex); margin-left:auto; }
+.center { display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:8px; }
+.center .h { font-size:15px; font-weight:600; }
+.center .s { font-size:12px; color:var(--muted-fg); text-align:center; padding:0 24px; }
+.orb-wrap {
+  width:220px; height:220px; display:flex; align-items:center; justify-content:center; position:relative;
+}
+.halo {
+  position:absolute; width:200px; height:200px; border-radius:100px;
+  background:rgba(59,111,255,.18); animation:halo 2.8s ease-in-out infinite;
+}
+.halo.on { background:rgba(59,111,255,.35); }
+@keyframes halo {
+  0%,100% { transform:scale(.92); opacity:.18; }
+  50% { transform:scale(1.08); opacity:.42; }
+}
+.orb {
+  width:160px; height:160px; border-radius:80px; border:none; cursor:pointer;
+  background:linear-gradient(135deg,#E8EEFF,#F5F7FC);
+  box-shadow:0 8px 18px rgba(59,111,255,.28);
+  display:flex; align-items:center; justify-content:center; color:var(--brand-hex);
+  position:relative; z-index:1; -webkit-user-select:none; user-select:none; touch-action:none;
+}
+.orb.rec {
+  background:linear-gradient(135deg,#2F62F0,#3B6FFF,#5B8AFF); color:#fff;
+}
+.eq { display:none; align-items:flex-end; gap:5px; height:44px; }
+.orb.rec .mic { display:none; }
+.orb.rec .eq { display:flex; }
+.eq i { width:5px; height:44px; border-radius:2.5px; background:#fff; transform-origin:bottom; animation:eqb .9s ease-in-out infinite alternate; }
+.eq i:nth-child(1){animation-delay:0s}.eq i:nth-child(2){animation-delay:.15s}
+.eq i:nth-child(3){animation-delay:.3s}.eq i:nth-child(4){animation-delay:.08s}
+@keyframes eqb { from { transform:scaleY(.33); } to { transform:scaleY(1); } }
+.hint {
+  width:100%; border-radius:16px; padding:12px 16px; background:var(--well);
+  font-size:12px; color:var(--muted-fg); text-align:center; line-height:1.5;
+}
+.toast {
+  position:absolute; left:50%; bottom:48px; transform:translateX(-50%);
+  background:rgba(28,36,64,.92); color:#fff; font-size:13px; font-weight:500;
+  padding:10px 16px; border-radius:20px; white-space:nowrap; display:none; z-index:30;
+}
+.toast.show { display:block; }
+.picker {
+  position:absolute; inset:0; background:rgba(0,0,0,.4); display:none; align-items:flex-end; z-index:40;
+}
+.picker.show { display:flex; }
+.picker-body {
+  width:100%; max-height:72%; background:#fff; border-radius:24px 24px 0 0; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+.picker-h { text-align:center; padding:8px 16px 12px; }
+.picker-h .t { font-size:15px; font-weight:600; }
+.picker-h .s { font-size:12px; color:var(--muted-fg); margin-top:4px; }
+.prow {
+  display:flex; align-items:center; gap:12px; padding:12px 16px; text-decoration:none; color:inherit;
+  border:none; background:transparent; width:100%; cursor:pointer; text-align:left;
+}
+.prow.sel { background:rgba(225,232,255,.6); }
+.prow .name { font-size:16px; font-weight:500; }
+.prow .sub { font-size:12px; color:var(--muted-fg); margin-top:2px; }
+</style>
+</head>
+<body>
+<p class="stage-note"><b>发语音</b> · 对齐 <code>voice-talk.tsx</code> · <a href="00-index.html">目录</a></p>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="page">
+      <div class="nav">
+        <a class="back" href="02-home.html" data-back data-back-fallback="02-home.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+        <div class="title">发语音</div>
+      </div>
+      <div class="banner">
+        <span style="flex:1">原型演示 · 尚未接入真实录音与转写</span>
+        <span class="tag">原型</span>
+      </div>
+      <div class="body">
+        <div>
+          <div class="sec-h">
+            <span class="l">发给谁</span>
+            <a href="#" id="open-picker">全部 <svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></a>
+          </div>
+          <div class="rail" id="agent-rail">
+            <button type="button" class="agent sel" data-id="mika" data-name="mika" data-st="工作中">
+              <div class="ring"><div class="avatar md" style="background:#F87171">m<span class="dot work"></span></div></div>
+              <span class="nm">mika</span>
+            </button>
+            <button type="button" class="agent" data-id="codex" data-name="codex" data-st="在岗">
+              <div class="ring"><div class="avatar md" style="background:#60A5FA">c<span class="dot ok"></span></div></div>
+              <span class="nm">codex</span>
+            </button>
+            <button type="button" class="agent" data-id="kimi" data-name="kimi" data-st="离线">
+              <div class="ring"><div class="avatar md" style="background:#A78BFA">k<span class="dot off"></span></div></div>
+              <span class="nm">kimi</span>
+            </button>
+          </div>
+          <div class="recv">
+            <div class="avatar md" id="recv-av" style="background:#F87171">m<span class="dot work"></span></div>
+            <div class="flex-1">
+              <div class="lbl">当前接收人</div>
+              <div class="name" id="recv-name">mika</div>
+            </div>
+            <span class="st" id="recv-st">工作中</span>
+          </div>
+        </div>
+
+        <div class="center">
+          <div class="h" id="talk-title">按住说话</div>
+          <div class="s" id="talk-sub">按住即可说话，松开结束</div>
+          <div class="orb-wrap">
+            <div class="halo" id="halo"></div>
+            <button type="button" class="orb" id="orb" aria-label="按住说话">
+              <svg class="ic mic" style="width:36px;height:36px" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+              <span class="eq"><i></i><i></i><i></i><i></i></span>
+            </button>
+          </div>
+          <div class="hint" id="hint">原型演示 · 松开后仅提示，不会写入工作台对话。 当前目标：mika</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">原型示例 · 当前不会发送到对话</div>
+
+    <div class="picker" id="picker">
+      <div class="picker-body" onclick="event.stopPropagation()">
+        <div class="grabber"></div>
+        <div class="picker-h">
+          <div class="t">选择接收员工</div>
+          <div class="s">与派单列表相同 · 选中后用于发语音目标</div>
+        </div>
+        <div style="overflow-y:auto">
+          <button type="button" class="prow sel" data-pick="mika" data-st="工作中" data-bound="0">
+            <div class="avatar md" style="background:#F87171">m</div>
+            <div class="flex-1"><div class="name">mika</div><div class="sub">未绑定工位</div></div>
+            <span style="font-size:12px;color:var(--brand-hex)">工作中</span>
+            <svg class="ic" style="width:18px;height:18px;color:var(--brand-hex)" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+          </button>
+          <button type="button" class="prow" data-pick="codex" data-st="在岗" data-bound="1">
+            <div class="avatar md" style="background:#60A5FA">c</div>
+            <div class="flex-1"><div class="name">codex</div><div class="sub">工位已绑定</div></div>
+            <span style="font-size:12px;color:var(--success)">在岗</span>
+          </button>
+          <button type="button" class="prow" data-pick="kimi" data-st="离线" data-bound="1">
+            <div class="avatar md" style="background:#A78BFA">k</div>
+            <div class="flex-1"><div class="name">kimi</div><div class="sub">工位已绑定</div></div>
+            <span style="font-size:12px;color:var(--muted-fg)">离线</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var colors = { mika: "#F87171", codex: "#60A5FA", kimi: "#A78BFA" };
+  var initials = { mika: "m", codex: "c", kimi: "k" };
+  var current = "mika";
+
+  function select(name, st) {
+    current = name;
+    document.querySelectorAll(".agent").forEach(function (el) {
+      el.classList.toggle("sel", el.getAttribute("data-name") === name);
+    });
+    document.getElementById("recv-name").textContent = name;
+    document.getElementById("recv-st").textContent = st;
+    document.getElementById("recv-st").style.color =
+      st === "工作中" ? "var(--brand-hex)" : st === "在岗" ? "var(--success)" : "var(--muted-fg)";
+    var av = document.getElementById("recv-av");
+    av.style.background = colors[name];
+    av.childNodes[0].textContent = initials[name];
+    document.getElementById("hint").textContent =
+      "原型演示 · 松开后仅提示，不会写入工作台对话。 当前目标：" + name;
+    document.querySelectorAll("[data-pick]").forEach(function (row) {
+      var on = row.getAttribute("data-pick") === name;
+      row.classList.toggle("sel", on);
+      var check = row.querySelector("svg");
+      if (check) check.style.display = on ? "block" : "none";
+      if (on && !check) {
+        var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        // keep simple: mark via class only
+      }
+    });
+  }
+
+  document.querySelectorAll(".agent").forEach(function (el) {
+    el.addEventListener("click", function () {
+      select(el.getAttribute("data-name"), el.getAttribute("data-st"));
+    });
+  });
+
+  var picker = document.getElementById("picker");
+  document.getElementById("open-picker").addEventListener("click", function (e) {
+    e.preventDefault();
+    picker.classList.add("show");
+  });
+  picker.addEventListener("click", function (e) {
+    if (e.target === picker) picker.classList.remove("show");
+  });
+  document.querySelectorAll("[data-pick]").forEach(function (row) {
+    row.addEventListener("click", function () {
+      select(row.getAttribute("data-pick"), row.getAttribute("data-st"));
+      picker.classList.remove("show");
+    });
+  });
+
+  var orb = document.getElementById("orb");
+  var halo = document.getElementById("halo");
+  var title = document.getElementById("talk-title");
+  var sub = document.getElementById("talk-sub");
+  var toast = document.getElementById("toast");
+  var holding = false;
+
+  function start() {
+    holding = true;
+    orb.classList.add("rec");
+    halo.classList.add("on");
+    title.textContent = "正在聆听…";
+    sub.textContent = "松开结束（原型不会真正发送）";
+  }
+  function end() {
+    if (!holding) return;
+    holding = false;
+    orb.classList.remove("rec");
+    halo.classList.remove("on");
+    title.textContent = "按住说话";
+    sub.textContent = "按住即可说话，松开结束";
+    toast.classList.add("show");
+    setTimeout(function () { toast.classList.remove("show"); }, 2200);
+  }
+  orb.addEventListener("pointerdown", function (e) { e.preventDefault(); start(); });
+  orb.addEventListener("pointerup", end);
+  orb.addEventListener("pointercancel", end);
+  orb.addEventListener("pointerleave", function () { if (holding) end(); });
+})();
+</script>
+<script src="_shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>翻译 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.page{display:flex;flex-direction:column;height:100%;background:var(--background)}
+.nav{display:flex;align-items:center;min-height:44px;padding:0 8px;border-bottom:1px solid var(--hairline)}
+.nav .back{color:var(--brand-hex);text-decoration:none;display:flex;align-items:center;padding:8px}
+.nav .title{flex:1;text-align:center;font-size:17px;font-weight:600;margin-right:44px}
+.banner{margin:8px 16px 4px;padding:8px 12px;border-radius:8px;background:var(--secondary);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted-fg)}
+.banner .tag{font-size:9px;border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+.hintbar{margin:8px 16px 0;padding:8px 12px;border-radius:12px;background:var(--secondary);display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted-fg)}
+.hintbar .clock{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:500}
+.stream{flex:1;overflow-y:auto;padding:12px 16px}
+.bubble{margin-bottom:12px;display:flex}
+.bubble.me{justify-content:flex-end}
+.bubble.other{justify-content:flex-start}
+.bubble .box{max-width:78%;padding:10px 12px;border:1px solid;border-radius:14px}
+.bubble.me .box{background:rgba(59,111,255,.10);border-color:rgba(59,111,255,.22);border-bottom-right-radius:4px}
+.bubble.other .box{background:rgba(13,148,136,.10);border-color:rgba(13,148,136,.22);border-bottom-left-radius:4px}
+.bubble .hd{font-size:12px;font-weight:700}
+.bubble.me .hd{color:#3B6FFF}
+.bubble.other .hd{color:#0D9488}
+.bubble .src{margin-top:6px;font-size:14px;font-weight:600;line-height:1.4}
+.bubble .tr{margin-top:2px;font-size:14px;line-height:1.4;color:var(--muted-fg)}
+.dock{background:#fff;border-top:1px solid var(--border);border-radius:24px 24px 0 0;padding:0 0 calc(var(--safe-bottom)+8px)}
+.holds{display:flex;gap:10px;padding:12px 16px 0}
+.hold{
+  flex:1;height:44px;border-radius:12px;border:1px solid var(--border);background:#fff;
+  display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;cursor:pointer;
+  -webkit-user-select:none;user-select:none;touch-action:none;color:inherit;
+}
+.hold .mic{color:var(--foreground);flex-shrink:0}
+.hold .lab{font-size:12px;font-weight:700}
+.hold.me .lab{color:#3B6FFF}
+.hold.other .lab{color:#0D9488}
+.hold.me.active{background:rgba(59,111,255,.1);border-color:#3B6FFF;border-width:1.5px}
+.hold.other.active{background:rgba(13,148,136,.1);border-color:#0D9488;border-width:1.5px}
+.hold.active .mic{color:#fff}
+</style>
+</head>
+<body>
+<p class="stage-note"><b>翻译</b> · 对齐 <code>voice-translate.tsx</code> · <a href="00-index.html">目录</a></p>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="page">
+      <div class="nav">
+        <a class="back" href="02-home.html" data-back data-back-fallback="02-home.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+        <div class="title">翻译</div>
+      </div>
+      <div class="banner"><span style="flex:1;text-align:center">原型演示 · 尚未接入真实录音与转写</span><span class="tag">原型</span></div>
+      <div class="hintbar">
+        <svg class="ic" style="width:22px;height:22px;color:var(--brand-hex)" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <span style="flex:1">翻译中 · 端侧录音 · 对向 · 分段</span>
+        <span class="clock" id="clock">0:00</span>
+      </div>
+      <div class="stream" id="stream">
+        <div class="bubble me"><div class="box"><div class="hd">我 · 中 · 00:00</div><div class="src">您好，今天想先确认一下交付时间。</div><div class="tr">Hello, I would like to confirm the delivery timeline today.</div></div></div>
+        <div class="bubble other"><div class="box"><div class="hd">对方 · 英 · 00:04</div><div class="src">Sure, we can ship by Friday if the specs are final.</div><div class="tr">没问题，如果规格已定，我们可以周五发货。</div></div></div>
+        <div class="bubble me"><div class="box"><div class="hd">我 · 中 · 00:09</div><div class="src">规格已经定稿了，麻烦同步给仓库。</div><div class="tr">The specs are finalized. Please sync with the warehouse.</div></div></div>
+      </div>
+      <div class="dock">
+        <div class="holds">
+          <button type="button" class="hold me" id="hold-me" aria-label="我说（中）" aria-hint="按住说话，松开出译">
+            <svg class="ic mic" style="width:28px;height:28px;stroke-width:2.2" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+            <span class="lab">我说（中）</span>
+          </button>
+          <button type="button" class="hold other" id="hold-other" aria-label="对方说（英）" aria-hint="按住说话，松开出译">
+            <svg class="ic mic" style="width:28px;height:28px;stroke-width:2.2" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+            <span class="lab">对方说（英）</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var elapsed = 0;
+  var clock = document.getElementById("clock");
+  var stream = document.getElementById("stream");
+  function fmt(s) {
+    var m = Math.floor(s / 60), sec = s % 60;
+    return m + ":" + String(sec).padStart(2, "0");
+  }
+  setInterval(function () {
+    elapsed += 1;
+    clock.textContent = fmt(elapsed);
+  }, 1000);
+
+  function append(side) {
+    var me = side === "me";
+    var div = document.createElement("div");
+    div.className = "bubble " + side;
+    var hd = me ? "我 · 中 · " + fmt(elapsed) : "对方 · 英 · " + fmt(elapsed);
+    var src = me ? "（中）这是一段按住说话的示例原文。" : "This is a sample utterance from the other side.";
+    var tr = me ? "This is a sample hold-to-speak source sentence." : "（中）这是对方按住说话后的示例译文。";
+    div.innerHTML = '<div class="box"><div class="hd">' + hd + '</div><div class="src">' + src + '</div><div class="tr">' + tr + "</div></div>";
+    stream.appendChild(div);
+    stream.scrollTop = stream.scrollHeight;
+  }
+
+  function wire(id, side) {
+    var el = document.getElementById(id);
+    var label = el.querySelector(".lab");
+    var idle = label.textContent;
+    function start(e) {
+      e.preventDefault();
+      el.classList.add("active");
+      label.textContent = "松开出译";
+    }
+    function end() {
+      if (!el.classList.contains("active")) return;
+      el.classList.remove("active");
+      label.textContent = idle;
+      append(side);
+    }
+    el.addEventListener("pointerdown", start);
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+    el.addEventListener("pointerleave", end);
+  }
+  wire("hold-me", "me");
+  wire("hold-other", "other");
+})();
+</script>
+<script src="_shared.js"></script>
+</body>
+</html>

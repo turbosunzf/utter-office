@@ -1,68 +1,418 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>11 简报详情</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>11 简报详情 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
-.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column}
-.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
-.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
-.nav{height:44px;display:flex;align-items:center;padding:0 12px;gap:10px}
-.back{color:#3B6FFF;font-size:15px;text-decoration:none}
-.hl{font-size:17px;font-weight:700;flex:1}
-.act{font-size:14px;color:#3B6FFF}
-.content{flex:1;overflow-y:auto;padding:8px 16px 16px}
-.badge{font-size:10px;color:#8E8E93;border:1px solid #D1D1D6;border-radius:4px;padding:2px 6px}
-.chip{font-size:11px;color:#3B6FFF;background:#EDF1FB;border-radius:6px;padding:2px 8px}
-.meta{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.title{font-size:20px;font-weight:700;line-height:1.35;margin-bottom:8px}
-.src{font-size:12px;color:#8E8E93;margin-bottom:16px}
-.body{font-size:14px;line-height:1.65;color:#1C1C1E}
-.body p{margin-bottom:12px}
-.body ul{margin:0 0 12px 18px;font-size:13px;color:#3A3A3C}
-.link{font-size:13px;color:#3B6FFF;text-decoration:none}
-.cta{margin-top:20px;background:#fff;border:1px solid #E5E5EA;border-radius:14px;padding:14px;text-align:center}
-.cta a{display:block;background:#3B6FFF;color:#fff;border-radius:10px;padding:12px;font-size:14px;font-weight:600;text-decoration:none}
-.cta .n{font-size:11px;color:#8E8E93;margin-top:8px;line-height:1.45}
-.warn{font-size:11px;color:#8A6116;background:#FFF8E6;border-radius:8px;padding:8px;margin-top:12px;line-height:1.45}
+.back { display:flex;align-items:center;gap:4px;color:var(--brand-hex);text-decoration:none;font-size:15px; }
+.article { padding: 16px 20px 28px; }
+.cat { display:inline-flex; font-size:11px; font-weight:600; color:var(--brand-hex); background:rgba(59,111,255,.12); border-radius:6px; padding:3px 8px; }
+.h1 { font-size:22px; font-weight:700; letter-spacing:-.3px; margin: 12px 0 8px; line-height:1.3; }
+.meta { font-size:12px; color:var(--muted-fg); margin-bottom: 16px; }
+.body { font-size:15px; line-height:1.65; color: var(--foreground); }
+.body p { margin-bottom: 12px; }
+.body ul { padding-left: 18px; margin-bottom: 12px; }
+.body li { margin-bottom: 6px; }
+.body pre {
+  background: hsl(240 4% 92%); border-radius: 10px; padding: 12px;
+  font-size: 12px; overflow-x: auto; margin-bottom: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.body blockquote {
+  border-left: 3px solid var(--border); padding-left: 12px; color: var(--muted-fg); margin-bottom: 12px;
+}
+.source { font-size: 13px; margin: 16px 0; }
+.source a { color: var(--brand-hex); }
+.ex {
+  display:inline-flex; margin-left:8px; font-size:10px;
+  border:1px solid var(--border); border-radius:4px; padding:1px 5px;
+  color:var(--muted-fg); vertical-align:middle;
+}
+
+.mission {
+  margin-top: 8px; border-radius: 16px; overflow: hidden;
+  border: 1px solid var(--border); background: #fff;
+  box-shadow: 0 8px 24px rgba(15,23,42,.04);
+}
+.mission-hd {
+  padding: 14px 14px 12px;
+  background: linear-gradient(160deg, rgba(59,111,255,.1), rgba(59,111,255,.02) 60%, #fff);
+}
+.mission-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.mission-kicker {
+  font-size: 11px; font-weight: 700; color: var(--brand-hex);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.mission-kicker i {
+  width: 6px; height: 6px; border-radius: 999px; background: var(--brand-hex);
+}
+.mission-goal {
+  font-size: 16px; font-weight: 700; margin-top: 6px; line-height: 1.35; letter-spacing: -.2px;
+}
+.mission-edit {
+  height: 28px; padding: 0 10px; border-radius: 8px; border: none;
+  background: rgba(59,111,255,.12); color: var(--brand-hex);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.mission-bd { padding: 4px 14px 14px; }
+
+.roster {
+  display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  padding: 8px 0 2px; margin: 0 -2px;
+}
+.roster::-webkit-scrollbar { display: none; }
+.member {
+  flex: 0 0 auto; width: 68px;
+  display: flex; flex-direction: column; align-items: center;
+  border: none; background: transparent; padding: 0; cursor: pointer;
+}
+.member .ring {
+  width: 48px; height: 48px; border-radius: 999px; padding: 2px;
+  background: linear-gradient(145deg, rgba(59,111,255,.35), rgba(59,111,255,.05));
+}
+.member .avatar {
+  width: 100%; height: 100%; border-radius: 999px; border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: #fff;
+}
+.member .role {
+  margin-top: 6px; font-size: 10px; font-weight: 700; color: var(--brand-hex);
+  background: rgba(59,111,255,.1); border-radius: 999px; padding: 2px 7px;
+}
+.member .nm {
+  margin-top: 4px; font-size: 11px; font-weight: 600; color: var(--foreground);
+  max-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.flow {
+  display: flex; align-items: center; gap: 6px; margin-top: 10px;
+  font-size: 12px; color: var(--muted-fg);
+}
+.flow b { color: var(--foreground); font-weight: 600; }
+.flow .steps { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.flow .steps span {
+  font-size: 10px; font-weight: 600; color: var(--brand-hex);
+  background: rgba(59,111,255,.08); border-radius: 6px; padding: 2px 6px;
+}
+.flow .steps em { font-style: normal; color: #D1D5DB; font-size: 10px; }
+
+.cta {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 44px; margin-top: 12px; border: none; border-radius: 12px;
+  background: var(--brand-hex); color: #fff;
+  font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.cta:disabled { opacity: .4; cursor: not-allowed; }
+.cta.ghost {
+  background: var(--secondary); color: var(--foreground); margin-top: 8px;
+}
+
+.sheet-title { font-size: 17px; font-weight: 700; }
+.sheet-sub { font-size: 12px; color: var(--muted-fg); margin: 4px 0 8px; }
+.cfg-list { max-height: 48vh; overflow-y: auto; }
+.cfg-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 4px; border-bottom: 1px solid var(--border);
+}
+.cfg-row.off { opacity: .42; }
+.cfg-row .hit {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+  border: none; background: transparent; padding: 0; text-align: left; cursor: pointer;
+}
+.cfg-row .role { font-size: 11px; font-weight: 700; color: var(--brand-hex); }
+.cfg-row .nm { font-size: 14px; font-weight: 600; margin-top: 1px; }
+.cfg-row .hint { font-size: 11px; color: var(--muted-fg); margin-top: 2px; }
+.seat-toggle {
+  width: 42px; height: 26px; border-radius: 13px; border: none;
+  background: #D1D5DB; position: relative; cursor: pointer; flex-shrink: 0;
+}
+.seat-toggle.on { background: var(--brand-hex); }
+.seat-toggle i {
+  position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+  border-radius: 10px; background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18); transition: transform .15s;
+}
+.seat-toggle.on i { transform: translateX(16px); }
+
+.pick-row {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  border: none; background: transparent; padding: 12px 4px;
+  border-bottom: 1px solid var(--border); cursor: pointer; text-align: left;
+}
+.pick-row:active { background: rgba(59,111,255,.04); }
+.pick-row .meta { flex: 1; min-width: 0; }
+.pick-row .nm { font-size: 15px; font-weight: 600; }
+.pick-row .ttl { font-size: 12px; color: var(--muted-fg); margin-top: 2px; }
+.pick-row .check {
+  width: 22px; height: 22px; border-radius: 999px; border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pick-row.on .check {
+  border-color: var(--brand-hex); background: var(--brand-hex); color: #fff;
+  font-size: 12px; font-weight: 700;
+}
 </style>
 </head>
 <body>
+<p class="stage-note"><b>简报详情</b> · 任务小队 · 点头像换人 · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
-    <div class="demo">原型演示 · B 类示例数据 · 不是员工定时巡检产物</div>
-    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
-    <div class="nav">
-      <a class="back" href="02-home.html">‹ 首页</a>
-      <div class="hl">简报</div>
-      <span class="act">分享</span>
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <a class="back" href="02-home.html" data-back data-back-fallback="02-home.html"><svg class="ic" style="width:20px;height:20px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+      <div class="title-wrap"><div class="title" style="font-size:17px">行业简报<span class="ex">示例数据</span></div></div>
+      <div style="width:36px"></div>
     </div>
-    <div class="content">
-      <div class="meta">
-        <span class="chip">AI Infra</span>
-        <span class="badge">示例数据</span>
+    <div class="scroll">
+      <div class="article">
+        <span class="cat">AI Infra</span>
+        <h1 class="h1">某推理框架发布新版本，推理成本下降约 40%</h1>
+        <div class="meta">36Kr · 2 小时前</div>
+        <div class="body">
+          <p>示例正文。用于验证首页与详情阅读链路（mock）。</p>
+          <ul>
+            <li>成本下降主要来自批处理与量化</li>
+            <li>对鉴权/支付类服务的影响需结合本仓库评估</li>
+          </ul>
+          <pre># 仅示例，勿在生产执行
+curl -s https://example.com/pricing</pre>
+          <blockquote>来自行业简报 mock</blockquote>
+        </div>
+        <div class="source">来源：<a href="https://example.com/brief-1">example.com/brief-1</a></div>
+
+        <div class="mission">
+          <div class="mission-hd">
+            <div class="mission-top">
+              <div style="flex:1;min-width:0">
+                <div class="mission-kicker"><i></i>任务小队</div>
+                <div class="mission-goal">评估对本仓库的影响，产出可执行待办</div>
+              </div>
+              <button type="button" class="mission-edit" data-open-cfg>调整</button>
+            </div>
+          </div>
+          <div class="mission-bd">
+            <div class="roster" id="roster"></div>
+            <div class="flow" id="roster-meta"></div>
+            <button type="button" class="cta" id="mission-go">深入分析探索</button>
+          </div>
+        </div>
       </div>
-      <div class="title">某推理框架发布新版本，推理成本下降约 40%</div>
-      <div class="src">36Kr · 2 小时前</div>
-      <div class="body">
-        <p>示例正文。本期简报用于验证首页区块与详情阅读链路，内容来自 mock，带「示例数据」徽标。</div>
-        <p>与 StaffDeck「主动工作」不同：主动工作是定时任务按规则巡检并留 Trace；本页是行业资讯阅读，深挖派单才产生真实事项。</p>
-        <ul>
-          <li>成本下降主要来自批处理与量化</li>
-          <li>对鉴权/支付类服务的影响需结合本仓库评估</li>
-        </ul>
-        <a class="link" href="#">来源链接 ↗</a>
+    </div>
+
+    <!-- 调整小队：开关；点左侧进入换人页 -->
+    <div class="scrim" id="cfg-scrim">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="grabber"></div>
+        <div class="sheet-title">调整小队</div>
+        <div class="sheet-sub">点成员换人 · 右侧开关席位</div>
+        <div class="cfg-list" id="cfg-list"></div>
+        <button type="button" class="cta" style="margin-top:12px" data-close-cfg>保存小队</button>
       </div>
-      <div class="cta">
-        <a href="09-staff-picker.html#dispatch">🔍 让数字员工深挖这条</a>
-        <div class="n">将预填新建事项标题「调研：…」并可选派单。产出是真实 issue，素材来自示例简报。</div>
+    </div>
+
+    <!-- 换人：独立人选列表 -->
+    <div class="scrim" id="pick-scrim">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="grabber"></div>
+        <div class="sheet-title" id="pick-title">选择成员</div>
+        <div class="sheet-sub" id="pick-sub">担任本席</div>
+        <div id="pick-list"></div>
+        <button type="button" class="cta ghost" data-close-pick>返回</button>
       </div>
-      <div class="warn">禁止文案写成「员工已自动巡检」。主动工作落点见档案「定时」与后端 B-5。</div>
+    </div>
+
+    <div class="scrim" id="go-scrim">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="grabber"></div>
+        <div class="sheet-title">开始深入分析？</div>
+        <div class="sheet-sub" id="go-summary" style="margin-bottom:12px"></div>
+        <a href="03-board.html" class="cta" style="margin:0">确认</a>
+        <button type="button" class="cta ghost" data-close-go>取消</button>
+      </div>
     </div>
   </div>
 </div>
+<script src="_shared.js"></script>
+<script>
+(function () {
+  var STAFF = {
+    kimi:  { id: "kimi",  initial: "k", color: "#A78BFA", name: "kimi",  title: "行业情报分析师" },
+    codex: { id: "codex", initial: "c", color: "#60A5FA", name: "codex", title: "代码交付工程师" },
+    mika:  { id: "mika",  initial: "m", color: "#F87171", name: "mika",  title: "需求派单助理" }
+  };
+
+  var SEATS = [
+    { key: "intel",    role: "情报", agentId: "kimi",  on: true },
+    { key: "eng",      role: "评估", agentId: "codex", on: true },
+    { key: "dispatch", role: "落地", agentId: "mika",  on: true }
+  ];
+
+  var pickingKey = null;
+  var pickFromCfg = false;
+  var cfgScrim = document.getElementById("cfg-scrim");
+  var pickScrim = document.getElementById("pick-scrim");
+  var goScrim = document.getElementById("go-scrim");
+
+  function activeSeats() {
+    return SEATS.filter(function (s) { return s.on && s.agentId; });
+  }
+
+  function openScrim(el) { el.classList.add("show"); }
+  function closeScrim(el) { el.classList.remove("show"); }
+
+  function renderRoster() {
+    var act = activeSeats();
+    var root = document.getElementById("roster");
+    var meta = document.getElementById("roster-meta");
+    var go = document.getElementById("mission-go");
+    root.innerHTML = "";
+
+    if (!act.length) {
+      meta.innerHTML = "尚未选人 · 点右上角调整";
+      go.disabled = true;
+      return;
+    }
+
+    act.forEach(function (s) {
+      var a = STAFF[s.agentId];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "member";
+      btn.innerHTML =
+        '<div class="ring"><div class="avatar" style="background:' + a.color + '">' + a.initial + '</div></div>' +
+        '<div class="role">' + s.role + '</div>' +
+        '<div class="nm">' + a.name + '</div>';
+      btn.addEventListener("click", function () {
+        openPick(s.key, false);
+      });
+      root.appendChild(btn);
+    });
+
+    meta.innerHTML =
+      "<b>" + act.length + " 人</b>" +
+      '<div class="steps"><span>理解</span><em>→</em><span>对照</span><em>→</em><span>落地</span></div>';
+    go.disabled = false;
+  }
+
+  function renderCfg() {
+    var root = document.getElementById("cfg-list");
+    root.innerHTML = "";
+    SEATS.forEach(function (seat) {
+      var a = STAFF[seat.agentId];
+      var row = document.createElement("div");
+      row.className = "cfg-row" + (seat.on ? "" : " off");
+
+      var hit = document.createElement("button");
+      hit.type = "button";
+      hit.className = "hit";
+      hit.disabled = !seat.on;
+      hit.innerHTML =
+        '<div class="avatar md" style="background:' + a.color + '">' + a.initial + '</div>' +
+        '<div class="info">' +
+          '<div class="role">' + seat.role + '席</div>' +
+          '<div class="nm">' + a.name + '</div>' +
+          (seat.on ? '<div class="hint">点此更换成员</div>' : '') +
+        '</div>';
+      hit.addEventListener("click", function () {
+        if (!seat.on) return;
+        openPick(seat.key, true);
+      });
+      row.appendChild(hit);
+
+      var tog = document.createElement("button");
+      tog.type = "button";
+      tog.className = "seat-toggle" + (seat.on ? " on" : "");
+      tog.innerHTML = "<i></i>";
+      tog.addEventListener("click", function (e) {
+        e.stopPropagation();
+        seat.on = !seat.on;
+        renderCfg();
+        renderRoster();
+      });
+      row.appendChild(tog);
+      root.appendChild(row);
+    });
+  }
+
+  function openPick(seatKey, fromCfg) {
+    var seat = SEATS.find(function (s) { return s.key === seatKey; });
+    if (!seat || !seat.on) return;
+    pickingKey = seatKey;
+    pickFromCfg = !!fromCfg;
+    document.getElementById("pick-title").textContent = "选择 · " + seat.role + "席";
+    document.getElementById("pick-sub").textContent = "从名册中指定本席成员";
+
+    var list = document.getElementById("pick-list");
+    list.innerHTML = "";
+    Object.keys(STAFF).forEach(function (id) {
+      var p = STAFF[id];
+      var row = document.createElement("button");
+      row.type = "button";
+      row.className = "pick-row" + (id === seat.agentId ? " on" : "");
+      row.innerHTML =
+        '<div class="avatar lg" style="background:' + p.color + '">' + p.initial + '</div>' +
+        '<div class="meta"><div class="nm">' + p.name + '</div><div class="ttl">' + p.title + '</div></div>' +
+        '<div class="check">' + (id === seat.agentId ? "✓" : "") + "</div>";
+      row.addEventListener("click", function () {
+        seat.agentId = id;
+        closePick();
+        renderCfg();
+        renderRoster();
+      });
+      list.appendChild(row);
+    });
+
+    if (pickFromCfg) closeScrim(cfgScrim);
+    openScrim(pickScrim);
+  }
+
+  function closePick() {
+    pickingKey = null;
+    closeScrim(pickScrim);
+    if (pickFromCfg) {
+      pickFromCfg = false;
+      renderCfg();
+      openScrim(cfgScrim);
+    }
+  }
+
+  document.querySelector("[data-open-cfg]").addEventListener("click", function () {
+    renderCfg();
+    openScrim(cfgScrim);
+  });
+  document.querySelectorAll("[data-close-cfg]").forEach(function (el) {
+    el.addEventListener("click", function () { closeScrim(cfgScrim); });
+  });
+  document.querySelectorAll("[data-close-pick]").forEach(function (el) {
+    el.addEventListener("click", function () { closePick(); });
+  });
+  cfgScrim.addEventListener("click", function (e) {
+    if (e.target === cfgScrim) closeScrim(cfgScrim);
+  });
+  pickScrim.addEventListener("click", function (e) {
+    if (e.target === pickScrim) closePick();
+  });
+
+  document.getElementById("mission-go").addEventListener("click", function () {
+    var act = activeSeats();
+    if (!act.length) return;
+    document.getElementById("go-summary").textContent =
+      act.map(function (s) { return s.role + "·" + STAFF[s.agentId].name; }).join(" · ") +
+      " · 将创建真实事项";
+    openScrim(goScrim);
+  });
+  document.querySelectorAll("[data-close-go]").forEach(function (el) {
+    el.addEventListener("click", function () { closeScrim(goScrim); });
+  });
+  goScrim.addEventListener("click", function (e) {
+    if (e.target === goScrim) closeScrim(goScrim);
+  });
+
+  renderRoster();
+})();
+</script>
 </body>
 </html>

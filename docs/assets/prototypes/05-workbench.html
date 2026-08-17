@@ -1,109 +1,132 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>05 工作台</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>05 工作台 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#2A2A2E;display:flex;justify-content:center;padding:24px;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
-.phone{width:390px;height:844px;background:#F5F6F8;border-radius:44px;border:1px solid #000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column}
-.demo{background:#1C1C1E;color:#fff;font-size:10px;text-align:center;padding:4px}
-.status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:15px;font-weight:600}
-.header{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
-.cur{display:flex;align-items:center;gap:8px}
-.ava{width:30px;height:30px;border-radius:15px;background:#FFD9D9;color:#C42;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
-.nm{font-size:15px;font-weight:700}
-.tt{font-size:11px;color:#8E8E93}
-.hic{display:flex;gap:12px}
-.hic .dot{width:22px;height:22px;border-radius:7px;background:#E1E1E8;display:flex;align-items:center;justify-content:center;font-size:12px}
-.notice{display:flex;align-items:center;gap:8px;background:#FFF8E6;border-bottom:1px solid #FFE8B3;padding:8px 14px;font-size:12px;color:#8A6116}
-.notice .act{margin-left:auto;color:#3B6FFF;font-weight:600;text-decoration:none}
-.rail{height:64px;background:#fff;border-bottom:1px solid #E5E5EA;display:flex;align-items:center;gap:10px;padding:0 12px;overflow:hidden}
-.r{display:flex;flex-direction:column;align-items:center;gap:2px;width:48px;flex-shrink:0;text-decoration:none;color:inherit}
-.r .av{width:38px;height:38px;border-radius:19px;background:#E1E1E8;position:relative;display:flex;align-items:center;justify-content:center;font-size:12px}
-.r.sel .av{box-shadow:0 0 0 2px #3B6FFF}
-.r .st{position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:6px;border:2px solid #fff}
-.r .st.ok{background:#34C759}
-.r .st.work{background:#3B6FFF}
-.r .st.block{background:#FFCC00}
-.r .st.off{background:#D1D1D6}
-.r .lb{font-size:9px;color:#8E8E93;width:100%;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.r.sel .lb{color:#3B6FFF;font-weight:700}
-.r .cnt{position:absolute;left:-2px;top:-2px;min-width:15px;height:15px;border-radius:8px;background:#3B6FFF;color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;padding:0 3px}
-.r .dotu{position:absolute;right:-2px;top:-2px;width:10px;height:10px;border-radius:5px;background:#FF3B30;border:2px solid #fff}
-.rail .squad{width:34px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#6E6E73}
-.rail .squad .av{width:34px;height:34px;background:#F2F3F7;color:#6E6E73;border-radius:17px;display:flex;align-items:center;justify-content:center}
-.rail .more{width:34px;color:#3B6FFF;font-size:10px;text-align:center;text-decoration:none}
-.msg{flex:1;overflow:hidden;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
-.b{max-width:74%;border-radius:14px;padding:9px 12px;font-size:13px;line-height:1.5;color:#1C1C1E}
-.b.you{background:#E1E8FF;align-self:flex-end}
-.b.me{background:#fff;border:1px solid #E5E5EA;align-self:flex-start}
-.b .who{font-size:10px;color:#8E8E93;margin-bottom:3px}
-.tl{background:#fff;border:1px solid #E5E5EA;border-radius:12px;padding:9px 12px;font-size:12px;align-self:flex-start;width:100%}
-.tl .row{display:flex;gap:8px;align-items:center;padding:3px 0;font-size:11px;color:#1C1C1E}
-.tl .st{width:7px;height:7px;border-radius:4px;background:#34C759}
-.tl .st.wait{background:#3B6FFF}
-.hitl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid #F1F1F4}
-.btn-sm{font-size:11px;color:#3B6FFF;background:#EDF1FB;border-radius:8px;padding:6px 10px;text-decoration:none}
-.btn-sm.danger{background:#FFEBEC;color:#FF3B30}
-.longpress{font-size:10px;color:#8E8E93;text-align:center;padding:2px 0}
-.composer{background:#fff;border-top:1px solid #E5E5EA;padding:8px 14px;display:flex;align-items:center;gap:8px}
-.composer .in{flex:1;height:34px;background:#F2F3F7;border-radius:17px;padding:0 14px;font-size:13px;color:#8E8E93;display:flex;align-items:center}
-.composer .send{width:34px;height:34px;border-radius:17px;background:#3B6FFF;color:#fff;display:flex;align-items:center;justify-content:center}
-.composer .mic{width:34px;height:34px;border-radius:17px;background:#F2F3F7;color:#3B6FFF;display:flex;align-items:center;justify-content:center;text-decoration:none}
-.tabbar{height:84px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-around;padding:0 8px 24px}
-.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#8E8E93;width:62px;text-decoration:none}
-.tab.active{color:#3B6FFF}
-.tab-icon{width:24px;height:24px;border-radius:6px;background:#E1E1E8;position:relative}
-.tab.badge .tab-icon::after{content:"2";position:absolute;top:-4px;right:-5px;min-width:16px;height:16px;border-radius:8px;background:#FF9500;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
-.center{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2F62F0,#3B6FFF 55%,#5B8AFF);margin-top:-28px;box-shadow:0 6px 16px rgba(59,111,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;text-decoration:none}
+.chat-title{display:flex;align-items:center;gap:8px;min-width:0}
+.chat-title .nm{font-size:16px;font-weight:700}
+.chat-title .tt{font-size:11px;color:var(--muted-fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border);background:#fff;overflow-x:auto;flex-shrink:0}
+.rail::-webkit-scrollbar{display:none}
+.rail-all{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:var(--brand-hex);flex-shrink:0;width:48px}
+.rail-all .av{width:40px;height:40px;border-radius:20px;background:rgba(59,111,255,.12);border:1px solid rgba(59,111,255,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--brand-hex)}
+.rail-all .lb{font-size:10px}
+.rail-item{display:flex;flex-direction:column;align-items:center;gap:4px;width:52px;flex-shrink:0;text-decoration:none;color:var(--muted-fg);cursor:pointer}
+.rail-item .av{width:40px;height:40px;border-radius:20px;position:relative;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.rail-item.sel .av{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand-hex),0 2px 8px rgba(59,111,255,.3)}
+.rail-item.sel .lb{color:var(--brand-hex);font-weight:700}
+.rail-item .lb{font-size:10px;width:100%;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail-item .cnt{position:absolute;left:-2px;top:-2px;min-width:14px;height:14px;border-radius:7px;background:var(--brand-hex);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.rail-item .udot{position:absolute;right:-2px;top:-2px;width:10px;height:10px;border-radius:5px;background:#FF3B30;border:2px solid #fff}
+.msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.bubble{max-width:78%;border-radius:16px;padding:10px 12px;font-size:14px;line-height:1.45}
+.bubble.you{align-self:flex-end;background:#E1E8FF}
+.bubble.me{align-self:flex-start;background:#fff;border:1px solid var(--border)}
+.bubble .who{font-size:10px;color:var(--muted-fg);margin-bottom:4px}
+.steps{
+  align-self:flex-start;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 12px;
+  font-size:12px;color:var(--muted-fg);cursor:pointer;user-select:none;
+}
+.steps.open{width:100%}
+.steps .detail{display:none;margin-top:8px;padding-top:8px;border-top:1px solid #F1F1F4;color:var(--foreground)}
+.steps.open .detail{display:block}
+.steps .row{display:flex;gap:8px;align-items:center;padding:3px 0;font-size:12px}
+.steps .st{width:7px;height:7px;border-radius:4px;background:var(--success);flex-shrink:0}
+.steps .st.wait{background:var(--brand-hex);animation:pl 1s infinite}
+@keyframes pl{50%{opacity:.35}}
+.runtime{
+  margin:0 12px 8px;padding:6px 10px;border-radius:6px;background:rgba(245,158,11,.15);
+  font-size:12px;color:#a16207;display:flex;align-items:center;gap:6px;
+}
+.composer{background:#fff;border-top:1px solid var(--hairline);padding:8px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.composer .in{flex:1;height:36px;background:var(--well);border-radius:18px;padding:0 14px;font-size:14px;color:var(--muted-fg);display:flex;align-items:center}
+.composer .send{width:36px;height:36px;border-radius:18px;background:var(--brand-hex);color:#fff;display:flex;align-items:center;justify-content:center;border:none}
 </style>
 </head>
 <body>
+<p class="stage-note"><b>工作台</b> · 对齐 workbench + StaffRail + Runtime banner · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
-    <div class="demo">原型演示 · 运行中 HITL 三入口同屏 · Rail=员工上下文</div>
-    <div class="status"><span>9:41</span><span>●●● 5G 🔋</span></div>
-    <div class="header">
-      <div class="cur"><div class="ava">m</div><span class="nm">mika</span><span class="tt">▾</span><span class="tt">«鉴权重构讨论»</span></div>
-      <div class="hic"><div class="dot">⋯</div><div class="dot">＋</div></div>
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <div class="title-wrap">
+        <div class="chat-title">
+          <div class="avatar" style="width:30px;height:30px;font-size:12px;background:#F87171">m</div>
+          <div style="min-width:0">
+            <div class="nm"><span data-chat-agent>mika</span> ▾</div>
+            <div class="tt">鉴权重构讨论</div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" type="button"><svg class="ic" style="width:20px;height:20px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        <button class="icon-btn" type="button"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+      </div>
     </div>
     <div class="notice">
-      <span>⚠️</span> 工位未绑定，员工暂时无法执行任务
+      <span>⚠️</span><span style="flex:1">有员工工位未绑定，任务可能无法执行</span>
       <a class="act" href="08-staff-profile.html#cap">去绑定 ›</a>
     </div>
     <div class="rail">
-      <a class="r sel" href="05-workbench.html"><div class="av" style="background:#FFD9D9;color:#C42">m<span class="st work"></span><span class="cnt">2</span></div><div class="lb">mika</div></a>
-      <a class="r" href="08-staff-profile.html"><div class="av" style="background:#DFE9FF;color:#3B6FFF">c<span class="st ok"></span></div><div class="lb">codex</div></a>
-      <a class="r" href="08-staff-profile.html"><div class="av" style="background:#F0E6FF;color:#8B5CF6">k<span class="st off"></span><span class="dotu"></span></div><div class="lb">kimi</div></a>
-      <div class="squad"><div class="av">👥</div></div>
-      <a class="more" href="07-staff-roster.html">全部 ›</a>
+      <a class="rail-all" href="07-staff-roster.html">
+        <div class="av">全部</div>
+        <div class="lb">名册 ›</div>
+      </a>
+      <a class="rail-item sel" data-rail-agent data-name="mika" href="#">
+        <div class="av" style="background:#F87171">m<span class="dot work" style="position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:6px;border:2px solid #fff;background:var(--brand-hex)"></span><span class="cnt">2</span></div>
+        <div class="lb">mika</div>
+      </a>
+      <a class="rail-item" data-rail-agent data-name="codex" href="#">
+        <div class="av" style="background:#60A5FA">c<span class="dot ok" style="position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:6px;border:2px solid #fff;background:var(--success)"></span></div>
+        <div class="lb">codex</div>
+      </a>
+      <a class="rail-item" data-rail-agent data-name="kimi" href="#">
+        <div class="av" style="background:#A78BFA">k<span class="udot"></span><span class="dot off" style="position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:6px;border:2px solid #fff;background:#D1D1D6"></span></div>
+        <div class="lb">kimi</div>
+      </a>
     </div>
-    <div class="longpress">长按员工头像 → 档案 / 设默认 / 新建会话（原型用「全部」进名册）</div>
-    <div class="msg">
-      <div class="b you">把鉴权中间件重构拆一下，优先级高的先做。</div>
-      <div class="b me"><div class="who">mika · 运行</div>已拆解：① 令牌校验 ② 路由守卫 ③ 迁移旧调用点。先做 ①。</div>
-      <div class="tl">
-        <div class="row"><span class="st"></span>已创建事项 MUL-42 · 重构鉴权中间件</div>
-        <div class="row"><span class="st wait"></span><b>运行中</b> · AI 正在执行</div>
-        <div class="hitl">
-          <a class="btn-sm" href="08-staff-profile.html">查看运行记录</a>
-          <a class="btn-sm danger" href="#">取消任务</a>
-          <a class="btn-sm" href="#">追问 / 追加评论</a>
+    <div class="msgs">
+      <div class="bubble you">帮我梳理鉴权中间件的改造方案，重点关注 session 失效与移动端 token 刷新。</div>
+      <div class="steps" id="steps-toggle">
+        <span>3 steps ▸</span>
+        <div class="detail">
+          <div class="row"><span class="st"></span>read apps/mobile/data/api.ts</div>
+          <div class="row"><span class="st"></span>compare web refresh semantics</div>
+          <div class="row"><span class="st wait"></span>drafting checklist…</div>
         </div>
       </div>
-      <div class="b me"><div class="who">mika</div>进行中，预计 20 分钟。有疑问随时追问。</div>
+      <div class="bubble me">
+        <div class="who">mika</div>
+        好的。我会先看现有 `api.ts` 的 401 回调与 SecureStore 刷新路径，再给出改造清单。
+      </div>
     </div>
-    <div class="composer"><div class="in">输入消息…</div><a class="mic" href="04-voice.html">🎙</a><div class="send">➤</div></div>
-    <div class="tabbar">
-      <a class="tab" href="02-home.html"><div class="tab-icon"></div>首页</a>
-      <a class="tab" href="03-board.html"><div class="tab-icon"></div>看板</a>
-      <a class="center" href="04-voice.html">●</a>
-      <a class="tab active badge" href="05-workbench.html"><div class="tab-icon" style="background:#FFE3C7"></div>工作台</a>
-      <a class="tab" href="06-mine.html"><div class="tab-icon"></div>我的</a>
+    <div class="runtime">
+      <svg class="ic" style="width:14px;height:14px;color:#a16207" viewBox="0 0 24 24"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+      <span>mika needs a runtime before it can run. Bind one on web or desktop.</span>
     </div>
+    <div class="composer">
+      <div class="in">发消息给 mika…</div>
+      <button class="send" type="button"><svg class="ic" style="width:16px;height:16px;color:#fff" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
+    </div>
+    <nav class="tabbar">
+      <a class="tab" href="02-home.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>首页</a>
+      <a class="tab" href="03-board.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>看板</a>
+      <div class="tab-center-slot"><button type="button" class="record-btn" id="record-btn" aria-label="录音"><svg class="ic mic" style="width:26px;height:26px;color:#fff" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg><span class="eq"><i></i><i></i><i></i><i></i></span></button></div>
+      <a class="tab active" href="05-workbench.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px;stroke-width:2.35" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>工作台<span class="tab-badge">2</span></a>
+      <a class="tab" href="06-mine.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>我的</a>
+    </nav>
   </div>
 </div>
+<script src="_shared.js"></script>
+<script>
+  document.getElementById("steps-toggle").addEventListener("click", function () {
+    this.classList.toggle("open");
+    this.querySelector("span").firstChild.textContent = this.classList.contains("open") ? "3 steps ▾ " : "3 steps ▸ ";
+  });
+</script>
 </body>
 </html>
