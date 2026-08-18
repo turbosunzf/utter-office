@@ -4,6 +4,8 @@
 
 export type BriefRelevance = "high" | "medium" | "low";
 
+export type BriefHitTone = "down" | "new" | "mute";
+
 export interface Brief {
   id: string;
   category: string;
@@ -14,6 +16,8 @@ export interface Brief {
   source_url: string | null;
   relevance: BriefRelevance;
   published_at: string;
+  hit?: { n: string; l: string; tone: BriefHitTone };
+  thumb?: string;
 }
 
 const HOUR = 3600_000;
@@ -43,6 +47,8 @@ curl -s https://example.com/pricing
       source_url: "https://example.com/brief-1",
       relevance: "high",
       published_at: new Date(now - 2 * HOUR).toISOString(),
+      hit: { n: "↓40%", l: "成本", tone: "down" },
+      thumb: "讯",
     },
     {
       id: "brief-2",
@@ -62,6 +68,8 @@ curl -s https://example.com/pricing
       source_url: "https://example.com/brief-2",
       relevance: "high",
       published_at: new Date(now - 5 * HOUR).toISOString(),
+      hit: { n: "新", l: "能力", tone: "new" },
+      thumb: "竞",
     },
     {
       id: "brief-3",
@@ -76,28 +84,34 @@ curl -s https://example.com/pricing
       source_url: null,
       relevance: "medium",
       published_at: new Date(now - 26 * HOUR).toISOString(),
+      hit: { n: "摘要", l: "合规", tone: "mute" },
+      thumb: "政",
     },
     {
       id: "brief-4",
       category: "融资",
-      title: "垂直 Agent 平台完成新一轮融资",
+      title: "垂直 Agent 平台完成 A 轮，估值报 3 亿美元",
       summary: "资金将用于企业知识库与审计能力。",
       body_md: `融资新闻摘要。重点观察其审计与权限模型是否与我们的 visibility / permission_mode 接近。`,
       source: "投中网",
       source_url: "https://example.com/brief-4",
       relevance: "low",
-      published_at: new Date(now - 48 * HOUR).toISOString(),
+      published_at: new Date(now - 8 * HOUR).toISOString(),
+      hit: { n: "$3亿", l: "估值", tone: "new" },
+      thumb: "融",
     },
     {
       id: "brief-5",
       category: "AI Infra",
-      title: "超长标题示例：多租户 Agent 编排在复杂工作流下的可观测性与失败归因实践观察笔记（截断验证）",
+      title: "开源向量库发布增量索引，长上下文检索延迟腰斩",
       summary: "短摘要。",
       body_md: `短正文，用于验证空白与截断。`,
-      source: "内部观察",
+      source: "Hacker News",
       source_url: null,
       relevance: "medium",
-      published_at: new Date(now - 72 * HOUR).toISOString(),
+      published_at: new Date(now - 12 * HOUR).toISOString(),
+      hit: { n: "↓50%", l: "延迟", tone: "down" },
+      thumb: "讯",
     },
     {
       id: "brief-6",

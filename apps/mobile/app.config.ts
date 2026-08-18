@@ -1,4 +1,27 @@
 import type { ExpoConfig, ConfigContext } from "expo/config";
+import { withProjectBuildGradle, type ConfigPlugin } from "@expo/config-plugins";
+
+/**
+ * Machine-specific Android NDK pin.
+ *
+ * Expo / RN default to NDK 27.1.12297006 (react-native/gradle/libs.versions.toml),
+ * which `expo-root-project` writes as `ext.ndkVersion` unless it is already set.
+ * This dev Mac only has a complete 27.0.12077973 install (the 27.1 dir is an
+ * empty shell), so pin the override BEFORE the plugin applies. expo-build-properties
+ * exposes no `ndkVersion` knob, so we patch the generated root build.gradle.
+ * Harmless on machines where 27.1 is properly installed.
+ */
+const withAndroidNdkVersion: ConfigPlugin = (config) =>
+  withProjectBuildGradle(config, (cfg) => {
+    if (cfg.modResults.contents.includes('ext.ndkVersion = "27.0.12077973"')) {
+      return cfg;
+    }
+    cfg.modResults.contents = cfg.modResults.contents.replace(
+      'apply plugin: "expo-root-project"',
+      'ext.ndkVersion = "27.0.12077973"\n\napply plugin: "expo-root-project"',
+    );
+    return cfg;
+  });
 
 /**
  * Dynamic Expo config — replaces app.json so we can read APP_ENV at runtime
@@ -62,6 +85,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "expo-secure-store",
       "@react-native-community/datetimepicker",
       "react-native-enriched-markdown",
+      withAndroidNdkVersion,
       [
         "expo-image-picker",
         {

@@ -4,16 +4,17 @@
 import { useMemo, useState } from "react";
 import {
   Linking,
-  Modal,
   Pressable,
   ScrollView,
   Share,
   View,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Text } from "@/components/ui/text";
 import { Markdown } from "@/lib/markdown/markdown";
+import { FadeSlideSheet } from "@/components/shared/fade-slide-sheet";
 import {
   briefDetailOptions,
   USE_MOCK_BRIEFS,
@@ -216,62 +217,87 @@ export default function BriefDetailPage() {
           </View>
 
           <View className="px-3.5 pb-3.5 pt-1">
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="gap-2 py-2"
-            >
-              {active.length === 0 ? (
-                <Text className="text-xs text-muted-foreground py-3">
-                  尚未选人 · 点右上角调整
-                </Text>
-              ) : (
-                active.map((s) => {
-                  const a = STAFF[s.agentId];
-                  return (
-                    <Pressable
-                      key={s.key}
-                      onPress={() => openPick(s.key, false)}
-                      className="w-[68px] items-center"
-                    >
-                      <View className="size-12 rounded-full p-0.5 bg-brand/25">
-                        <View
-                          className="flex-1 rounded-full items-center justify-center border-2 border-card"
-                          style={{ backgroundColor: a.color }}
+            {active.length === 0 ? (
+              <Text className="text-xs text-muted-foreground py-4">
+                尚未选人 · 点右上角调整
+              </Text>
+            ) : (
+              <View className="mt-1 mb-1">
+                <View className="relative pt-1 pb-1">
+                  {active.length > 1 ? (
+                    <View
+                      pointerEvents="none"
+                      className="absolute h-px bg-brand/20"
+                      style={{ left: 36, right: 36, top: 28 }}
+                    />
+                  ) : null}
+                  <View className="flex-row justify-between">
+                    {active.map((s, i) => {
+                      const a = STAFF[s.agentId];
+                      return (
+                        <Pressable
+                          key={s.key}
+                          onPress={() => openPick(s.key, false)}
+                          className="items-center flex-1"
                         >
-                          <Text className="text-[15px] font-bold text-white">
-                            {a.initial}
-                          </Text>
-                        </View>
-                      </View>
-                      <View className="mt-1.5 rounded-full bg-brand/10 px-1.5 py-0.5">
-                        <Text className="text-[10px] font-bold text-brand">
-                          {s.role}
-                        </Text>
-                      </View>
-                      <Text
-                        className="text-[11px] font-semibold mt-1"
-                        numberOfLines={1}
-                      >
-                        {a.name}
-                      </Text>
-                    </Pressable>
-                  );
-                })
-              )}
-            </ScrollView>
+                          <View className="items-center" style={{ width: 72 }}>
+                            <LinearGradient
+                              colors={[
+                                "rgba(59,111,255,0.45)",
+                                "rgba(59,111,255,0.08)",
+                              ]}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 1 }}
+                              style={{
+                                width: 56,
+                                height: 56,
+                                borderRadius: 28,
+                                padding: 3,
+                              }}
+                            >
+                              <View
+                                className="flex-1 rounded-full items-center justify-center border-2 border-card"
+                                style={{ backgroundColor: a.color }}
+                              >
+                                <Text className="text-[17px] font-bold text-white">
+                                  {a.initial}
+                                </Text>
+                              </View>
+                            </LinearGradient>
+                            <View className="mt-[-8px] rounded-full bg-brand px-2 py-0.5 z-10">
+                              <Text className="text-[10px] font-bold text-white">
+                                {i + 1} · {s.role}
+                              </Text>
+                            </View>
+                            <Text
+                              className="text-[12px] font-bold text-foreground mt-1.5"
+                              numberOfLines={1}
+                            >
+                              {a.name}
+                            </Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+              </View>
+            )}
 
-            <View className="flex-row items-center mt-1">
+            <View className="flex-row items-center mt-2">
               <Text className="text-xs text-muted-foreground">
                 <Text className="font-semibold text-foreground">
                   {active.length} 人
                 </Text>
+                {" · 流水线"}
               </Text>
               <View className="flex-row items-center gap-1 ml-auto">
                 {["理解", "对照", "落地"].map((label, i) => (
                   <View key={label} className="flex-row items-center gap-1">
                     {i > 0 ? (
-                      <Text className="text-[10px] text-border">→</Text>
+                      <Text className="text-[10px] text-muted-foreground/40">
+                        →
+                      </Text>
                     ) : null}
                     <View className="rounded-md bg-brand/10 px-1.5 py-0.5">
                       <Text className="text-[10px] font-semibold text-brand">
@@ -299,179 +325,151 @@ export default function BriefDetailPage() {
         </View>
       </ScrollView>
 
-      {/* 调整小队 */}
-      <Modal
+      <FadeSlideSheet
         visible={cfgOpen && !pickKey}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setCfgOpen(false)}
+        onClose={() => setCfgOpen(false)}
       >
-        <Pressable
-          className="flex-1 bg-black/40 justify-end"
-          onPress={() => setCfgOpen(false)}
-        >
-          <Pressable
-            className="bg-card rounded-t-3xl px-4 pt-2 pb-8"
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View className="self-center w-9 h-1 rounded-full bg-border mb-3" />
-            <Text className="text-[17px] font-bold">调整小队</Text>
-            <Text className="text-xs text-muted-foreground mt-1 mb-2">
-              点成员换人 · 右侧开关席位
-            </Text>
-            <ScrollView className="max-h-[48vh]">
-              {seats.map((seat) => {
-                const a = STAFF[seat.agentId];
-                return (
-                  <View
-                    key={seat.key}
-                    className={cn(
-                      "flex-row items-center gap-2.5 py-2.5 border-b border-border",
-                      !seat.on && "opacity-40",
-                    )}
-                  >
-                    <Pressable
-                      disabled={!seat.on}
-                      onPress={() => openPick(seat.key, true)}
-                      className="flex-1 flex-row items-center gap-2.5 min-w-0"
-                    >
-                      <View
-                        className="size-10 rounded-full items-center justify-center"
-                        style={{ backgroundColor: a.color }}
-                      >
-                        <Text className="text-sm font-bold text-white">
-                          {a.initial}
-                        </Text>
-                      </View>
-                      <View className="flex-1 min-w-0">
-                        <Text className="text-[11px] font-bold text-brand">
-                          {seat.role}席
-                        </Text>
-                        <Text className="text-[14px] font-semibold mt-0.5">
-                          {a.name}
-                        </Text>
-                        {seat.on ? (
-                          <Text className="text-[11px] text-muted-foreground mt-0.5">
-                            点此更换成员
-                          </Text>
-                        ) : null}
-                      </View>
-                    </Pressable>
-                    <Pressable
-                      onPress={() =>
-                        setSeats((prev) =>
-                          prev.map((s) =>
-                            s.key === seat.key ? { ...s, on: !s.on } : s,
-                          ),
-                        )
-                      }
-                      className={cn(
-                        "w-[42px] h-[26px] rounded-full justify-center",
-                        seat.on ? "bg-brand" : "bg-border",
-                      )}
-                    >
-                      <View
-                        className={cn(
-                          "size-5 rounded-full bg-white mx-1",
-                          seat.on ? "self-end" : "self-start",
-                        )}
-                      />
-                    </Pressable>
-                  </View>
-                );
-              })}
-            </ScrollView>
-            <Pressable
-              onPress={() => setCfgOpen(false)}
-              className="h-11 mt-3 rounded-[10px] bg-brand items-center justify-center"
-            >
-              <Text className="text-[15px] font-semibold text-white">
-                保存小队
-              </Text>
-            </Pressable>
-          </Pressable>
-        </Pressable>
-      </Modal>
-
-      {/* 换人：独立人选列表 */}
-      <Modal
-        visible={!!picking}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setPickKey(null)}
-      >
-        <Pressable
-          className="flex-1 bg-black/40 justify-end"
-          onPress={() => setPickKey(null)}
-        >
-          <Pressable
-            className="bg-card rounded-t-3xl px-4 pt-2 pb-8"
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View className="self-center w-9 h-1 rounded-full bg-border mb-3" />
-            <Text className="text-[17px] font-bold">
-              选择 · {picking?.role ?? ""}席
-            </Text>
-            <Text className="text-xs text-muted-foreground mt-1 mb-2">
-              从名册中指定本席成员
-            </Text>
-            {(Object.keys(STAFF) as StaffId[]).map((sid) => {
-              const p = STAFF[sid];
-              const on = picking?.agentId === sid;
-              return (
+        <Text className="text-[17px] font-bold">调整小队</Text>
+        <Text className="text-xs text-muted-foreground mt-1 mb-2">
+          点成员换人 · 右侧开关席位
+        </Text>
+        <ScrollView className="max-h-[48vh]">
+          {seats.map((seat) => {
+            const a = STAFF[seat.agentId];
+            return (
+              <View
+                key={seat.key}
+                className={cn(
+                  "flex-row items-center gap-2.5 py-2.5 border-b border-border",
+                  !seat.on && "opacity-40",
+                )}
+              >
                 <Pressable
-                  key={sid}
-                  onPress={() => {
-                    if (!picking) return;
-                    setSeats((prev) =>
-                      prev.map((s) =>
-                        s.key === picking.key ? { ...s, agentId: sid } : s,
-                      ),
-                    );
-                    setPickKey(null);
-                  }}
-                  className="flex-row items-center gap-3 py-3 border-b border-border"
+                  disabled={!seat.on}
+                  onPress={() => openPick(seat.key, true)}
+                  className="flex-1 flex-row items-center gap-2.5 min-w-0"
                 >
                   <View
-                    className="size-11 rounded-full items-center justify-center"
-                    style={{ backgroundColor: p.color }}
+                    className="size-10 rounded-full items-center justify-center"
+                    style={{ backgroundColor: a.color }}
                   >
-                    <Text className="text-base font-bold text-white">
-                      {p.initial}
+                    <Text className="text-sm font-bold text-white">
+                      {a.initial}
                     </Text>
                   </View>
                   <View className="flex-1 min-w-0">
-                    <Text className="text-[15px] font-semibold">{p.name}</Text>
-                    <Text className="text-xs text-muted-foreground mt-0.5">
-                      {p.title}
+                    <Text className="text-[11px] font-bold text-brand">
+                      {seat.role}席
                     </Text>
-                  </View>
-                  <View
-                    className={cn(
-                      "size-[22px] rounded-full border items-center justify-center",
-                      on
-                        ? "bg-brand border-brand"
-                        : "border-border bg-transparent",
-                    )}
-                  >
-                    {on ? (
-                      <Text className="text-[11px] font-bold text-white">✓</Text>
+                    <Text className="text-[14px] font-semibold mt-0.5">
+                      {a.name}
+                    </Text>
+                    {seat.on ? (
+                      <Text className="text-[11px] text-muted-foreground mt-0.5">
+                        点此更换成员
+                      </Text>
                     ) : null}
                   </View>
                 </Pressable>
-              );
-            })}
-            <Pressable
-              onPress={() => setPickKey(null)}
-              className="h-11 mt-3 rounded-[10px] bg-secondary items-center justify-center"
-            >
-              <Text className="text-[15px] font-semibold text-foreground">
-                返回
-              </Text>
-            </Pressable>
-          </Pressable>
+                <Pressable
+                  onPress={() =>
+                    setSeats((prev) =>
+                      prev.map((s) =>
+                        s.key === seat.key ? { ...s, on: !s.on } : s,
+                      ),
+                    )
+                  }
+                  className={cn(
+                    "w-[42px] h-[26px] rounded-full justify-center",
+                    seat.on ? "bg-brand" : "bg-border",
+                  )}
+                >
+                  <View
+                    className={cn(
+                      "size-5 rounded-full bg-white mx-1",
+                      seat.on ? "self-end" : "self-start",
+                    )}
+                  />
+                </Pressable>
+              </View>
+            );
+          })}
+        </ScrollView>
+        <Pressable
+          onPress={() => setCfgOpen(false)}
+          className="h-11 mt-3 rounded-[10px] bg-brand items-center justify-center"
+        >
+          <Text className="text-[15px] font-semibold text-white">
+            保存小队
+          </Text>
         </Pressable>
-      </Modal>
+      </FadeSlideSheet>
+
+      <FadeSlideSheet
+        visible={!!picking}
+        onClose={() => setPickKey(null)}
+      >
+        <Text className="text-[17px] font-bold">
+          选择 · {picking?.role ?? ""}席
+        </Text>
+        <Text className="text-xs text-muted-foreground mt-1 mb-2">
+          从名册中指定本席成员
+        </Text>
+        {(Object.keys(STAFF) as StaffId[]).map((sid) => {
+          const p = STAFF[sid];
+          const on = picking?.agentId === sid;
+          return (
+            <Pressable
+              key={sid}
+              onPress={() => {
+                if (!picking) return;
+                setSeats((prev) =>
+                  prev.map((s) =>
+                    s.key === picking.key ? { ...s, agentId: sid } : s,
+                  ),
+                );
+                setPickKey(null);
+              }}
+              className="flex-row items-center gap-3 py-3 border-b border-border"
+            >
+              <View
+                className="size-11 rounded-full items-center justify-center"
+                style={{ backgroundColor: p.color }}
+              >
+                <Text className="text-base font-bold text-white">
+                  {p.initial}
+                </Text>
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-[15px] font-semibold">{p.name}</Text>
+                <Text className="text-xs text-muted-foreground mt-0.5">
+                  {p.title}
+                </Text>
+              </View>
+              <View
+                className={cn(
+                  "size-[22px] rounded-full border items-center justify-center",
+                  on
+                    ? "bg-brand border-brand"
+                    : "border-border bg-transparent",
+                )}
+              >
+                {on ? (
+                  <Text className="text-[11px] font-bold text-white">✓</Text>
+                ) : null}
+              </View>
+            </Pressable>
+          );
+        })}
+        <Pressable
+          onPress={() => setPickKey(null)}
+          className="h-11 mt-3 rounded-[10px] bg-secondary items-center justify-center"
+        >
+          <Text className="text-[15px] font-semibold text-foreground">
+            返回
+          </Text>
+        </Pressable>
+      </FadeSlideSheet>
     </>
   );
 }

@@ -12,7 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SectionGroup } from "@/components/ui/section-group";
 import { TaskProgress } from "@/components/board/task-progress";
 import { AgentUsage } from "@/components/board/agent-usage";
-import { ReportCard } from "@/components/board/report-card";
 import { formatCompact } from "@/components/board/format";
 import {
   dashboardKeys,
@@ -150,18 +149,18 @@ export function BoardProgressView() {
 
   const secondary = [
     {
-      label: "员工干活时长",
-      hint: "累计运行",
+      label: "运行时长",
+      hint: "",
       value: formatElapsedSecs(hero.seconds),
     },
     {
-      label: "模型用量",
-      hint: "Tokens",
+      label: "Tokens",
+      hint: "",
       value: formatCompact(hero.tokens),
     },
     {
-      label: "出问题次数",
-      hint: "失败任务",
+      label: "失败",
+      hint: "",
       value: String(hero.failures),
     },
   ];
@@ -173,9 +172,6 @@ export function BoardProgressView() {
     >
       <SectionGroup title="整盘概况">
         <View className="px-3 pt-3 pb-1">
-          <Text className="text-[11px] text-muted-foreground mb-2 px-0.5">
-            看整盘工作区最近做了多少事，不限单个项目
-          </Text>
           <SegmentedControl
             values={RANGE_LABELS}
             selectedIndex={Math.max(0, RANGES.indexOf(days))}
@@ -208,18 +204,17 @@ export function BoardProgressView() {
         ) : (
           <Animated.View style={{ opacity }} className="px-3 pb-4 gap-3">
             <View
-              className="rounded-2xl px-4 py-4"
+              className="flex-row items-end justify-between rounded-xl px-3.5 py-3"
               style={{ backgroundColor: accentWell }}
             >
-              <Text className="text-[11px] text-muted-foreground mb-1">
-                这段时间完成的任务
-              </Text>
-              <MetricValue loading={loading} large>
-                {String(hero.tasks)}
-              </MetricValue>
-              <Text className="text-[11px] text-muted-foreground mt-1.5">
-                数字员工实际跑完的工作量
-              </Text>
+              <View>
+                <MetricValue loading={loading} large>
+                  {String(hero.tasks)}
+                </MetricValue>
+                <Text className="text-[11px] font-semibold text-muted-foreground mt-1">
+                  完成任务
+                </Text>
+              </View>
             </View>
 
             <View className="flex-row gap-2">
@@ -231,16 +226,10 @@ export function BoardProgressView() {
                 >
                   <MetricValue loading={loading}>{m.value}</MetricValue>
                   <Text
-                    className="text-[10px] font-medium text-foreground mt-0.5"
+                    className="text-[10px] font-semibold text-muted-foreground mt-0.5"
                     numberOfLines={1}
                   >
                     {m.label}
-                  </Text>
-                  <Text
-                    className="text-[9px] text-muted-foreground"
-                    numberOfLines={1}
-                  >
-                    {m.hint}
                   </Text>
                 </View>
               ))}
@@ -251,7 +240,6 @@ export function BoardProgressView() {
 
       <TaskProgress days={days} tz={tz} />
       <AgentUsage days={days} tz={tz} />
-      <ReportCard />
     </ScrollView>
   );
 }

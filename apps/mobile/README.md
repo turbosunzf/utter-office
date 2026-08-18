@@ -102,3 +102,45 @@ Edit `EXPO_PUBLIC_API_URL` in `.env.staging`, `.env.production`, or `.env.develo
 - For an installed **Release build**: re-run the `ios:mobile:device:staging:release` command — the value is baked into the embedded bundle at build time.
 
 For local backend testing, use your Mac's LAN IP (`ipconfig getifaddr en0`), not `localhost`.
+
+## Android
+
+Android builds mirror the iOS flow but skip the signing gymnastics — `expo run:android` signs with the local **debug keystore**, so a release build installs straight onto any USB phone with USB debugging enabled. No Apple ID, no provisioning profile, no 7-day limit.
+
+### Standalone / "just use it" (walk away from the Mac)
+
+```bash
+pnpm android:device:release
+```
+
+Builds a **Release APK** for the dev variant (package `com.utteroffice.mobile`, backend `https://api.multica.ai`), installs it on the connected phone via `adb`, and launches it. No Metro, no dev-launcher screen — splash → app, like an App Store install. Every JS change requires re-running the command.
+
+### Day-to-day development (Mac in front of you)
+
+```bash
+pnpm android:device
+```
+
+Builds a **Debug** dev-client and installs it. Every launch probes Metro on your Mac and pulls fresh JS — hot-reload included, but it needs the Mac reachable over the same WiFi.
+
+### Variants
+
+| Command | Variant | Package |
+|---|---|---|
+| `pnpm android:device` | dev Debug | `com.utteroffice.mobile` |
+| `pnpm android:device:release` | dev Release | `com.utteroffice.mobile` |
+| `pnpm android:device:staging:release` | staging Release | `ai.multica.mobile.staging` |
+| `pnpm android:device:prod:release` | production Release | `ai.multica.mobile` |
+
+### Prerequisites
+
+- **Android SDK** at `~/Library/Android/sdk` — keep `apps/mobile/android/local.properties` with `sdk.dir` (created by a first `expo run:android`).
+- **NDK 27.0** — Expo/RN default to NDK 27.1, which isn't fully installed on this Mac, so `app.config.ts` pins `27.0.12077973` via a config plugin (`withAndroidNdkVersion`). Harmless on machines where 27.1 is properly installed.
+- **USB debugging** enabled on the phone; `adb devices` should list it as `device`.
+- First build downloads Gradle 9 + native dependencies — expect 10–30 min. Later builds reuse the Gradle cache.
+
+### Notes
+
+- Release APKs are signed with `android/app/debug.keystore` — fine for personal installs, not for Play Store distribution. Publishing needs a real `release.keystore`.
+- `apps/mobile/android/` is gitignored (Expo prebuild output). Switching variants re-syncs it automatically via `expo run:android` (package name switches per `APP_ENV`, see `app.config.ts`).
+- `android:device:staging:release` / `android:device:prod:release` first need real API URLs in `.env.staging` / `.env.production` — both are placeholders right now (same as the iOS equivalents).

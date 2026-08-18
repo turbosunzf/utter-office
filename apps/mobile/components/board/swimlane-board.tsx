@@ -150,27 +150,49 @@ export function SwimlaneBoard() {
         </Text>
       }
       renderSectionHeader={({ section }) => (
-        <Pressable
-          onPress={() => {
-            if (section.project && wsSlug) {
-              router.push(`/${wsSlug}/project/${section.project.id}`);
-            }
-          }}
-          disabled={!section.project}
-          className="pt-4 pb-2 flex-row items-center justify-between"
-        >
-          <Text className="text-sm font-bold text-foreground">
-            {section.project?.icon
-              ? `${section.project.icon} ${section.title}`
-              : section.title}
-          </Text>
-          <Text className="text-xs text-muted-foreground">
-            {section.data.length}
-          </Text>
-        </Pressable>
+        <View className="mt-3 overflow-hidden rounded-t-2xl border border-b-0 border-border bg-card">
+          <Pressable
+            onPress={() => {
+              if (section.project && wsSlug) {
+                router.push(`/${wsSlug}/project/${section.project.id}`);
+              }
+            }}
+            disabled={!section.project}
+            className="flex-row items-center justify-between px-3 py-2.5"
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: "rgba(220,224,232,0.85)",
+            }}
+          >
+            <View className="flex-row items-center gap-2">
+              <View className="w-[3px] h-3.5 rounded-sm bg-brand" />
+              <Text className="text-[14px] font-extrabold text-foreground">
+                {section.title}
+              </Text>
+              <Text className="text-[11px] text-muted-foreground">
+                <Text className="font-bold text-foreground">
+                  {section.data.length}
+                </Text>
+              </Text>
+            </View>
+          </Pressable>
+        </View>
       )}
-      renderItem={({ item }) => (
-        <View className="mb-2.5">
+      renderItem={({ item, index, section }) => (
+        <View
+          className="border-x border-border bg-card px-2"
+          style={
+            index === section.data.length - 1
+              ? {
+                  borderBottomWidth: 1,
+                  borderBottomLeftRadius: 16,
+                  borderBottomRightRadius: 16,
+                  marginBottom: 4,
+                  overflow: "hidden",
+                }
+              : undefined
+          }
+        >
           <SwimCard issue={item} onOpen={openIssue} />
         </View>
       )}

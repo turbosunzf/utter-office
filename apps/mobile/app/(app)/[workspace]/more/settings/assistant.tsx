@@ -82,15 +82,20 @@ export default function AssistantSettingsPage() {
             tintColor={t.brand}
           />
         </View>
-        <View className="flex-row items-center px-4 py-3 border-b border-border">
-          <Text className="flex-1 text-sm text-foreground">
-            松手后自动跳工作台
+        <View className="px-4 py-3 border-b border-border gap-1">
+          <View className="flex-row items-center">
+            <Text className="flex-1 text-sm text-foreground">
+              松手后自动跳工作台
+            </Text>
+            <Switch
+              value={autoJump}
+              onValueChange={(v) => void setAutoJump(v)}
+              trackColor={{ true: t.brand }}
+            />
+          </View>
+          <Text className="text-[11px] text-muted-foreground leading-[15px]">
+            预留开关。中央长按仍按现网：松手 Toast，不跳转、不发送。
           </Text>
-          <Switch
-            value={autoJump}
-            onValueChange={(v) => void setAutoJump(v)}
-            trackColor={{ true: t.brand }}
-          />
         </View>
         <View className="px-4 py-3 gap-2">
           <Text className="text-sm text-foreground">语音入口默认项</Text>

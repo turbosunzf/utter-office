@@ -11,6 +11,7 @@ import {
   dashboardFailuresByAgentOptions,
 } from "@/data/queries/dashboard";
 import { useWorkspaceStore } from "@/data/workspace-store";
+import { ActorAvatar } from "@/components/ui/actor-avatar";
 import { useActorLookup } from "@/data/use-actor-name";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
@@ -141,31 +142,36 @@ export function AgentUsage({
             <Text className="text-[11px] text-muted-foreground">
               {runtimes.length} 名员工 · 近 {days} 天任务量 Top {rows.length}
             </Text>
-            {rows.map((row) => (
-              <View key={row.id} className="gap-1.5">
-                <View className="flex-row items-baseline justify-between gap-2">
-                  <Text
-                    className="text-[13px] font-medium text-foreground flex-1"
-                    numberOfLines={1}
-                  >
+            {rows.map((row, idx) => (
+              <View
+                key={row.id}
+                className="flex-row items-center gap-2 py-1.5"
+                style={
+                  idx > 0
+                    ? { borderTopWidth: 1, borderTopColor: "rgba(220,224,232,0.65)" }
+                    : undefined
+                }
+              >
+                <ActorAvatar type="agent" id={row.id} size={26} />
+                <View className="flex-1 min-w-0">
+                  <Text className="text-[13px] font-bold text-foreground" numberOfLines={1}>
                     {row.name}
                   </Text>
-                  <Text className="text-[13px] font-bold text-foreground">
-                    {row.taskCount}
+                  <Text className="text-[10px] text-muted-foreground">
+                    {formatElapsedSecs(row.seconds)} · 失败 {row.failed}
                   </Text>
+                  <View className="h-1 rounded-sm overflow-hidden bg-muted mt-1">
+                    <View
+                      className="h-full rounded-sm"
+                      style={{
+                        width: `${maxTasks ? (row.taskCount / maxTasks) * 100 : 0}%`,
+                        backgroundColor: t.brand,
+                      }}
+                    />
+                  </View>
                 </View>
-                <View className="h-2 rounded-full overflow-hidden bg-muted">
-                  <View
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${maxTasks ? (row.taskCount / maxTasks) * 100 : 0}%`,
-                      backgroundColor: t.brand,
-                    }}
-                  />
-                </View>
-                <Text className="text-[11px] text-muted-foreground">
-                  时长 {formatElapsedSecs(row.seconds)} · 失败 {row.failed} ·{" "}
-                  {formatCompact(row.tokens)} tokens
+                <Text className="text-[11px] font-bold text-muted-foreground">
+                  {formatCompact(row.tokens)}
                 </Text>
               </View>
             ))}

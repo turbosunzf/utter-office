@@ -2,35 +2,20 @@ import { useMemo } from "react";
 import { View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import type { IssueStatus } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
 import { SectionGroup } from "@/components/ui/section-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import { IssueRow } from "@/components/issue/issue-row";
+import { BoardIssueCard } from "@/components/board/board-issue-card";
 import { dashboardRunTimeDailyOptions } from "@/data/queries/dashboard";
 import { issueListOptions } from "@/data/queries/issues";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
-import { BOARD_STATUSES } from "@/lib/issue-status";
 
 /**
- * Counts mirror `packages/core/dashboard/queries.ts`'s `DashboardRunTimeDaily`
- * rollup summed over the selected window — the same totals the 看板 hero uses,
- * so "任务进度计数与后端一致" is guaranteed by construction (one source, two
- * consumers). The segmented bar breaks the window into 完成 / 失败 / 取消.
- *
- * The "进行中的事项" list is workspace-scoped open issues (all BOARD_STATUSES
- * except `done`) — rows tap through to the issue detail screen, which is the
- * "可点进 issue" acceptance criterion.
- *
- * `tz` 从 Board 传入（`localTimezone()`），与 hero 同一时区口径（P1 修复）。
- * 查询失败渲染错误 + 重试，而不是把失败伪装成「暂无」空态（P2 修复）。
+ * 进行中：窗口完成/失败 + 当前进行/受阻比例 + 需关注密排行。
  */
-// Explicit `IssueStatus[]` widens the narrowed filter result back out so
-// `.includes(issue.status)` accepts every status value.
-const OPEN_STATUSES: IssueStatus[] = BOARD_STATUSES.filter((s) => s !== "done");
 
 export function TaskProgress({
   days,
@@ -70,12 +55,33 @@ export function TaskProgress({
   }, [daily]);
 
   const openIssues = useMemo(
-    () => issues.filter((i) => OPEN_STATUSES.includes(i.status)).slice(0, 5),
+    () =>
+      issues
+        .filter(
+          (i) =>
+            i.status === "in_progress" ||
+            i.status === "blocked" ||
+            i.status === "in_review",
+        )
+        .slice(0, 5),
     [issues],
   );
+  const live = useMemo(() => {
+    const inProg = issues.filter((i) => i.status === "in_progress").length;
+    const blocked = issues.filter((i) => i.status === "blocked").length;
+    return { inProg, blocked };
+  }, [issues]);
 
   return (
-    <SectionGroup title="任务进度">
+    <SectionGroup
+      title="进行中"
+      right={
+        <Text className="text-[11px] text-muted-foreground">
+          <Text className="font-bold text-foreground">{openIssues.length}</Text>{" "}
+          条需关注
+        </Text>
+      }
+    >
       <View className="px-4 pt-4 pb-3 gap-3">
         {isLoading ? (
           <Skeleton className="h-16 w-full" />
@@ -96,21 +102,25 @@ export function TaskProgress({
         ) : (
           <>
             <View className="flex-row items-baseline gap-2">
-              <Text
-                className="text-[28px] font-extrabold text-foreground"
-                style={{ letterSpacing: -0.5 }}
-              >
-                {totals.total}
-              </Text>
-              <Text className="text-[12px] text-muted-foreground">
-                个任务已结束
-              </Text>
+              <Text className="text-[12px] text-muted-foreground">窗口内任务分布</Text>
             </View>
-            <View className="flex-row h-2.5 rounded-full overflow-hidden bg-muted">
+            <View className="flex-row h-2 rounded-full overflow-hidden bg-muted">
               {totals.succeeded > 0 ? (
                 <View
                   className="h-full"
                   style={{ flex: totals.succeeded, backgroundColor: t.success }}
+                />
+              ) : null}
+              {live.inProg > 0 ? (
+                <View
+                  className="h-full"
+                  style={{ flex: live.inProg, backgroundColor: t.brand }}
+                />
+              ) : null}
+              {live.blocked > 0 ? (
+                <View
+                  className="h-full"
+                  style={{ flex: live.blocked, backgroundColor: t.priority }}
                 />
               ) : null}
               {totals.failed > 0 ? (
@@ -119,43 +129,29 @@ export function TaskProgress({
                   style={{ flex: totals.failed, backgroundColor: t.destructive }}
                 />
               ) : null}
-              {totals.cancelled > 0 ? (
-                <View
-                  className="h-full"
-                  style={{
-                    flex: totals.cancelled,
-                    backgroundColor: t.mutedForeground,
-                  }}
-                />
-              ) : null}
             </View>
-            <View className="flex-row gap-3">
+            <View className="flex-row gap-2.5 flex-wrap">
               <Legend color={t.success} label="完成" count={totals.succeeded} />
-              <Legend
-                color={t.destructive}
-                label="失败"
-                count={totals.failed}
-              />
-              <Legend
-                color={t.mutedForeground}
-                label="取消"
-                count={totals.cancelled}
-              />
+              <Legend color={t.brand} label="进行" count={live.inProg} />
+              <Legend color={t.priority} label="受阻" count={live.blocked} />
+              <Legend color={t.destructive} label="失败" count={totals.failed} />
             </View>
           </>
         )}
       </View>
       {openIssues.length > 0 ? (
         <View className="border-t border-border pt-2 pb-1">
-          <Text className="text-[11px] font-medium text-muted-foreground px-4 pb-1">
-            进行中的事项
+          <Text className="text-[11px] font-medium text-muted-foreground px-3 pb-1">
+            需关注
           </Text>
           {openIssues.map((issue) => (
-            <IssueRow
+            <BoardIssueCard
               key={issue.id}
               issue={issue}
-              showStatus
               onPress={() => {
+                if (wsSlug) router.push(`/${wsSlug}/issue/${issue.id}`);
+              }}
+              onLongPress={() => {
                 if (wsSlug) router.push(`/${wsSlug}/issue/${issue.id}`);
               }}
             />

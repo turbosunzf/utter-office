@@ -16,7 +16,6 @@ import { HomeHero } from "@/components/home/home-hero";
 import { OutcomeFeed } from "@/components/home/outcome-feed";
 import { TodoList } from "@/components/home/todo-list";
 import { BriefList } from "@/components/home/brief-list";
-import { ProUpsellCard } from "@/components/shared/pro-upsell-card";
 import { useVoiceStore } from "@/data/stores/voice-store";
 import {
   buildMyIssuesFilter,
@@ -172,7 +171,7 @@ export default function Home() {
         right={headerRight}
       />
       <BlockingNoticeBar />
-      <ScrollView contentContainerClassName="gap-5 pb-10 pt-2">
+      <ScrollView contentContainerClassName="gap-3.5 pb-10 pt-2">
         <HomeHero
           onDispatch={() => {
             if (!wsSlug) return;
@@ -204,9 +203,6 @@ export default function Home() {
         </View>
         <View className="px-4">
           <BriefList />
-        </View>
-        <View className="px-4">
-          <ProUpsellCard />
         </View>
       </ScrollView>
     </View>

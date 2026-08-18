@@ -8,6 +8,7 @@ import {
   ScrollView,
   View,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import type { Agent } from "@multica/core/types";
@@ -49,18 +50,56 @@ function formatJoinDate(iso: string): string {
   return `${mm}-${dd}`;
 }
 
+const TASK_STATUS_ZH: Record<string, string> = {
+  queued: "排队中",
+  dispatched: "已派发",
+  waiting_local_directory: "等待工位",
+  running: "运行中",
+  completed: "完成",
+  failed: "失败",
+  cancelled: "已取消",
+};
+
+function skillNames(agent: Agent): string[] {
+  return (agent.skills ?? []).map((s, i) => {
+    if (typeof s === "object" && s && "name" in s) {
+      return String((s as { name?: string }).name ?? `skill-${i}`);
+    }
+    return String(s);
+  });
+}
+
+function relativeDay(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "";
+  const diff = Date.now() - t;
+  if (diff < 3600_000) return "刚刚";
+  if (diff < 24 * 3600_000) return `${Math.floor(diff / 3600_000)} 小时前`;
+  if (diff < 48 * 3600_000) return "昨天";
+  return `${Math.floor(diff / 86400_000)} 天前`;
+}
+
 function statusLine(
   agent: Agent,
   availability: string | undefined,
   workload: string | undefined,
   ownerName: string,
-): string {
+): { label: string; live: boolean } {
   let st = "离线";
-  if (workload === "working") st = "工作中";
-  else if (workload === "queued") st = "排队中";
-  else if (availability === "online") st = "在岗";
-  else if (availability === "unstable") st = "不稳定";
-  return `● ${st} · 归属 @${ownerName} · 入职 ${formatJoinDate(agent.created_at)}`;
+  let live = false;
+  if (workload === "working") {
+    st = "工作中";
+    live = true;
+  } else if (workload === "queued") st = "排队中";
+  else if (availability === "online") {
+    st = "在岗";
+    live = true;
+  } else if (availability === "unstable") st = "不稳定";
+  return {
+    label: `${st} · @${ownerName} · 入职 ${formatJoinDate(agent.created_at)}`,
+    live,
+  };
 }
 
 function firstSentence(text: string | undefined | null): string {
@@ -77,39 +116,147 @@ function roleTitle(agent: Agent): string {
   return agent.name;
 }
 
-function CapPlaceholder({
-  title,
-  body,
-}: {
-  title: string;
-  body: string;
-}) {
-  return (
-    <View className="rounded-xl border border-dashed border-border bg-secondary/40 p-3 mb-2.5">
-      <Text className="text-[13px] font-semibold text-muted-foreground">
-        {title}
-      </Text>
-      <Text className="text-[11px] text-muted-foreground mt-1 leading-[1.45]">
-        {body}
-      </Text>
-    </View>
-  );
-}
-
 function Block({
   title,
+  extra,
   children,
 }: {
   title: string;
+  extra?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <View className="rounded-xl border border-border bg-card p-3 mb-2.5">
-      <Text className="text-[13px] font-semibold text-foreground mb-2">
-        {title}
-      </Text>
+      <View className="flex-row items-center justify-between mb-2">
+        <Text className="text-[13px] font-semibold text-foreground">
+          {title}
+        </Text>
+        {extra}
+      </View>
       {children}
     </View>
+  );
+}
+
+function KpiCell({
+  value,
+  label,
+  tone,
+}: {
+  value: string;
+  label: string;
+  tone?: "good" | "bad";
+}) {
+  const bg =
+    tone === "good"
+      ? "bg-[#ECFDF5] border-[#D1FAE5]"
+      : tone === "bad"
+        ? "bg-[#FEF2F2] border-[#FECACA]"
+        : "bg-card border-border";
+  const valueColor =
+    tone === "good"
+      ? "text-[#059669]"
+      : tone === "bad"
+        ? "text-[#DC2626]"
+        : "text-muted-foreground";
+  return (
+    <View className={cn("flex-1 rounded-xl border p-3 items-center", bg)}>
+      <Text className={cn("text-[20px] font-bold leading-[1.15]", valueColor)}>
+        {value}
+      </Text>
+      <Text className="text-[11px] text-muted-foreground mt-1">{label}</Text>
+    </View>
+  );
+}
+
+function AssetCard({
+  title,
+  count,
+  body,
+  empty,
+  dark,
+  onPress,
+}: {
+  title: string;
+  count: string;
+  body?: string;
+  empty?: string;
+  dark?: boolean;
+  onPress?: () => void;
+}) {
+  const inner = (
+    <>
+      <View className="flex-row items-center justify-between">
+        <Text
+          className={cn(
+            "text-xs font-semibold",
+            dark ? "text-white" : "text-foreground",
+          )}
+        >
+          {title}
+        </Text>
+        <Text
+          className={cn(
+            "text-sm",
+            dark ? "text-white/40" : "text-muted-foreground",
+          )}
+        >
+          ›
+        </Text>
+      </View>
+      <Text
+        className={cn(
+          "text-2xl font-bold mt-1.5 mb-2 leading-none",
+          dark ? "text-white" : "text-foreground",
+        )}
+      >
+        {count}
+      </Text>
+      {empty ? (
+        <Text
+          className={cn(
+            "text-xs flex-1",
+            dark ? "text-white/50" : "text-muted-foreground",
+          )}
+        >
+          {empty}
+        </Text>
+      ) : (
+        <Text
+          className={cn(
+            "text-[11px] leading-[1.5] flex-1",
+            dark ? "text-white/60" : "text-muted-foreground",
+          )}
+          numberOfLines={3}
+        >
+          {body}
+        </Text>
+      )}
+    </>
+  );
+
+  if (dark) {
+    return (
+      <Pressable onPress={onPress} disabled={!onPress} className="flex-1 min-h-[108px]">
+        <LinearGradient
+          colors={["#1A1F36", "#151A2E"]}
+          className="flex-1 rounded-xl p-3 min-h-[108px]"
+          style={{ borderRadius: 12, padding: 12, minHeight: 108, flex: 1 }}
+        >
+          {inner}
+        </LinearGradient>
+      </Pressable>
+    );
+  }
+
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      className="flex-1 min-h-[108px] rounded-xl border border-border bg-card p-3"
+    >
+      {inner}
+    </Pressable>
   );
 }
 
@@ -166,6 +313,31 @@ export default function StaffProfilePage() {
     return m;
   }, [issues]);
 
+  const activity = useMemo(() => {
+    const now = Date.now();
+    const windowStart = now - 24 * 3600_000;
+    const slot = 2 * 3600_000;
+    const buckets = Array.from({ length: 12 }, () => 0);
+    const add = (iso?: string | null) => {
+      if (!iso) return;
+      const ts = Date.parse(iso);
+      if (Number.isNaN(ts) || ts < windowStart) return;
+      const i = Math.min(11, Math.floor((ts - windowStart) / slot));
+      buckets[i] += 1;
+    };
+    agentSessions.forEach((s) => add(s.updated_at));
+    snapshot
+      .filter((t) => t.agent_id === id)
+      .forEach((t) => add(t.started_at ?? t.created_at));
+    const max = Math.max(1, ...buckets);
+    const peakVal = Math.max(...buckets);
+    return {
+      bars: buckets.map((c) => Math.max(0.08, c / max)),
+      on: buckets.map((c) => c > 0 && c === peakVal),
+      has: buckets.some((c) => c > 0),
+    };
+  }, [agentSessions, snapshot, id]);
+
   if (isPending) {
     return (
       <View className="flex-1 p-4 gap-3">
@@ -191,12 +363,16 @@ export default function StaffProfilePage() {
     : "—";
   const tools = resolveToolCount(agent);
   const toolList = listAgentTools(agent);
+  const skills = skillNames(agent);
   const activeCount = snapshotErr ? null : activeTasks.length;
   const rt = runtimes.find((r) => r.id === agent.runtime_id);
   const provider =
     (agent.runtime_config?.provider as string | undefined) ||
     rt?.provider ||
     "未知";
+  const st = statusLine(agent, availability, workload, ownerName);
+
+  const todayLabel = `${new Date().getMonth() + 1}.${new Date().getDate()} · 日`;
 
   const openChat = () => {
     if (!wsSlug) return;
@@ -237,7 +413,7 @@ export default function StaffProfilePage() {
         <View className="flex-row gap-3 items-start">
           <ActorAvatar type="agent" id={agent.id} size={64} showPresence />
           <View className="flex-1 min-w-0">
-            <Text className="text-xl font-bold text-foreground" numberOfLines={1}>
+            <Text className="text-[20px] font-bold text-foreground" numberOfLines={1}>
               {role}
             </Text>
             {handleLine ? (
@@ -245,9 +421,19 @@ export default function StaffProfilePage() {
                 {handleLine}
               </Text>
             ) : null}
-            <Text className="text-xs text-muted-foreground mt-1.5" numberOfLines={2}>
-              {statusLine(agent, availability, workload, ownerName)}
-            </Text>
+            <View className="flex-row items-center gap-1.5 mt-1.5 flex-wrap">
+              <View
+                className="rounded-full"
+                style={{
+                  width: 6,
+                  height: 6,
+                  backgroundColor: st.live ? "#3B6FFF" : "#94A3B8",
+                }}
+              />
+              <Text className="text-xs text-muted-foreground" numberOfLines={2}>
+                {st.label}
+              </Text>
+            </View>
           </View>
         </View>
         {agent.description ? (
@@ -342,31 +528,45 @@ export default function StaffProfilePage() {
       >
         {tab === "work" ? (
           <>
-            <View className="flex-row flex-wrap gap-2 mb-2">
-              {(
-                [
-                  "今日终态",
-                  "近 30 天运行",
-                  "近 30 天失败",
-                  "近 30 天失败率",
-                ] as const
-              ).map((l) => (
-                <View
-                  key={l}
-                  className="w-[48%] rounded-xl border border-border bg-card p-3 items-center"
-                >
-                  <Text className="text-[15px] font-semibold text-muted-foreground">
-                    未开放
-                  </Text>
-                  <Text className="text-[10px] text-muted-foreground mt-1">
-                    {l}
-                  </Text>
-                </View>
-              ))}
+            <View className="flex-row gap-2 mb-2">
+              <KpiCell value="——" label="今日终态" />
+              <KpiCell value="——" label="近 30 天运行" />
+            </View>
+            <View className="flex-row gap-2 mb-2">
+              <KpiCell value="——" label="近 30 天失败" />
+              <KpiCell value="——" label="近 30 天失败率" />
             </View>
             <Text className="text-[11px] text-muted-foreground text-center mb-3">
-              统计接口待接入 · 显示「未开放」而非冒充累计
+              统计接口待接入 · 不冒充累计
             </Text>
+
+            <Block
+              title="今日活动"
+              extra={
+                <Text className="text-xs font-medium text-brand">{todayLabel}</Text>
+              }
+            >
+              <Text className="text-[11px] text-muted-foreground mb-2">
+                {activity.has ? "按小时分布 · 会话与运行落点" : "近 24h 暂无活动落点"}
+              </Text>
+              <View className="flex-row items-end gap-[3px] h-14 mb-2">
+                {activity.bars.map((h, i) => (
+                  <View
+                    key={i}
+                    className="flex-1 rounded-t-sm"
+                    style={{
+                      height: `${h * 100}%`,
+                      minHeight: 4,
+                      backgroundColor: activity.on[i]
+                        ? "#3B6FFF"
+                        : activity.has
+                          ? "rgba(59,111,255,0.18)"
+                          : "rgba(59,111,255,0.1)",
+                    }}
+                  />
+                ))}
+              </View>
+            </Block>
 
             <Block title="在手任务">
               {snapshotErr ? (
@@ -376,63 +576,57 @@ export default function StaffProfilePage() {
               ) : activeTasks.length === 0 ? (
                 <Text className="text-xs text-muted-foreground">暂无在手任务</Text>
               ) : (
-                activeTasks.map((t) => {
+                activeTasks.map((t, idx) => {
                   const issue = t.issue_id
                     ? issueById.get(t.issue_id)
                     : undefined;
-                  const label = issue
-                    ? `${issue.identifier} ${issue.title}`
-                    : t.trigger_summary || t.kind || t.id.slice(0, 8);
+                  const stZh = TASK_STATUS_ZH[t.status] ?? t.status;
                   return (
-                    <Pressable
+                    <View
                       key={t.id}
-                      onPress={() =>
-                        t.issue_id ? openIssue(t.issue_id) : undefined
-                      }
-                      className="py-1.5 border-t border-border first:border-t-0"
+                      className={cn("py-2.5", idx > 0 && "border-t border-border")}
                     >
-                      <Text className="text-xs text-foreground" numberOfLines={2}>
-                        {t.status === "running" ? "◐ " : "○ "}
-                        {label} · {t.status}
+                      {issue ? (
+                        <Text className="text-[11px] font-bold text-brand">
+                          {issue.identifier}
+                        </Text>
+                      ) : null}
+                      <Text className="text-[13px] font-semibold mt-0.5" numberOfLines={2}>
+                        {issue?.title ||
+                          t.trigger_summary ||
+                          t.kind ||
+                          t.id.slice(0, 8)}
                       </Text>
-                    </Pressable>
+                      <Text className="text-[11px] text-muted-foreground mt-0.5">
+                        {stZh}
+                        {t.status === "running" ? " · 进行中" : ""}
+                      </Text>
+                      {t.issue_id ? (
+                        <View className="flex-row flex-wrap gap-1.5 mt-2">
+                          <Pressable
+                            onPress={() => openIssueRuns(t.issue_id)}
+                            className="rounded-lg bg-brand/15 px-2.5 py-1"
+                          >
+                            <Text className="text-[11px] text-brand">看运行</Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={() => openIssue(t.issue_id)}
+                            className="rounded-lg bg-brand/15 px-2.5 py-1"
+                          >
+                            <Text className="text-[11px] text-brand">评论</Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={() => openIssueRuns(t.issue_id)}
+                            className="rounded-lg bg-brand/15 px-2.5 py-1"
+                          >
+                            <Text className="text-[11px] text-brand">取消</Text>
+                          </Pressable>
+                        </View>
+                      ) : null}
+                    </View>
                   );
                 })
               )}
-              {activeTasks.some((t) => t.issue_id) ? (
-                <View className="flex-row flex-wrap gap-1.5 mt-2">
-                  {(() => {
-                    const first = activeTasks.find((t) => t.issue_id);
-                    if (!first?.issue_id) return null;
-                    return (
-                      <>
-                        <Pressable
-                          onPress={() => openIssueRuns(first.issue_id)}
-                          className="rounded-lg bg-brand/15 px-2.5 py-1.5"
-                        >
-                          <Text className="text-[11px] text-brand">
-                            查看运行记录
-                          </Text>
-                        </Pressable>
-                        <Pressable
-                          onPress={() => openIssue(first.issue_id)}
-                          className="rounded-lg bg-brand/15 px-2.5 py-1.5"
-                        >
-                          <Text className="text-[11px] text-brand">
-                            追加评论
-                          </Text>
-                        </Pressable>
-                        <Pressable
-                          onPress={() => openIssueRuns(first.issue_id)}
-                          className="rounded-lg bg-brand/15 px-2.5 py-1.5"
-                        >
-                          <Text className="text-[11px] text-brand">取消任务</Text>
-                        </Pressable>
-                      </>
-                    );
-                  })()}
-                </View>
-              ) : null}
             </Block>
 
             <Block title="最近运行">
@@ -441,27 +635,101 @@ export default function StaffProfilePage() {
                   {snapshotErr ? "暂不可用" : "暂无终态记录（仅快照窗口）"}
                 </Text>
               ) : (
-                recentTerminal.map((t) => {
+                recentTerminal.map((t, idx) => {
                   const issue = t.issue_id
                     ? issueById.get(t.issue_id)
                     : undefined;
+                  const ok = t.status === "completed";
                   return (
-                    <Text
+                    <View
                       key={t.id}
-                      className="text-xs text-foreground py-1.5 border-t border-border"
-                      numberOfLines={1}
+                      className={cn(
+                        "flex-row items-center gap-2 py-2",
+                        idx > 0 && "border-t border-border",
+                      )}
                     >
-                      {issue?.identifier ?? "任务"} · {t.status}
-                    </Text>
+                      <View
+                        className={cn(
+                          "rounded px-1.5 py-0.5",
+                          ok ? "bg-[#ECFDF5]" : "bg-[#FEF2F2]",
+                        )}
+                      >
+                        <Text
+                          className={cn(
+                            "text-[10px] font-bold",
+                            ok ? "text-[#059669]" : "text-[#DC2626]",
+                          )}
+                        >
+                          {TASK_STATUS_ZH[t.status] ?? t.status}
+                        </Text>
+                      </View>
+                      <Text className="flex-1 text-xs" numberOfLines={1}>
+                        {issue
+                          ? `${issue.identifier} ${issue.title}`
+                          : t.trigger_summary || "任务"}
+                      </Text>
+                      <Text className="text-[11px] text-muted-foreground">
+                        {relativeDay(t.completed_at ?? t.created_at)}
+                      </Text>
+                    </View>
                   );
                 })
               )}
             </Block>
 
-            <CapPlaceholder
-              title="成长记录"
-              body="暂不支持。需要后端能力变更事件流（B-6）。不会假装有「今天新增技能」时间线。"
-            />
+            <Block title="成长记录">
+              <Text className="text-[11px] text-muted-foreground mb-2">
+                暂不支持。需要后端能力变更事件流（B-6）。
+              </Text>
+              <View className="flex-row pt-1 pb-1">
+                {["—", "—", "—"].map((d, i) => (
+                  <View key={i} className="flex-1 items-center px-1">
+                    <View className="w-full h-0.5 bg-border absolute top-[4px]" />
+                    <View className="size-2.5 rounded-full bg-border z-10 mb-2" />
+                    <Text className="text-[11px] font-bold text-muted-foreground">
+                      {d}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </Block>
+
+            <Text className="text-xs font-semibold text-muted-foreground mb-2 mt-1">
+              能力资产
+            </Text>
+            <View className="flex-row gap-2 mb-2">
+              <AssetCard
+                title="技能"
+                count={String(skills.length)}
+                body={skills.slice(0, 6).join(" / ") || undefined}
+                empty={skills.length === 0 ? "暂无" : undefined}
+                onPress={() => setTab("cap")}
+              />
+              <AssetCard
+                title="工具"
+                count={tools.kind === "count" ? tools.label : "—"}
+                body={
+                  toolList.mode === "list"
+                    ? toolList.entries
+                        .slice(0, 4)
+                        .map((e) => e.name)
+                        .join(" / ")
+                    : tools.kind === "configured"
+                      ? "已配置"
+                      : undefined
+                }
+                empty={
+                  toolList.mode === "empty" || toolList.mode === "unknown"
+                    ? tools.label
+                    : undefined
+                }
+                onPress={() => setTab("cap")}
+              />
+            </View>
+            <View className="flex-row gap-2 mb-2">
+              <AssetCard title="知识库" count="—" empty="暂不支持" />
+              <AssetCard title="定时任务" count="—" empty="暂无启用" dark />
+            </View>
           </>
         ) : null}
 
@@ -469,7 +737,14 @@ export default function StaffProfilePage() {
           <>
             <Block title="工位">
               {!isAgentRuntimeBound(agent) ? (
-                <Text className="text-xs text-warning">未绑定 ⚠</Text>
+                <View
+                  className="flex-row items-center gap-1.5 rounded-lg px-2.5 py-2"
+                  style={{ backgroundColor: "rgba(245,158,11,0.12)" }}
+                >
+                  <Text className="text-[13px] text-[#A16207]">
+                    ⚠ 未绑定 · 任务无法执行
+                  </Text>
+                </View>
               ) : (
                 <>
                   <Text className="text-xs text-foreground py-1">
@@ -560,22 +835,14 @@ export default function StaffProfilePage() {
               </Text>
             </Block>
 
-            <CapPlaceholder
-              title="知识库"
-              body="暂不支持。StaffDeck OKF 与 ProjectResource 语义不等价，不做空壳。"
-            />
-            <CapPlaceholder
-              title="长期记忆"
-              body="暂不支持。员工目前不会跨会话记住你的偏好，每次对话都是独立上下文。"
-            />
-            <CapPlaceholder
-              title="定时任务"
-              body="暂不支持。主动工作（B-5）确认 REST 可用性后再做。页头「定时」显示「未开放」，不是 0。"
-            />
-            <CapPlaceholder
-              title="SOP"
-              body="暂不支持。领域不匹配（工程事项 ≠ 审批流状态机）。"
-            />
+            <View className="flex-row gap-2 mb-2">
+              <AssetCard title="知识库" count="—" empty="暂不支持" />
+              <AssetCard title="长期记忆" count="—" empty="暂不支持" />
+            </View>
+            <View className="flex-row gap-2">
+              <AssetCard title="定时任务" count="—" empty="暂无启用" dark />
+              <AssetCard title="SOP" count="—" empty="暂不支持" />
+            </View>
           </>
         ) : null}
 

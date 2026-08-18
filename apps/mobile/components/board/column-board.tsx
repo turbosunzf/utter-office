@@ -395,7 +395,7 @@ function ColumnPage({
         <FlatList
           data={issues}
           keyExtractor={(i) => i.id}
-          contentContainerClassName="gap-2.5 pb-4"
+          contentContainerClassName="pb-4"
           ListEmptyComponent={
             <Text className="text-sm text-muted-foreground py-8 text-center">
               此列暂无事项

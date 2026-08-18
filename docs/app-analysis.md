@@ -1,9 +1,9 @@
 # utter-office 移动端 App 完整分析报告
 
-> 最后更新：2026-08-17
+> 最后更新：2026-08-18
 > 分析对象：`apps/mobile`（@multica/mobile）+ `packages/core`（@multica/core）
 > 文档性质：结构 / 内容 / 原型现状全面分析，供后续开发（语音、BLE、StaffDeck 整合等）作为基础参照。
-> **StaffDeck 整合**：§16 已过期；现行以 `docs/staffdeck-analysis.md` + `docs/app-prd.md` v1.6 + `docs/assets/prototypes/` 为准。
+> **StaffDeck 整合**：现行以 `docs/staffdeck-analysis.md` + `docs/app-prd.md` v1.8 + `docs/assets/prototypes/` 为准。
 
 ---
 
@@ -215,16 +215,15 @@ expo-router 文件路由，完整树（URL → 文件 → 类型）：
 
 ### 工作区 Tab（`app/(app)/[workspace]/(tabs)/`）
 
-Tab 顺序：**首页 · 看板 · 录音（中央，自定义按钮）· 聊天 · 我的**。
+Tab 顺序：**首页 · 看板 · 录音（中央，自定义按钮）· 工作台 · 我的**。
 
 | URL | 文件 | 内容 |
 |---|---|---|
-| `/{slug}/home` | `home.tsx` | 收件箱（去重 + 滑动归档 + 批量操作） |
-| `/{slug}/board` | `board.tsx` | 看板 = AI 秘书 dashboard（7/30/90 天范围 + 2×2 指标带 + 任务进度 / 智能体运行数据 / 数据分析报告占位），数据源 `data/queries/dashboard.ts` |
-| `/{slug}/voice` | `voice.tsx` | **桩**——tab 被 `RecordButton` 拦截，永不直接导航 |
-| `/{slug}/chat` | `chat.tsx` | 聊天（单屏 IA：消息列表 + composer + 实时任务时间线） |
-| `/{slug}/mine` | `mine.tsx` | 我的（身份卡 / 工作区卡 / 工作 / 设置导航） |
-| `/{slug}/my-issues` | `my-issues.tsx` | 我的事项（push 屏，Assigned / Created / Agents 三 scope，按 `BOARD_STATUSES` 分组；从 board tab 迁出） |
+| `/{slug}/home` | `home.tsx` | 决策台：Hero 派单 + Pulse + 工作成果(24h 热力/横滑) + 待办决策队列 + 简报 Tab |
+| `/{slug}/board` | `board.tsx` | 整盘 / 按状态 / 按人；默认整盘密排 KPI + 进行中 + 员工用量 |
+| `/{slug}/voice` | `voice.tsx` | **桩**——tab 被 `RecordButton` 拦截 |
+| `/{slug}/workbench` | `workbench.tsx` | 工作台（员工 Rail + 会话） |
+| `/{slug}/mine` | `mine.tsx` | 身份卡 + 专业版工作区 + 工作 / 设置与秘书 |
 
 ### 详情 / 编辑（push / modal）
 
@@ -279,22 +278,31 @@ Tab 顺序：**首页 · 看板 · 录音（中央，自定义按钮）· 聊天
 
 ## 7. 屏幕功能清单
 
-### 7.1 首页（Inbox）
-- `deduplicateInboxItems`（`lib/inbox-display.ts`，镜像 web）→ 过滤 archived、按 issue_id 分组取新、降序。
-- 行：状态图标 + 类型感知标签 + 右侧堆叠信息；**滑动只显示归档按钮、不自动触发**，过阈值一次 haptic（`swipeable-inbox-row.tsx`）。
-- 点行 → 标记已读（`onMutate` 里 **先** `setQueryData` 再 `cancelQueries`，避免 iOS 快照冻结未读样式）→ push 事项详情（可带评论高亮）。
-- 批量：ActionSheet（全部已读 / 归档已读 / 归档已完成 / 全部归档）。
-- 未读数徽标：home 与 chat tab，截断 "99+"。
+### 7.1 首页（Today）
+- Hero：一键派单 → `staff-picker?intent=dispatch`；新建事项；语音下达打开与底栏相同的 Sheet。
+- Pulse：组织在岗 + 项目 / 收件箱（角标与 Tab badge 同源）。
+- 工作成果：过去 24h 热力柱 + 头像落点 + 矮卡横滑（B 类 mock，`USE_MOCK_OUTCOMES`）。
+- 待办：决策队列 — 需你介入（blocked / in_review）+ 员工在推进。
+- 行业简报：密排 5 条 + 行业 Tab（B 类 mock）。
+- 专业版卡不在首页，在「我的」。
+- 右上铃铛进收件箱；未读与 Tab badge 同源。
 
 ### 7.2 我的事项（My Issues，`app/(app)/[workspace]/my-issues.tsx`）
-- 从 board tab 迁出的 push 屏（board 现为 dashboard，见 §6 路由表）；布局注册 title "我的事项"。
+- 从 board tab 迁出的 push 屏；布局注册 title "我的事项"。看板 tab 本身是整盘 / 按状态 / 按人（见 §7.2b）。
 - 三 scope：Assigned（`assignee_id`）/ Created（`creator_id`）/ Agents（`involves_user_id`，含所属 agent + 相关 squad）。
 - `SectionList` 按 `BOARD_STATUSES` 分组（cancelled 不显示），空状态 section 过滤。
 - 状态 + 优先级筛选 → `issues-filter?scope=my`，筛选状态存 `useMyIssuesViewStore`，切换工作区时清空。
 - "Assigned / Created / Agents" 标签在 SE3 上压缩为 "Agents"（343pt 可用宽度）。
 
-### 7.3 聊天（Chat）
-- 单屏 IA（无 `/chat/[id]` 子路由）：当前会话消息列表 + `MessageComposer`。
+### 7.2b 看板（Board）
+- 三视图 Segmented：整盘 / 按状态 / 按人；默认整盘。
+- 整盘：紧凑 KPI（完成 / 进行 / 受阻）+ 进行中密排行 + 员工用量；**无「数据分析报告」占位**。dashboard 端点 404 时概况降级，列表仍走 `/api/issues`。
+- 按状态：横向分页列，卡片为密排行（编号 · 标题 · 标签 · 头像）。
+- 按人：项目泳道白卡顶栏 + 密排行。
+- 项目 chip 仅在列 / 泳道显示。
+
+### 7.3 工作台（Workbench）
+- 由原聊天屏演进：员工 Rail + 当前会话消息列表 + `MessageComposer`。
 - 发送：手写乐观突发（seed 消息 → seed pendingTask → POST → 用真实 task_id 打补丁），非 TanStack mutation。
 - 会话切换：`chat-sessions` formSheet（未读点、长按删除），经 `useChatSessionPickerStore` 跨路由传参。
 - 头部：会话标题（可点开切换器）+ "⋯"（删除/新建）+ agent 选择 Modal。
@@ -318,9 +326,11 @@ Tab 顺序：**首页 · 看板 · 录音（中央，自定义按钮）· 聊天
 - issue + project 同屏，300ms 防抖 + abort 策略；分类排序（项目 → 活跃事项 → 已取消）；Recent 事项；评论匹配带高亮 + 片段。
 
 ### 7.7 设置 / 我的
+- 「我的」：身份卡 + **专业版工作区卡**（方案条 / 席位·并发 / 权益四宫 / 不扣费脚注，Alert 占位）+ 工作分区（收件箱 / 我的事项 / 置顶 / 事项 / 项目 / 数字员工）+ 设置与秘书。
 - 主题选择（light / dark / system，持久化到 SecureStore key `theme-preference`）。
 - 个人资料编辑（改名 + 换头像，原生 ActionSheet 选图 + PATCH /api/me 回写）。
 - 通知偏好：6 组 + 系统开关，乐观 PATCH（同一工作区串行化）。
+- 秘书设置：默认员工、长按阈值 0.5/1/2s、语音入口默认项；「松手后自动跳工作台」开关**预留、不接中央长按**。
 
 ---
 
@@ -338,7 +348,12 @@ Tab 顺序：**首页 · 看板 · 录音（中央，自定义按钮）· 聊天
 | `issue/` | activity-row、agent-activity-row、agent-header-badge、attribute-chip、attribute-row、comment-attachment-list、comment-card、comment-context-menu、composer-attachment-row、create-form-attribute-row、description-field、inline-comment-composer、issue-description、issue-header-card、issue-reaction-row、reaction-bar、issue-row、issues-loading、mention-suggestion-bar、run-row、submit-issue-button、timeline-list、pickers/*（assignee/due-date/label/mention/priority/project/status 纯体） |
 | `project/` | project-header-card、project-properties-section、project-related-issues、project-resources-section、project-row、pickers/* |
 | `inbox/` | inbox-row、swipeable-inbox-row、detail-label |
+| `home/` | home-hero、quick-actions（Pulse）、outcome-feed、todo-list、brief-list、home-section |
+| `board/` | board-progress-view、column-board、swimlane-board、board-issue-card、task-progress、agent-usage |
+| `mine/` | （入口在 `mine.tsx`）专业版卡见 `shared/pro-upsell-card` |
+| `shared/` | blocking-notice-bar、pro-upsell-card |
 | `voice/` | record-button、voice-overlay、voice-prototype-placeholder |
+| `workbench/` | 员工 rail + 会话（由原 chat 屏演进） |
 | `workspace/` | workspace-avatar |
 
 > 注：RNR 迁移进行中（`apps/mobile/docs/rnr-migration.md`），部分 `components/ui/` 为迁移前手写遗留（21 个），规则是「只有为真实原因改动该文件时才顺带升级（Tier C）」——**禁止顺手重写**。
@@ -409,17 +424,17 @@ L3  use-<feature>-realtime 每特性订阅：事件 → 缓存变更
 ## 10. 语音 / BLE 原型现状
 
 ### 已实现（真实、端到端）
-1. **Tab 即动作交互**（`components/voice/record-button.tsx`）：2s 阈值区分点按与长按。短按 → 打开语音底栏；长按 ≥2s → haptic + 4 柱均衡器动画"录音中"；松手 → haptic 成功 + `useSendVoiceMessage().send("你好")` + 切到聊天 tab。**无真实麦克风采集，是状态机演示**。
-2. **语音底栏 + 浮层**（`components/voice/voice-overlay.tsx`）：短按底栏三项「录音 / 翻译 / 发送语音」→ push `voice-record` / `voice-translate` / `voice-talk`；全屏录音浮层（同心波纹 + 计时器，`pointerEvents="none"`，手指保持在按钮上）。
-3. **hold-to-talk 发送通道**（`app/(app)/[workspace]/voice-talk.tsx`）：按住说话 → 松手发送硬编码文本 **"你好"**。`useSendVoiceMessage`（`lib/use-send-voice-message.ts`）解析第一个非归档 agent + 第一个非归档会话（无则创建），POST 真实聊天消息，失效聊天缓存。**发送的是真实文本消息，不是音频**。
-4. **状态 store**（`data/stores/voice-store.ts`）：内存 Zustand（`sheetOpen` / `recording`），协调 Tab 内按钮与兄弟浮层，无持久化。
+1. **Tab 即动作交互**（`components/voice/record-button.tsx`）：`holdMs` 来自秘书设置（默认 0.5s）。短按 → 打开语音底栏；长按 ≥ holdMs → haptic + 4 柱 EQ + 微信式 Overlay；上滑 ≥80px 取消；松手 → haptic + **原型 Toast，不发消息、不跳工作台**。**无真实麦克风采集**。
+2. **语音底栏 + 浮层**（`components/voice/voice-overlay.tsx`）：短按底栏三项「录音 / 翻译 / 发送语音」→ push `voice-record` / `voice-translate` / `voice-talk`；全屏录音浮层（`pointerEvents="none"`，手指保持在按钮上）。
+3. **hold-to-talk 发送通道**（仅 `voice-talk.tsx` 子页）：按住说话 → 松手发送硬编码文本 **"你好"**。`useSendVoiceMessage` 解析第一个非归档 agent + 第一个非归档会话（无则创建），POST 真实聊天消息。**中央长按不走这条通道**。
+4. **状态 store**（`data/stores/voice-store.ts`）：内存 Zustand（`sheetOpen` / `recording` / toast），协调 Tab 内按钮与兄弟浮层，无持久化。
 
 ### 占位（无功能）
 - `voice-record.tsx`（录音）与 `voice-translate.tsx`（翻译）：渲染 `VoicePrototypePlaceholder`（"原型占位 · 功能开发中"），真实采集 + ASR / 翻译待后续 issue。
 - 语音 tab 的 backing route `(tabs)/voice.tsx` 是纯桩（Redirect）。
 
 ### 结论
-**当前没有音频录制、ASR、翻译、BLE 任何真实能力**。语音产品线只验证了「语音入口交互 + 把文本送进聊天通道」这条链路。后续方向（语音录制 / BLE 硬件接入 / ASR 转写）见 §15。
+**当前没有音频录制、ASR、翻译、BLE 任何真实能力**。中央按钮验证「短按 Sheet / 长按 Overlay」交互；真正把文本送进聊天通道只发生在「发语音」子页。后续方向见 §15。
 
 ---
 
@@ -519,7 +534,7 @@ pnpm ios:device:prod:release   # 独立 Release 装到 iPhone
 1. **语音**：录音采集 / ASR 转写 / 翻译接口（voice-record / voice-translate 目前占位）。
 2. **BLE 硬件接入**：硬件按钮作为需求输入（现状只有 hold-to-talk 模拟）。
 3. **后端真实联调**：`.env.staging` / `.env.production` 是占位 host；当前 `dev` 变体临时指向 `api.multica.ai` 做对等验证，待 utter-office 自有后端就绪后替换。
-4. **B 线功能状态**：④ 看板 dashboard 已合入 main（commit `1aec912`/`75f15bf`，6 个 `/api/dashboard/*` 端点 ✅，但服务端需上线并加入 API mirror 白名单）；③ 首页（统计卡/待办复用现有接口，行业简报占位）；⑤ 语音页（纯 UI）。
+4. **B 线功能状态**：首页 Today 壳（Hero/Pulse/成果热力/待办决策队列/简报 Tab）；看板三视图（整盘密排、无报告占位）；专业版卡在「我的」；中央长按保持 Overlay+Toast。dashboard 6 端点需服务端上线并加入 API mirror 白名单。语音三项子页仍为原型 UI。
 5. **core 发布**为内部 npm 包（方案 B）。
 6. **建远端仓库**。
 7. RNR 迁移剩余工作（见 `apps/mobile/docs/rnr-migration.md`）。
@@ -532,7 +547,7 @@ pnpm ios:device:prod:release   # 独立 Release 装到 iPhone
 >
 > 现行依据：
 > - 借鉴边界与 A/B/C 分级：[`docs/staffdeck-analysis.md`](./staffdeck-analysis.md) §10–§11
-> - 移动端落地与分期：[`docs/app-prd.md`](./app-prd.md) v1.6（§2.1 / §2.5 / §7 / M4）
+> - 移动端落地与分期：[`docs/app-prd.md`](./app-prd.md) v1.8（§2.1 / §2.5 / §7 / M4）
 > - 可点击原型：[`docs/assets/prototypes/00-index.html`](./assets/prototypes/00-index.html)
 >
 > **明确废止的切入点**（与现行 C 级 / PRD §2.1 冲突）：看板加「竞价中」列、移植 OKF、竞标 arena、员工市场/安装带 SOP 的模板。本期只借治理层表达（员工即上下文、能力计数、档案分层、阻断提示、HITL），不移植 SOP 状态机 / OKF / 广场 / 竞标。

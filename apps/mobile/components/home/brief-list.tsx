@@ -1,21 +1,37 @@
 /**
- * Industry brief preview — color-block cover + clean copy (PRD §4.6).
+ * Industry brief preview — dense rows + category tabs (PRD §4.6).
  */
 import { useMemo, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Text } from "@/components/ui/text";
-import { Icon } from "@/components/ui/icon";
+import { HomeSection } from "@/components/home/home-section";
 import {
   briefListOptions,
   USE_MOCK_BRIEFS,
 } from "@/data/queries/briefs";
+import type { Brief } from "@/data/mocks/briefs";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+
+const TABS: { id: string; label: string }[] = [
+  { id: "all", label: "全部" },
+  { id: "AI Infra", label: "AI Infra" },
+  { id: "竞品", label: "竞品" },
+  { id: "政策", label: "政策" },
+  { id: "融资", label: "融资" },
+];
+
+const COVER: Record<string, { from: string; to: string }> = {
+  "AI Infra": { from: "#2F62F0", to: "#6B9BFF" },
+  竞品: { from: "#0D9488", to: "#2DD4BF" },
+  政策: { from: "#7C3AED", to: "#A78BFA" },
+  融资: { from: "#C2410C", to: "#FB923C" },
+};
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - Date.parse(iso);
@@ -24,175 +40,177 @@ function relativeTime(iso: string): string {
   if (h < 1) return "刚刚";
   if (h < 24) return `${h} 小时前`;
   const d = Math.floor(h / 24);
+  if (d === 1) return "昨天";
   return `${d} 天前`;
 }
 
-const COVER = [
-  { from: "#2F62F0", to: "#6B9BFF", label: "讯" },
-  { from: "#0D9488", to: "#2DD4BF", label: "研" },
-  { from: "#C2410C", to: "#FB923C", label: "趋" },
-] as const;
+function hitColor(tone: Brief["hit"] extends infer H
+  ? H extends { tone: infer T }
+    ? T
+    : never
+  : never): string {
+  if (tone === "down") return "#DC2626";
+  if (tone === "new") return "#3B6FFF";
+  return "#64748B";
+}
 
 export function BriefList() {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
   const wsSlug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
   const { data: briefs = [] } = useQuery(briefListOptions(wsId));
+  const [tab, setTab] = useState("all");
   const [readIds, setReadIds] = useState<Set<string>>(() => new Set());
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
 
-  const rows = useMemo(() => briefs.slice(0, 3), [briefs]);
-  const unread = rows.filter((b) => !readIds.has(b.id)).length;
+  const filtered = useMemo(() => {
+    const list =
+      tab === "all" ? briefs : briefs.filter((b) => b.category === tab);
+    return list
+      .slice()
+      .sort(
+        (a, b) =>
+          Date.parse(b.published_at) - Date.parse(a.published_at),
+      )
+      .slice(0, 5);
+  }, [briefs, tab]);
+
+  const unread = filtered.filter((b) => !readIds.has(b.id)).length;
 
   return (
-    <View className="gap-2.5">
-      <View className="flex-row items-center justify-between px-1">
-        <View className="flex-row items-center gap-2">
-          <Text className="text-[12px] font-medium text-muted-foreground">
-            行业简报
-          </Text>
-          {unread > 0 ? (
-            <View className="rounded-full bg-brand/15 px-1.5 py-0.5">
-              <Text className="text-[10px] font-medium text-brand">
-                {unread} 未读
-              </Text>
-            </View>
-          ) : null}
-        </View>
-        {USE_MOCK_BRIEFS ? (
-          <View className="rounded-md border border-border px-1.5 py-0.5">
-            <Text className="text-[10px] text-muted-foreground">示例数据</Text>
+    <HomeSection
+      title="行业简报"
+      meta={
+        unread > 0 ? (
+          <View className="rounded-full bg-brand/15 px-1.5 py-0.5">
+            <Text className="text-[10px] font-semibold text-brand">
+              {unread} 未读
+            </Text>
           </View>
-        ) : null}
-      </View>
+        ) : null
+      }
+      badge={USE_MOCK_BRIEFS ? "示例" : undefined}
+      flush
+    >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          gap: 6,
+          paddingHorizontal: 12,
+          paddingTop: 10,
+          paddingBottom: 6,
+        }}
+      >
+        {TABS.map((tb) => {
+          const on = tab === tb.id;
+          return (
+            <Pressable
+              key={tb.id}
+              onPress={() => setTab(tb.id)}
+              className="rounded-full px-2.5 py-1"
+              style={{
+                backgroundColor: on ? t.brand : colorScheme === "dark" ? t.secondary : "#F0F3FA",
+              }}
+            >
+              <Text
+                className={cn(
+                  "text-[11px] font-semibold",
+                  on ? "text-white" : "text-muted-foreground",
+                )}
+              >
+                {tb.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
 
-      {rows.length === 0 ? (
-        <View
-          className="items-center rounded-2xl px-4 py-10 gap-2"
-          style={{
-            backgroundColor: colorScheme === "dark" ? t.card : "#FFFFFF",
-            borderWidth: 1,
-            borderColor: t.border,
-          }}
-        >
-          <Icon name="FileText" size={28} color={t.mutedForeground} />
-          <Text className="text-sm font-semibold text-foreground">暂无简报</Text>
-          <Text className="text-[12px] text-muted-foreground text-center">
-            接入后每日推送与你项目相关的行业动态。
+      {filtered.length === 0 ? (
+        <View className="items-center px-4 py-8">
+          <Text className="text-[12px] text-muted-foreground">
+            该分类暂无简报
           </Text>
         </View>
       ) : (
-        <View className="gap-2.5">
-          {rows.map((b, idx) => {
-            const read = readIds.has(b.id);
-            const cover = COVER[idx % COVER.length];
-            const mark = (b.category.trim().slice(0, 1) || cover.label).toUpperCase();
-            return (
-              <Pressable
-                key={b.id}
-                onPress={() => {
-                  setReadIds((prev) => new Set(prev).add(b.id));
-                  if (wsSlug) router.push(`/${wsSlug}/brief/${b.id}`);
-                }}
-                className="overflow-hidden rounded-2xl active:opacity-90"
-                style={{
-                  backgroundColor: colorScheme === "dark" ? t.card : "#FFFFFF",
-                  borderWidth: 1,
-                  borderColor:
-                    colorScheme === "dark"
-                      ? t.border
-                      : "rgba(15,23,42,0.06)",
-                }}
-              >
-                <View className="flex-row">
-                  <View className="w-[76px] overflow-hidden" style={{ minHeight: 98 }}>
-                    <LinearGradient
-                      colors={[cover.from, cover.to]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={{
-                        flex: 1,
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <View
-                        pointerEvents="none"
-                        style={{
-                          position: "absolute",
-                          right: -14,
-                          bottom: -18,
-                          width: 52,
-                          height: 52,
-                          borderRadius: 26,
-                          backgroundColor: "rgba(255,255,255,0.22)",
-                        }}
-                      />
-                      <View
-                        pointerEvents="none"
-                        style={{
-                          position: "absolute",
-                          left: -10,
-                          top: -12,
-                          width: 36,
-                          height: 36,
-                          borderRadius: 18,
-                          backgroundColor: "rgba(255,255,255,0.16)",
-                        }}
-                      />
-                      <View
-                        className="size-11 items-center justify-center rounded-2xl"
-                        style={{ backgroundColor: "rgba(255,255,255,0.22)" }}
-                      >
-                        <Text className="text-[18px] font-extrabold text-white">
-                          {mark}
-                        </Text>
-                      </View>
-                    </LinearGradient>
-                  </View>
-                  <View className="flex-1 min-w-0 px-3 py-3 gap-1.5">
-                    <View className="flex-row items-center gap-1.5">
-                      <Text
-                        className="text-[10px] font-semibold"
-                        style={{ color: cover.from }}
-                      >
-                        {b.category}
-                      </Text>
-                      <Text className="text-[10px] text-muted-foreground">
-                        {b.source}
-                      </Text>
-                      <View className="flex-1" />
-                      {!read ? (
-                        <View className="size-1.5 rounded-full bg-brand" />
-                      ) : null}
-                      <Text className="text-[10px] text-muted-foreground">
-                        {relativeTime(b.published_at)}
-                      </Text>
-                    </View>
-                    <Text
-                      className={cn(
-                        "text-[14px] text-foreground leading-5",
-                        read ? "font-medium" : "font-bold",
-                      )}
-                      numberOfLines={2}
-                    >
-                      {b.title}
-                    </Text>
-                    {b.summary ? (
-                      <Text
-                        className="text-[12px] text-muted-foreground leading-4"
-                        numberOfLines={2}
-                      >
-                        {b.summary}
-                      </Text>
-                    ) : null}
-                  </View>
+        filtered.map((b) => {
+          const read = readIds.has(b.id);
+          const cover = COVER[b.category] ?? COVER["AI Infra"];
+          const mark = b.thumb ?? b.category.slice(0, 1);
+          return (
+            <Pressable
+              key={b.id}
+              onPress={() => {
+                setReadIds((prev) => new Set(prev).add(b.id));
+                if (wsSlug) router.push(`/${wsSlug}/brief/${b.id}`);
+              }}
+              className="flex-row items-center gap-2.5 px-3 py-2.5 border-b border-border/50 active:opacity-90"
+              style={
+                !read
+                  ? {
+                      backgroundColor:
+                        b.category === "竞品"
+                          ? "rgba(13,148,136,0.06)"
+                          : b.category === "政策"
+                            ? "rgba(124,58,237,0.05)"
+                            : "rgba(47,98,240,0.05)",
+                    }
+                  : undefined
+              }
+            >
+              <View className="relative">
+                <LinearGradient
+                  colors={[cover.from, cover.to]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 10,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: read ? 0.55 : 1,
+                  }}
+                >
+                  <Text className="text-[13px] font-extrabold text-white">
+                    {mark}
+                  </Text>
+                </LinearGradient>
+                {!read ? (
+                  <View className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-brand border-2 border-white" />
+                ) : null}
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text
+                  className={cn(
+                    "text-[13px] text-foreground leading-[18px]",
+                    read ? "font-medium" : "font-bold",
+                  )}
+                  numberOfLines={1}
+                >
+                  {b.title}
+                </Text>
+                <Text className="text-[10px] text-muted-foreground mt-0.5" numberOfLines={1}>
+                  {b.category} · {b.source} · {relativeTime(b.published_at)}
+                </Text>
+              </View>
+              {b.hit ? (
+                <View className="items-end w-11">
+                  <Text
+                    className="text-[12px] font-extrabold"
+                    style={{ color: hitColor(b.hit.tone) }}
+                  >
+                    {b.hit.n}
+                  </Text>
+                  <Text className="text-[9px] text-muted-foreground">
+                    {b.hit.l}
+                  </Text>
                 </View>
-              </Pressable>
-            );
-          })}
-        </View>
+              ) : null}
+            </Pressable>
+          );
+        })
       )}
-    </View>
+    </HomeSection>
   );
 }

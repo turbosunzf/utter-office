@@ -181,10 +181,10 @@
   font-size: 9px; font-weight: 600; color: var(--muted-fg);
   font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-.tl-ends {
-  display: flex; justify-content: space-between;
-  margin-top: 2px; font-size: 9px; color: #C0C6D4;
+.tl-times .t.now {
+  left: auto; right: 0; transform: none; font-weight: 700;
 }
+.tl-ends { display: none; }
 
 /* 下方：矮卡横滑 */
 .outcome-rail {
@@ -484,7 +484,7 @@
                 <span>活跃 <b>3</b> 人</span>
               </div>
               <div class="tl-chart">
-                <!-- 高度=忙碌程度；颜色深度=投入强度 -->
+                <!-- 高度=产出件数；颜色深度=Tokens -->
                 <div class="tl-bars" aria-hidden="true">
                   <i style="height:18%"></i>
                   <i class="l" style="height:28%"></i>
@@ -518,8 +518,8 @@
                 <span class="t" style="left:18%">02:14</span>
                 <span class="t" style="left:52%">07:40</span>
                 <span class="t" style="left:78%">14:20</span>
+                <span class="t now">现在</span>
               </div>
-              <div class="tl-ends"><span>昨天此时</span><span>现在</span></div>
             </div>
 
             <div class="outcome-rail">
