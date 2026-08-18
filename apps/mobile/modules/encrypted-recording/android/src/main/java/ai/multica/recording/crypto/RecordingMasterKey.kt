@@ -36,10 +36,12 @@ object RecordingMasterKey {
     }
 
     val raw = ByteArray(32).also { SecureRandom().nextBytes(it) }
-    val iv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+    // AndroidKeyStore GCM forbids caller-provided IVs on encrypt
+    // (randomized encryption is required). Let the Keystore generate it.
     val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-    cipher.init(Cipher.ENCRYPT_MODE, wrapKey, GCMParameterSpec(GCM_TAG_BITS, iv))
+    cipher.init(Cipher.ENCRYPT_MODE, wrapKey)
     val wrapped = cipher.doFinal(raw)
+    val iv = cipher.iv
     prefs.edit()
       .putString(RecordingCryptoConstants.PREFS_WRAPPED_KEY, Base64.encodeToString(wrapped, Base64.NO_WRAP))
       .putString(RecordingCryptoConstants.PREFS_WRAP_IV, Base64.encodeToString(iv, Base64.NO_WRAP))

@@ -2,10 +2,10 @@ import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { File } from "expo-file-system";
 import { useRecordingSessionContextStore } from "@/contexts/recordingSessionContextStore";
-import { requestCameraPermission } from "./cameraPermission";
+import { requestPhotoCapturePermissions } from "./cameraPermission";
 
 export async function captureRecordingPhoto(): Promise<void> {
-  const ok = await requestCameraPermission();
+  const ok = await requestPhotoCapturePermissions();
   if (!ok) return;
 
   const result = await ImagePicker.launchCameraAsync({

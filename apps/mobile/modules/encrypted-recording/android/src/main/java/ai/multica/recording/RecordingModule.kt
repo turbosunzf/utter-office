@@ -123,6 +123,11 @@ class RecordingModule : Module(), CaptureListener {
       OverlayPermissionHelper.canDrawOverlays(ctx.applicationContext)
     }
 
+    Function("isOverlayEnabled") {
+      val ctx = appContext.reactContext ?: return@Function false
+      OverlaySettings.isEnabled(ctx.applicationContext)
+    }
+
     Function("openOverlaySettings") {
       val ctx = appContext.reactContext ?: return@Function false
       ctx.startActivity(OverlayPermissionHelper.settingsIntent(ctx.applicationContext))

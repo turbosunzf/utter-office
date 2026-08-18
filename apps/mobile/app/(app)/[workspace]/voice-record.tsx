@@ -31,15 +31,17 @@ export default function VoiceRecordPage() {
   const scrollRef = useRef<ScrollView | null>(null);
   const [hw, setHw] = useState("硬件检测中…");
 
+  const start = rec.start;
+  const isActive = rec.isActive;
+
   useEffect(() => {
-    if (started.current) return;
-    if (rec.isActive) {
+    if (started.current || isActive) {
       started.current = true;
       return;
     }
     started.current = true;
-    void rec.start();
-  }, [rec]);
+    void start();
+  }, [start, isActive]);
 
   useEffect(() => {
     scrollRef.current?.scrollToEnd({ animated: true });

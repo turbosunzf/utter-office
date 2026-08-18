@@ -95,6 +95,7 @@ public class RecordingModule: Module, RecorderSessionDelegate {
     }
 
     Function("canDrawOverlays") { () -> Bool in true }
+    Function("isOverlayEnabled") { () -> Bool in false }
     Function("openOverlaySettings") {}
     Function("setOverlayEnabled") { (_: Bool) in }
 

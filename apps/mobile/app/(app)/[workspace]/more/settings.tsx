@@ -12,7 +12,16 @@
  *
  * Theme picker stays inline (3 fixed options, fits in one section).
  */
-import { Alert, ActivityIndicator, Pressable, ScrollView, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  ActivityIndicator,
+  AppState,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+} from "react-native";
 import { Icon } from "@/components/ui/icon";
 import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +29,7 @@ import type { Workspace } from "@multica/core/types";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NavRow } from "@/components/ui/nav-row";
@@ -32,6 +42,13 @@ import {
   type ThemePreference,
 } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
+import {
+  disableOverlayPreference,
+  enableOverlayOrRequest,
+  overlayPermissionSupported,
+  overlaySwitchOn,
+  syncOverlayAfterReturningFromSettings,
+} from "@/services/recording/overlayPermission";
 
 const THEME_OPTIONS: Array<{ value: ThemePreference; label: string }> = [
   { value: "light", label: "浅色" },
@@ -87,6 +104,42 @@ export default function SettingsPage() {
   const goProfile = () => router.push(`/${currentSlug}/more/settings/profile`);
   const goNotifications = () =>
     router.push(`/${currentSlug}/more/settings/notifications`);
+
+  const showOverlay = overlayPermissionSupported();
+  const [overlayOn, setOverlayOn] = useState(overlaySwitchOn);
+  const waitingOverlaySettings = useRef(false);
+
+  const refreshOverlay = useCallback(() => {
+    setOverlayOn(overlaySwitchOn());
+  }, []);
+
+  useEffect(() => {
+    if (!showOverlay) return;
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state !== "active") return;
+      if (waitingOverlaySettings.current) {
+        waitingOverlaySettings.current = false;
+        setOverlayOn(syncOverlayAfterReturningFromSettings());
+        return;
+      }
+      refreshOverlay();
+    });
+    return () => sub.remove();
+  }, [showOverlay, refreshOverlay]);
+
+  const onToggleOverlay = (next: boolean) => {
+    if (!next) {
+      disableOverlayPreference();
+      setOverlayOn(false);
+      return;
+    }
+    const result = enableOverlayOrRequest();
+    if (result === "granted") {
+      setOverlayOn(true);
+      return;
+    }
+    waitingOverlaySettings.current = true;
+  };
 
   return (
     <ScrollView
@@ -151,6 +204,22 @@ export default function SettingsPage() {
           })
         )}
       </SectionGroup>
+
+      {showOverlay ? (
+        <SectionGroup title="录音">
+          <View className="flex-row items-center px-4 py-3.5 gap-3">
+            <View className="flex-1">
+              <Text className="text-base font-medium text-foreground">
+                悬浮窗
+              </Text>
+              <Text className="text-xs text-muted-foreground mt-0.5">
+                录制中在其他应用上方显示计时。打开后会跳转系统权限页。
+              </Text>
+            </View>
+            <Switch checked={overlayOn} onCheckedChange={onToggleOverlay} />
+          </View>
+        </SectionGroup>
+      ) : null}
 
       <SectionGroup title="外观">
         {/* Two converging entry points by design, NOT a double-fire:

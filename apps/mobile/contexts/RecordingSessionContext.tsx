@@ -74,6 +74,15 @@ export function RecordingSessionProvider({ children }: { children: ReactNode }) 
   }, []);
 
   const start = useCallback(async (title?: string) => {
+    const current = useRecordingSessionContextStore.getState().status;
+    if (
+      current === "recording" ||
+      current === "paused" ||
+      current === "interrupted" ||
+      current === "stopping"
+    ) {
+      return;
+    }
     const session = await beginEncryptedSession({ title });
     useRecordingSessionContextStore.getState().patch({
       status: "recording",

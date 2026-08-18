@@ -33,6 +33,7 @@ import { useWorkspaceStore } from "@/data/workspace-store";
 import { useVoiceStore } from "@/data/stores/voice-store";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
+import { requestMicrophonePermission } from "@/services/recording/microphonePermission";
 
 const WAVE_BAR_COUNT = 5;
 const RIPPLE_COUNT = 3;
@@ -187,12 +188,22 @@ function VoiceSheet({ visible }: { visible: boolean }) {
     });
   }, [backdropOpacity, sheetTranslateY, sheetHeight, closeSheet]);
 
-  const onPressItem = (path: string) => {
+  const onPressItem = async (path: string) => {
     if (dismissing.current) return;
+    if (path.startsWith("/voice-record")) {
+      const allowed = await requestMicrophonePermission();
+      if (!allowed) return;
+    }
+    if (!slug) return;
+    const href = `/${slug}${path}` as const;
     dismissing.current = true;
     closeSheet();
     setShow(false);
-    if (slug) router.push(`/${slug}${path}`);
+    // Wait for the sheet Modal to unmount — pushing in the same tick
+    // pops the new screen immediately.
+    setTimeout(() => {
+      router.push(href);
+    }, 50);
   };
 
   const sheetItems: {

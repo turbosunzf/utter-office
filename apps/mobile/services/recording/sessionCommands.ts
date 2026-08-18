@@ -1,12 +1,9 @@
-import { Platform, Alert } from "react-native";
 import {
   ASR_STOP_MS,
   STOP_TOTAL_TIMEOUT_MS,
 } from "@/native/recording/encryptedRecordingSpec";
 import {
-  canDrawOverlays,
   getOrCreateMasterKey,
-  openOverlaySettings,
   pauseRecording,
   resumeRecording,
   startEncryptedRecording,
@@ -17,7 +14,6 @@ import type { LocalRecording } from "@/data/recording/recordingTypes";
 import {
   requestMicrophonePermission,
 } from "./microphonePermission";
-import { requestCameraPermission } from "./cameraPermission";
 import {
   buildSessionDir,
   defaultRecordingTitle,
@@ -30,19 +26,6 @@ import { realtimeAsrService } from "./realtime/RealtimeAsrService";
 import { TranscribePoller } from "./TranscribePoller";
 import { UploadPipeline, UploadQueueStore } from "./UploadQueueStore";
 import { localRecordingRegistry } from "./RecordingLifecycleManager";
-
-export async function ensureOverlayPermission(): Promise<void> {
-  if (Platform.OS !== "android") return;
-  if (canDrawOverlays()) return;
-  Alert.alert(
-    "悬浮窗权限",
-    "录制中可在其他 App 上方显示计时条。前往系统设置开启「显示在其他应用的上层」。",
-    [
-      { text: "稍后再说", style: "cancel" },
-      { text: "去设置", onPress: () => openOverlaySettings() },
-    ],
-  );
-}
 
 export async function beginEncryptedSession(opts: {
   title?: string;
@@ -66,9 +49,6 @@ export async function beginEncryptedSession(opts: {
   if (!allowed) {
     throw new Error("microphone");
   }
-  // Camera is for in-recording photos; denial must not block the session.
-  await requestCameraPermission({ silent: true });
-  await ensureOverlayPermission();
 
   const sessionId = opts.sessionId ?? newSessionId();
   const sessionDir = buildSessionDir(sessionId);

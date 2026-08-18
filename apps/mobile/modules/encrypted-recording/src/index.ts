@@ -85,6 +85,7 @@ declare class EncryptedRecordingNativeModule extends NativeModule<EncryptedRecor
     outputPath: string,
   ): Promise<{ path: string; byteLength: number }>;
   canDrawOverlays(): boolean;
+  isOverlayEnabled(): boolean;
   openOverlaySettings(): void;
   setOverlayEnabled(enabled: boolean): void;
   freeBytes(path: string): Promise<number>;

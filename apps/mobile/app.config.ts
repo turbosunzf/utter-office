@@ -56,8 +56,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       supportsTablet: false,
       infoPlist: {
+        NSMicrophoneUsageDescription:
+          "Utter Office 需要麦克风来录制会议。录音保存在本机并加密存储。",
+        NSCameraUsageDescription:
+          "Utter Office 需要使用相机，以便在会议录音时拍摄现场照片。",
+        NSPhotoLibraryUsageDescription:
+          "Utter Office 需要访问相册，以便将图片添加到事项和评论。",
         NSUserTrackingUsageDescription:
           "Utter Office 需要您的许可，以便提供更贴合的服务体验。您可以随时在系统设置中更改。",
+        UIBackgroundModes: ["audio"],
       },
       // Per-variant bundle id overrides exist for one reason: an Apple ID
       // can only sign bundle prefixes it owns, so contributors not on the
@@ -83,14 +90,18 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         : isStaging
           ? "ai.multica.mobile.staging"
           : (process.env.EXPO_BUNDLE_IDENTIFIER_DEV ?? "ai.multica.mobile.dev"),
+      // Expo 默认会用 tools:node="remove" 挡住 RECORD_AUDIO / CAMERA，
+      // 必须显式列入 permissions，设置页才会出现麦克风、相机开关。
       permissions: [
         "android.permission.RECORD_AUDIO",
         "android.permission.CAMERA",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_MICROPHONE",
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.SYSTEM_ALERT_WINDOW",
       ],
+      blockedPermissions: [],
     },
     extra: { APP_ENV: env },
     plugins: [

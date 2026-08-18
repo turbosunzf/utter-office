@@ -108,6 +108,14 @@ export function canDrawOverlays(): boolean {
   }
 }
 
+export function isOverlayEnabled(): boolean {
+  try {
+    return requireNative().isOverlayEnabled();
+  } catch {
+    return false;
+  }
+}
+
 export function openOverlaySettings(): void {
   requireNative().openOverlaySettings();
 }
