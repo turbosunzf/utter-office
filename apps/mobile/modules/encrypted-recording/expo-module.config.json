@@ -1,0 +1,9 @@
+{
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["RecordingModule"]
+  },
+  "android": {
+    "modules": ["ai.multica.recording.RecordingModule"]
+  }
+}

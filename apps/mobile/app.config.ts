@@ -55,6 +55,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     icon: "./assets/icon.png",
     ios: {
       supportsTablet: false,
+      infoPlist: {
+        NSUserTrackingUsageDescription:
+          "Utter Office 需要您的许可，以便提供更贴合的服务体验。您可以随时在系统设置中更改。",
+      },
       // Per-variant bundle id overrides exist for one reason: an Apple ID
       // can only sign bundle prefixes it owns, so contributors not on the
       // Multica Apple Developer team (and external users self-building a
@@ -79,10 +83,28 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         : isStaging
           ? "ai.multica.mobile.staging"
           : (process.env.EXPO_BUNDLE_IDENTIFIER_DEV ?? "ai.multica.mobile.dev"),
+      permissions: [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MICROPHONE",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+      ],
     },
+    extra: { APP_ENV: env },
     plugins: [
       "expo-router",
       "expo-secure-store",
+      [
+        "expo-audio",
+        {
+          enableBackgroundRecording: false,
+          microphonePermission:
+            "Utter Office 需要麦克风来录制会议。录音保存在本机并加密存储。",
+        },
+      ],
+      "./modules/encrypted-recording/app.plugin.js",
       "@react-native-community/datetimepicker",
       "react-native-enriched-markdown",
       withAndroidNdkVersion,
@@ -91,12 +113,21 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         {
           // iOS NSPhotoLibraryUsageDescription. Without this string in
           // Info.plist, calling launchImageLibraryAsync hard-crashes on
-          // iOS 14+. Camera + microphone are disabled — we only ever read
-          // from the existing photo library.
+          // iOS 14+. Microphone stays disabled here — recording uses expo-audio.
           photosPermission:
             "Allow Utter Office to access your photos to attach images to issues and comments.",
-          cameraPermission: false,
+          // Recording page「拍照」uses the camera. Avatars still pick from
+          // the library only (profile.tsx does not call launchCameraAsync).
+          cameraPermission:
+            "Utter Office 需要使用相机，以便在会议录音时拍摄现场照片。",
           microphonePermission: false,
+        },
+      ],
+      [
+        "expo-tracking-transparency",
+        {
+          userTrackingPermission:
+            "Utter Office 需要您的许可，以便提供更贴合的服务体验。您可以随时在系统设置中更改。",
         },
       ],
       [
@@ -107,7 +138,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           },
         },
       ],
-    ],
-    extra: { APP_ENV: env },
+    ] as ExpoConfig["plugins"],
   };
 };

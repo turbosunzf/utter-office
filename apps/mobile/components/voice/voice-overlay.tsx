@@ -211,16 +211,14 @@ function VoiceSheet({ visible }: { visible: boolean }) {
       path: "/voice-record",
       accent: t.brand,
       soft: "rgba(59,111,255,0.12)",
-      prototype: true,
     },
     {
       label: "翻译",
       hint: "实时双语",
       icon: "Languages",
-      path: "/voice-translate",
+      path: "/voice-record?intent=translate",
       accent: "#0D9488",
       soft: "rgba(13,148,136,0.12)",
-      prototype: true,
     },
     {
       label: "发语音",

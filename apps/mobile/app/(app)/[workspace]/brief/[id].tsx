@@ -15,10 +15,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Text } from "@/components/ui/text";
 import { Markdown } from "@/lib/markdown/markdown";
 import { FadeSlideSheet } from "@/components/shared/fade-slide-sheet";
-import {
-  briefDetailOptions,
-  USE_MOCK_BRIEFS,
-} from "@/data/queries/briefs";
+import { briefDetailOptions } from "@/data/queries/briefs";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { cn } from "@/lib/utils";
 
@@ -161,11 +158,6 @@ export default function BriefDetailPage() {
           <View className="rounded-md bg-brand/15 px-2 py-0.5">
             <Text className="text-[11px] text-brand">{brief.category}</Text>
           </View>
-          {USE_MOCK_BRIEFS ? (
-            <View className="rounded border border-border px-1.5 py-0.5">
-              <Text className="text-[10px] text-muted-foreground">示例数据</Text>
-            </View>
-          ) : null}
           <Pressable
             onPress={() =>
               void Share.share({

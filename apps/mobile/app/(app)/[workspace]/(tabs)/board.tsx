@@ -24,7 +24,6 @@ import { useWorkspaceStore } from "@/data/workspace-store";
 import { useClearFiltersOnWorkspaceChange } from "@/lib/use-clear-filters-on-workspace-change";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
-import { cn } from "@/lib/utils";
 
 const MODES: { value: BoardViewMode; label: string }[] = [
   { value: "progress", label: "整盘" },
@@ -42,7 +41,8 @@ export default function Board() {
   const hasFilters = useBoardViewStore(boardHasActiveFilters);
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
-  const well = colorScheme === "dark" ? t.secondary : "#EEF1F8";
+  const hairline =
+    colorScheme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.06)";
 
   useClearFiltersOnWorkspaceChange(
     useCallback(() => useBoardViewStore.getState().reset(), []),
@@ -111,31 +111,37 @@ export default function Board() {
     <View className="flex-1 bg-background">
       <Header title="看板" right={headerRight} />
       <BlockingNoticeBar />
-      <View className="px-4 pt-2 pb-2 gap-2">
-        <View
-          className="flex-row rounded-2xl p-1"
-          style={{ backgroundColor: well }}
-        >
+
+      <View
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: hairline,
+          paddingHorizontal: 16,
+        }}
+      >
+        <View className="flex-row items-end gap-6">
           {MODES.map((m) => {
             const on = mode === m.value;
             return (
               <Pressable
                 key={m.value}
                 onPress={() => setMode(m.value)}
-                className="flex-1 items-center rounded-xl py-2.5 active:opacity-90"
+                accessibilityRole="tab"
+                accessibilityState={{ selected: on }}
+                hitSlop={{ top: 8, bottom: 4 }}
                 style={{
-                  backgroundColor: on ? t.brand : "transparent",
-                  shadowColor: on ? "#3B6FFF" : "transparent",
-                  shadowOpacity: on ? 0.22 : 0,
-                  shadowRadius: 6,
-                  shadowOffset: { width: 0, height: 2 },
+                  paddingTop: 10,
+                  paddingBottom: 8,
+                  borderBottomWidth: 2,
+                  borderBottomColor: on ? t.foreground : "transparent",
                 }}
               >
                 <Text
-                  className={cn(
-                    "text-[13px] font-semibold",
-                    on ? "text-white" : "text-muted-foreground",
-                  )}
+                  style={{
+                    fontSize: 15,
+                    fontWeight: on ? "800" : "500",
+                    color: on ? t.foreground : t.mutedForeground,
+                  }}
                 >
                   {m.label}
                 </Text>
@@ -143,46 +149,36 @@ export default function Board() {
             );
           })}
         </View>
-
-        {showProjectChip ? (
-          <View className="flex-row items-center gap-2">
-            <Pressable
-              onPress={pickProject}
-              accessibilityLabel={`项目：${projectLabel}`}
-              className="flex-1 flex-row items-center gap-2 rounded-xl px-3 py-2.5 active:opacity-80"
-              style={{
-                backgroundColor:
-                  colorScheme === "dark" ? t.secondary : "#FFFFFF",
-                borderWidth: 1,
-                borderColor: t.border,
-              }}
-            >
-              <View
-                className="size-7 items-center justify-center rounded-lg"
-                style={{ backgroundColor: "rgba(59,111,255,0.12)" }}
-              >
-                <Icon name="Folder" size={14} color={t.brand} />
-              </View>
-              <Text
-                className="flex-1 text-[13px] font-medium text-foreground"
-                numberOfLines={1}
-              >
-                {projectLabel}
-              </Text>
-              <Text className="text-[11px] text-muted-foreground">切换 ▾</Text>
-            </Pressable>
-            {hasFilters ? (
-              <View className="rounded-full bg-brand/15 px-2.5 py-1.5">
-                <Text className="text-[10px] font-medium text-brand">已筛选</Text>
-              </View>
-            ) : null}
-          </View>
-        ) : (
-          <Text className="text-[11px] text-muted-foreground px-0.5">
-            整盘工作区度量 · 与项目筛选无关
-          </Text>
-        )}
       </View>
+
+      {showProjectChip ? (
+        <View className="flex-row items-center gap-2 px-4 pt-3 pb-1">
+          <Pressable
+            onPress={pickProject}
+            accessibilityLabel={`项目：${projectLabel}`}
+            className="flex-row items-center gap-1.5 rounded-full px-3 py-1.5 active:opacity-80"
+            style={{
+              backgroundColor: colorScheme === "dark" ? t.secondary : "#FFFFFF",
+              borderWidth: 1,
+              borderColor: t.border,
+            }}
+          >
+            <Icon name="Folder" size={12} color={t.brand} />
+            <Text
+              className="text-[12px] font-medium text-foreground"
+              numberOfLines={1}
+            >
+              {projectLabel}
+            </Text>
+            <Icon name="ChevronDown" size={12} color={t.mutedForeground} />
+          </Pressable>
+          {hasFilters ? (
+            <View className="rounded-full bg-brand/15 px-2.5 py-1">
+              <Text className="text-[11px] font-medium text-brand">已筛选</Text>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
 
       {mode === "columns" ? (
         <ColumnBoard />

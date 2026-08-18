@@ -2,9 +2,10 @@
  * Home work outcomes — 24h range area chart (PRD §4.4).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { LinearGradient as ExpoGradient } from "expo-linear-gradient";
 import Svg, {
   Defs,
   G,
@@ -14,6 +15,7 @@ import Svg, {
   Stop,
 } from "react-native-svg";
 import { Text } from "@/components/ui/text";
+import { Icon } from "@/components/ui/icon";
 import { HomeSection } from "@/components/home/home-section";
 import {
   OUTCOME_CHART_HEIGHT,
@@ -29,6 +31,7 @@ import type { WorkOutcome } from "@/data/mocks/outcomes";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
+import { FadeSlideSheet } from "@/components/shared/fade-slide-sheet";
 import { cn } from "@/lib/utils";
 
 const SPAN = 24 * 3600_000;
@@ -65,12 +68,6 @@ type RunBand = {
   yBase: number;
 };
 
-function clockLabel(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
 function openOutcome(wsSlug: string | null, o: WorkOutcome) {
   if (!wsSlug) return;
   if (o.issue_id) {
@@ -84,17 +81,11 @@ function openOutcome(wsSlug: string | null, o: WorkOutcome) {
   router.push(`/${wsSlug}/board`);
 }
 
-function sparkPath(values: number[], w = 64, h = 28): string {
-  if (values.length === 0) return "";
-  const step = w / Math.max(1, values.length - 1);
-  return values
-    .map((v, i) => {
-      const x = i * step;
-      const y = h - Math.max(0.08, Math.min(1, v)) * (h - 2) - 1;
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
-    })
-    .join(" ");
-}
+const KIND_META: Record<WorkOutcome["kind"], { accent: string }> = {
+  每日新闻: { accent: "#7C3AED" },
+  数据分析: { accent: "#3B6FFF" },
+  事项交付: { accent: "#F87171" },
+};
 
 function sampleSpark(spark: number[], t: number): number {
   if (spark.length === 0) {
@@ -177,10 +168,16 @@ function buildAxisTicks(
 
 function Heatmap({
   rows,
+  agents,
+  filter,
+  onFilter,
   selectedId,
   onSelect,
 }: {
   rows: WorkOutcome[];
+  agents: AgentMeta[];
+  filter: AgentFilter;
+  onFilter: (next: AgentFilter) => void;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
 }) {
@@ -190,40 +187,21 @@ function Heatmap({
   const baseline =
     colorScheme === "dark" ? t.border : "rgba(220,224,232,0.9)";
   const scrollRef = useRef<ScrollView>(null);
-  const [filter, setFilter] = useState<AgentFilter>("all");
   const svgH = OUTCOME_CHART_SVG_H;
   const yBase = svgH;
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const selectedAgent = agents.find((a) => a.id === filter) ?? null;
 
-  const agents = useMemo(() => {
-    const map = new Map<string, AgentMeta>();
-    for (const o of rows) {
-      if (!map.has(o.agent_id)) {
-        map.set(o.agent_id, {
-          id: o.agent_id,
-          name: o.agent_name,
-          initial: o.agent_initial,
-          color: o.agent_color,
-        });
-      }
-    }
-    return [...map.values()];
-  }, [rows]);
-
-  const visibleRows = useMemo(
-    () => (filter === "all" ? rows : rows.filter((o) => o.agent_id === filter)),
-    [rows, filter],
-  );
-
-  const { bands, pins, ticks, peakLabel, parallel, active } = useMemo(() => {
+  const { bands, pins, ticks, peakLabel, active } = useMemo(() => {
     const now = Date.now();
     const windowStart = now - SPAN;
-    const maxTokens = Math.max(1, ...visibleRows.map((o) => o.tokens || 1));
+    const maxTokens = Math.max(1, ...rows.map((o) => o.tokens || 1));
     const slotCounts = Array.from({ length: 48 }, () => new Set<string>());
     const bandsInner: RunBand[] = [];
     const pinMap = new Map<string, { x: number; agents: AgentMeta[] }>();
     const runs: { start: number; end: number }[] = [];
 
-    for (const o of visibleRows) {
+    for (const o of rows) {
       const end = Date.parse(o.produced_at);
       if (Number.isNaN(end)) continue;
       const dur = Math.max(10 * 60_000, o.duration_ms || 10 * 60_000);
@@ -309,10 +287,9 @@ function Heatmap({
       pins: [...pinMap.values()],
       ticks: buildAxisTicks(runs, windowStart, now),
       peakLabel: `${String(peakAt.getHours()).padStart(2, "0")}:${String(peakAt.getMinutes()).padStart(2, "0")}`,
-      parallel: Math.max(0, ...slotCounts.map((s) => s.size)),
-      active: new Set(visibleRows.map((o) => o.agent_id)).size,
+      active: new Set(rows.map((o) => o.agent_id)).size,
     };
-  }, [visibleRows, yBase]);
+  }, [rows, yBase]);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => {
@@ -322,10 +299,10 @@ function Heatmap({
   }, [rows.length, filter]);
 
   useEffect(() => {
-    if (selectedId && !visibleRows.some((o) => o.id === selectedId)) {
+    if (selectedId && !rows.some((o) => o.id === selectedId)) {
       onSelect(null);
     }
-  }, [visibleRows, selectedId, onSelect]);
+  }, [rows, selectedId, onSelect]);
 
   function pickBand(x: number) {
     const hits = bands.filter((b) => x >= b.x0 && x <= b.x1);
@@ -346,69 +323,136 @@ function Heatmap({
     : bands;
 
   return (
-    <View className="pt-2.5 pb-1">
-      <View className="flex-row items-center gap-2 mb-2 px-3">
-        <View className="flex-1 flex-row items-center gap-2 min-w-0">
-          <Text className="text-[11px] text-muted-foreground" numberOfLines={1}>
-            高峰 <Text className="font-bold text-foreground">{peakLabel}</Text>
+    <View className="overflow-hidden">
+      <ExpoGradient
+        colors={
+          colorScheme === "dark"
+            ? ["rgba(59,111,255,0.22)", t.card]
+            : ["rgba(59,111,255,0.14)", "#FFFFFF"]
+        }
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <View className="flex-row items-center justify-between gap-2 px-4 pt-2.5 pb-1.5">
+        <View
+          className="flex-row items-center h-6 rounded-md px-1.5"
+          style={{
+            backgroundColor: t.card,
+            borderWidth: 1,
+            borderColor: t.border,
+          }}
+        >
+          <Text className="text-[11px] text-muted-foreground">
+            高峰 {peakLabel}
           </Text>
-          <View className="w-px h-2.5 bg-border" />
-          <Text className="text-[11px] text-muted-foreground" numberOfLines={1}>
-            并行 <Text className="font-bold text-foreground">{parallel}</Text>
-          </Text>
-          <View className="w-px h-2.5 bg-border" />
-          <Text className="text-[11px] text-muted-foreground" numberOfLines={1}>
-            活跃 <Text className="font-bold text-foreground">{active}</Text>
+          <View
+            className="w-px h-3 mx-1.5"
+            style={{ backgroundColor: t.border }}
+          />
+          <Text className="text-[11px] text-muted-foreground">
+            活跃 {active}
           </Text>
         </View>
-        <View className="flex-row items-center gap-1">
-          <Pressable
-            onPress={() => setFilter("all")}
-            className={cn(
-              "h-6 px-2 rounded-full items-center justify-center",
-              filter === "all" ? "bg-brand" : "bg-secondary",
-            )}
-          >
-            <Text
-              className={cn(
-                "text-[10px] font-bold",
-                filter === "all" ? "text-white" : "text-muted-foreground",
-              )}
-            >
+        <Pressable
+          onPress={() => setPickerOpen(true)}
+          hitSlop={6}
+          accessibilityLabel="选择人员"
+          className="flex-row items-center h-6 rounded-full pl-1 pr-1.5 gap-1"
+          style={{
+            backgroundColor: t.card,
+            borderWidth: 1,
+            borderColor: t.border,
+          }}
+        >
+          {selectedAgent ? (
+            <>
+              <View
+                className="size-5 rounded-full items-center justify-center"
+                style={{ backgroundColor: selectedAgent.color }}
+              >
+                <Text className="text-[9px] font-bold text-white">
+                  {selectedAgent.initial.toUpperCase()}
+                </Text>
+              </View>
+              <Text
+                className="text-[12px] font-semibold text-foreground"
+                numberOfLines={1}
+                style={{ maxWidth: 72 }}
+              >
+                {selectedAgent.name}
+              </Text>
+            </>
+          ) : (
+            <Text className="text-[12px] font-semibold text-foreground pl-1">
               全部
             </Text>
-          </Pressable>
-          {agents.map((a) => {
-            const on = filter === a.id;
-            return (
-              <Pressable
-                key={a.id}
-                onPress={() => setFilter(on ? "all" : a.id)}
-                accessibilityLabel={`${a.name}的产出`}
-                className="rounded-full"
-                style={{
-                  borderWidth: 2,
-                  borderColor: on ? a.color : "transparent",
-                }}
-              >
-                <View
-                  className="size-5 rounded-full items-center justify-center"
-                  style={{ backgroundColor: a.color }}
-                >
-                  <Text className="text-[8px] font-bold text-white">
-                    {a.initial}
-                  </Text>
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
+          )}
+          <Icon name="ChevronDown" size={14} color={t.mutedForeground} />
+        </Pressable>
       </View>
+      <FadeSlideSheet
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+      >
+        <Text className="text-[15px] font-extrabold text-foreground px-1 pb-2">
+          选择人员
+        </Text>
+        <Pressable
+          onPress={() => {
+            onFilter("all");
+            setPickerOpen(false);
+          }}
+          className={cn(
+            "flex-row items-center gap-3 rounded-xl px-3 py-3 active:bg-secondary",
+            filter === "all" && "bg-secondary",
+          )}
+        >
+          <View className="size-8 rounded-full items-center justify-center bg-muted">
+            <Icon name="Users" size={16} color={t.mutedForeground} />
+          </View>
+          <Text className="flex-1 text-[14px] font-semibold text-foreground">
+            全部
+          </Text>
+          {filter === "all" ? (
+            <Icon name="Check" size={18} color={t.brand} />
+          ) : null}
+        </Pressable>
+        {agents.map((a) => {
+          const on = filter === a.id;
+          return (
+            <Pressable
+              key={a.id}
+              onPress={() => {
+                onFilter(a.id);
+                setPickerOpen(false);
+              }}
+              className={cn(
+                "flex-row items-center gap-3 rounded-xl px-3 py-3 active:bg-secondary",
+                on && "bg-secondary",
+              )}
+            >
+              <View
+                className="size-8 rounded-full items-center justify-center"
+                style={{ backgroundColor: a.color }}
+              >
+                <Text className="text-[12px] font-bold text-white">
+                  {a.initial.toUpperCase()}
+                </Text>
+              </View>
+              <Text className="flex-1 text-[14px] font-semibold text-foreground">
+                {a.name}
+              </Text>
+              {on ? <Icon name="Check" size={18} color={t.brand} /> : null}
+            </Pressable>
+          );
+        })}
+      </FadeSlideSheet>
       <ScrollView
         ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 2 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 4, paddingBottom: 8 }}
         onContentSizeChange={() => {
           scrollRef.current?.scrollToEnd({ animated: false });
         }}
@@ -535,7 +579,7 @@ function Heatmap({
                       }}
                     >
                       <Text className="text-[8px] font-bold text-white">
-                        {a.initial}
+                        {a.initial.toUpperCase()}
                       </Text>
                     </View>
                   ))}
@@ -556,14 +600,14 @@ function Heatmap({
                     alignItems: "center",
                   }}
                 >
-                  <Text className="text-[9px] font-semibold text-muted-foreground text-center">
+                  <Text className="text-[10px] font-semibold text-muted-foreground text-center">
                     {tick.label}
                   </Text>
                 </View>
               ) : (
                 <Text
                   key={`axis-${i}`}
-                  className="absolute text-[9px] font-semibold text-muted-foreground"
+                  className="absolute text-[10px] font-semibold text-muted-foreground"
                   style={
                     tick.align === "left" ? { left: 0 } : { right: 0 }
                   }
@@ -579,7 +623,24 @@ function Heatmap({
   );
 }
 
-function Tile({
+const CARD_PAD = 16;
+const TITLE_SIZE = 13;
+const TITLE_LINE = 18;
+const META_SIZE = 13;
+
+function cardPeople(o: WorkOutcome) {
+  if (o.people && o.people.length > 0) return o.people.slice(0, 3);
+  return [
+    {
+      agent_id: o.agent_id,
+      agent_name: o.agent_name,
+      agent_initial: o.agent_initial,
+      agent_color: o.agent_color,
+    },
+  ];
+}
+
+function OutcomeCard({
   o,
   active,
   onPress,
@@ -589,81 +650,101 @@ function Tile({
   onPress: () => void;
 }) {
   const { colorScheme } = useColorScheme();
-  const well = colorScheme === "dark" ? "rgba(255,255,255,0.06)" : "#F5F7FC";
-  const line =
-    o.kind === "每日新闻"
-      ? "#A78BFA"
-      : o.kind === "数据分析"
-        ? "#3B6FFF"
-        : "#F87171";
-  const numColor =
-    o.kind === "每日新闻"
-      ? "#7C3AED"
-      : o.kind === "数据分析"
-        ? "#3B6FFF"
-        : "#F87171";
-  const d = sparkPath(o.spark);
+  const t = THEME[colorScheme];
+  const kind = KIND_META[o.kind];
+  const hairline = colorScheme === "dark" ? t.border : "rgba(15,23,42,0.08)";
 
   return (
     <Pressable
       onPress={onPress}
-      className="rounded-xl p-2 gap-1.5 active:opacity-90"
-      style={{
-        width: active ? 220 : 132,
-        backgroundColor: well,
-        borderWidth: active ? 1.5 : 0,
-        borderColor: active ? o.agent_color : "transparent",
-      }}
+      accessibilityLabel={`${o.title}，${o.agent_name}，${o.metric} ${o.metric_label}`}
+      className="active:opacity-90"
+      style={{ width: 228 }}
     >
-      <View className="flex-row items-center gap-1.5">
-        <View
-          className="size-5 rounded-full items-center justify-center"
-          style={{ backgroundColor: o.agent_color }}
-        >
-          <Text className="text-[9px] font-bold text-white">
-            {o.agent_initial}
-          </Text>
-        </View>
-        <Text className="flex-1 text-[11px] font-bold text-foreground" numberOfLines={1}>
-          {o.agent_name}
-        </Text>
-        <Text className="text-[9px] text-muted-foreground">
-          {clockLabel(o.produced_at)}
-        </Text>
-      </View>
       <View
-        className="h-10 rounded-lg px-2 flex-row items-center gap-1.5 overflow-hidden"
-        style={{ backgroundColor: colorScheme === "dark" ? "rgba(0,0,0,0.2)" : "#FFFFFF" }}
+        className="overflow-hidden rounded-[20px] bg-card"
+        style={{
+          borderWidth: 1,
+          borderColor: active ? o.agent_color : t.border,
+          shadowOpacity: 0,
+          elevation: 0,
+        }}
       >
-        <Svg width={40} height={28} viewBox="0 0 64 28">
-          <Path d={`${d} L64 28 L0 28 Z`} fill={line} fillOpacity={0.16} />
-          <Path
-            d={d}
-            stroke={line}
-            strokeWidth={2}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        <View
+          className="flex-row items-center"
+          style={{
+            paddingTop: CARD_PAD,
+            paddingRight: CARD_PAD,
+            paddingBottom: CARD_PAD,
+          }}
+        >
+          <View
+            style={{
+              width: 4,
+              height: TITLE_LINE,
+              backgroundColor: kind.accent,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+              borderTopRightRadius: 999,
+              borderBottomRightRadius: 999,
+            }}
           />
-        </Svg>
-        <View>
-          <Text className="text-[14px] font-extrabold" style={{ color: numColor }}>
-            {o.metric}
-          </Text>
-          <Text className="text-[8px] font-semibold text-muted-foreground">
-            {o.metric_label}
+          <Text
+            className="flex-1 text-foreground"
+            style={{
+              fontSize: TITLE_SIZE,
+              fontWeight: "700",
+              lineHeight: TITLE_LINE,
+              marginLeft: 10,
+            }}
+            numberOfLines={1}
+          >
+            {o.title}
           </Text>
         </View>
+
+        <View
+          style={{
+            height: 1,
+            backgroundColor: hairline,
+            marginHorizontal: 12,
+          }}
+        />
+
+        <View
+          className="flex-row items-center justify-between"
+          style={{ paddingHorizontal: 12, paddingVertical: CARD_PAD }}
+        >
+          <View className="flex-row items-center">
+            {cardPeople(o).map((p, i) => (
+              <View
+                key={p.agent_id}
+                className="size-7 rounded-full items-center justify-center"
+                style={{
+                  backgroundColor: p.agent_color,
+                  borderWidth: 2,
+                  borderColor: colorScheme === "dark" ? t.card : "#FFFFFF",
+                  marginLeft: i === 0 ? 0 : -8,
+                  zIndex: i + 1,
+                }}
+              >
+                <Text className="text-[11px] font-bold text-white">
+                  {p.agent_initial.toUpperCase()}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <View className="flex-row items-center" style={{ gap: 6 }}>
+            <Icon name="CheckCircle2" size={14} color={t.mutedForeground} />
+            <Text
+              className="font-semibold"
+              style={{ fontSize: META_SIZE, color: t.mutedForeground }}
+            >
+              {o.metric} {o.metric_label}
+            </Text>
+          </View>
+        </View>
       </View>
-      <Text className="text-[9px] font-bold text-brand">{o.kind}</Text>
-      <Text className="text-[11px] font-semibold text-foreground" numberOfLines={1}>
-        {o.title}
-      </Text>
-      {active && o.summary ? (
-        <Text className="text-[10px] leading-4 text-muted-foreground" numberOfLines={2}>
-          {o.summary}
-        </Text>
-      ) : null}
     </Pressable>
   );
 }
@@ -673,6 +754,7 @@ export function OutcomeFeed() {
   const wsSlug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
   const { data: outcomes = [] } = useQuery(outcomeListOptions(wsId));
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<AgentFilter>("all");
 
   const rows = useMemo(() => {
     const cutoff = Date.now() - 24 * 3600_000;
@@ -681,22 +763,36 @@ export function OutcomeFeed() {
       .sort((a, b) => Date.parse(a.produced_at) - Date.parse(b.produced_at));
   }, [outcomes]);
 
+  const agents = useMemo(() => {
+    const map = new Map<string, AgentMeta>();
+    for (const o of rows) {
+      if (!map.has(o.agent_id)) {
+        map.set(o.agent_id, {
+          id: o.agent_id,
+          name: o.agent_name,
+          initial: o.agent_initial,
+          color: o.agent_color,
+        });
+      }
+    }
+    return [...map.values()];
+  }, [rows]);
+
+  const visible = useMemo(
+    () => (filter === "all" ? rows : rows.filter((o) => o.agent_id === filter)),
+    [rows, filter],
+  );
+
   const tiles = useMemo(() => {
-    if (!selectedId) return rows;
-    const hit = rows.find((o) => o.id === selectedId);
-    return hit ? [hit] : rows;
-  }, [rows, selectedId]);
+    if (!selectedId) return visible;
+    const hit = visible.find((o) => o.id === selectedId);
+    return hit ? [hit] : visible;
+  }, [visible, selectedId]);
 
   return (
     <View className="px-4">
       <HomeSection
         title="工作成果"
-        meta={
-          <Text className="text-[11px] text-muted-foreground">
-            过去 24h ·{" "}
-            <Text className="font-bold text-foreground">{rows.length}</Text> 份
-          </Text>
-        }
         badge={USE_MOCK_OUTCOMES ? "示例" : undefined}
         right={
           <Pressable
@@ -704,8 +800,9 @@ export function OutcomeFeed() {
               if (wsSlug) router.push(`/${wsSlug}/reports`);
             }}
             hitSlop={8}
+            accessibilityLabel="打开完整报告"
           >
-            <Text className="text-[11px] font-medium text-brand">完整报告 ›</Text>
+            <Text className="text-[12px] font-medium text-brand">完整报告 ›</Text>
           </Pressable>
         }
         flush
@@ -713,7 +810,7 @@ export function OutcomeFeed() {
         {rows.length === 0 ? (
           <View className="px-4 py-8 items-center gap-1.5">
             <Text className="text-sm font-semibold text-foreground">
-              过去 24 小时暂无产出
+              近 24 小时暂无产出
             </Text>
             <Text className="text-[12px] text-muted-foreground text-center">
               派单或开启定时任务后会出现在这里
@@ -722,7 +819,10 @@ export function OutcomeFeed() {
         ) : (
           <>
             <Heatmap
-              rows={rows}
+              rows={visible}
+              agents={agents}
+              filter={filter}
+              onFilter={setFilter}
               selectedId={selectedId}
               onSelect={setSelectedId}
             />
@@ -730,13 +830,14 @@ export function OutcomeFeed() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{
-                gap: 8,
-                paddingHorizontal: 12,
-                paddingBottom: 10,
+                gap: 12,
+                paddingHorizontal: 16,
+                paddingBottom: 16,
+                paddingTop: 8,
               }}
             >
               {tiles.map((o) => (
-                <Tile
+                <OutcomeCard
                   key={o.id}
                   o={o}
                   active={selectedId === o.id}

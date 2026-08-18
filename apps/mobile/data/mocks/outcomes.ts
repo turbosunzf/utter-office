@@ -5,6 +5,13 @@
 
 export type OutcomeKind = "每日新闻" | "数据分析" | "事项交付";
 
+export interface OutcomePerson {
+  agent_id: string;
+  agent_name: string;
+  agent_initial: string;
+  agent_color: string;
+}
+
 export interface WorkOutcome {
   id: string;
   agent_id: string;
@@ -25,6 +32,8 @@ export interface WorkOutcome {
   duration_ms: number;
   issue_id: string | null;
   brief_id: string | null;
+  /** 共同产出的数字员工；缺省则只显示主产出人。 */
+  people?: OutcomePerson[];
 }
 
 const HOUR = 3600_000;
@@ -66,6 +75,7 @@ export function listMockOutcomes(now = Date.now()): WorkOutcome[] {
       duration_ms: 45 * 60_000,
       issue_id: null,
       brief_id: "brief-1",
+      people: [KIMI, MIKA, CODEX],
     },
     {
       id: "out-1b",
@@ -81,6 +91,7 @@ export function listMockOutcomes(now = Date.now()): WorkOutcome[] {
       duration_ms: 20 * 60_000,
       issue_id: null,
       brief_id: "brief-1",
+      people: [KIMI, CODEX],
     },
     {
       id: "out-2",
@@ -96,6 +107,7 @@ export function listMockOutcomes(now = Date.now()): WorkOutcome[] {
       duration_ms: 60 * 60_000,
       issue_id: null,
       brief_id: null,
+      people: [CODEX, KIMI, MIKA],
     },
     {
       id: "out-2b",
@@ -126,6 +138,7 @@ export function listMockOutcomes(now = Date.now()): WorkOutcome[] {
       duration_ms: 25 * 60_000,
       issue_id: null,
       brief_id: null,
+      people: [MIKA, CODEX],
     },
     {
       id: "out-3b",
@@ -141,6 +154,7 @@ export function listMockOutcomes(now = Date.now()): WorkOutcome[] {
       duration_ms: 30 * 60_000,
       issue_id: null,
       brief_id: null,
+      people: [KIMI, MIKA, CODEX],
     },
     {
       id: "out-4",
@@ -156,6 +170,7 @@ export function listMockOutcomes(now = Date.now()): WorkOutcome[] {
       duration_ms: 80 * 60_000,
       issue_id: null,
       brief_id: null,
+      people: [CODEX, MIKA],
     },
     {
       id: "out-5",
@@ -171,6 +186,7 @@ export function listMockOutcomes(now = Date.now()): WorkOutcome[] {
       duration_ms: 40 * 60_000,
       issue_id: null,
       brief_id: null,
+      people: [MIKA, KIMI],
     },
     {
       id: "out-6",
@@ -186,6 +202,7 @@ export function listMockOutcomes(now = Date.now()): WorkOutcome[] {
       duration_ms: 25 * 60_000,
       issue_id: null,
       brief_id: null,
+      people: [KIMI, CODEX, MIKA],
     },
   ];
 }

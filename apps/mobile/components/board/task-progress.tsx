@@ -1,149 +1,133 @@
+/**
+ * 事项流水线（工作区当前态）。
+ * 需介入 = 受阻 + 待评审；进行中 = 员工在干；排队 = 还没开工。
+ */
 import { useMemo } from "react";
 import { View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Text } from "@/components/ui/text";
-import { Button } from "@/components/ui/button";
-import { SectionGroup } from "@/components/ui/section-group";
+import { HomeSection } from "@/components/home/home-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BoardIssueCard } from "@/components/board/board-issue-card";
-import { dashboardRunTimeDailyOptions } from "@/data/queries/dashboard";
+import { ColorStat } from "@/components/board/color-stat";
 import { issueListOptions } from "@/data/queries/issues";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 
-/**
- * 进行中：窗口完成/失败 + 当前进行/受阻比例 + 需关注密排行。
- */
-
-export function TaskProgress({
-  days,
-  tz,
-}: {
-  days: number;
-  tz: string;
-}) {
+export function TaskProgress() {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
   const wsSlug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
+  const { data: issues = [], isPending } = useQuery(issueListOptions(wsId));
+  const hairline = colorScheme === "dark" ? t.border : "#ECEEF3";
 
-  const {
-    data: daily = [],
-    isLoading,
-    error,
-    refetch,
-  } = useQuery(dashboardRunTimeDailyOptions(wsId, days, null, tz));
-  const { data: issues = [] } = useQuery(issueListOptions(wsId));
-
-  const totals = useMemo(() => {
-    let total = 0;
-    let failed = 0;
-    let cancelled = 0;
-    for (const d of daily) {
-      total += d.task_count;
-      failed += d.failed_count;
-      cancelled += d.cancelled_count;
+  const stats = useMemo(() => {
+    let hitl = 0;
+    let doing = 0;
+    let queue = 0;
+    let done = 0;
+    for (const i of issues) {
+      if (i.status === "blocked" || i.status === "in_review") hitl += 1;
+      else if (i.status === "in_progress") doing += 1;
+      else if (i.status === "todo" || i.status === "backlog") queue += 1;
+      else if (i.status === "done") done += 1;
     }
-    return {
-      total,
-      succeeded: Math.max(0, total - failed - cancelled),
-      failed,
-      cancelled,
-    };
-  }, [daily]);
+    return { hitl, doing, queue, done };
+  }, [issues]);
 
   const openIssues = useMemo(
     () =>
       issues
         .filter(
           (i) =>
-            i.status === "in_progress" ||
             i.status === "blocked" ||
-            i.status === "in_review",
+            i.status === "in_review" ||
+            i.status === "in_progress",
         )
+        .sort((a, b) => {
+          const rank = (s: string) =>
+            s === "blocked" ? 0 : s === "in_review" ? 1 : 2;
+          const r = rank(a.status) - rank(b.status);
+          if (r !== 0) return r;
+          return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+        })
         .slice(0, 5),
     [issues],
   );
-  const live = useMemo(() => {
-    const inProg = issues.filter((i) => i.status === "in_progress").length;
-    const blocked = issues.filter((i) => i.status === "blocked").length;
-    return { inProg, blocked };
-  }, [issues]);
+
+  const barTotal = stats.hitl + stats.doing + stats.queue + stats.done;
 
   return (
-    <SectionGroup
-      title="进行中"
-      right={
-        <Text className="text-[11px] text-muted-foreground">
-          <Text className="font-bold text-foreground">{openIssues.length}</Text>{" "}
-          条需关注
-        </Text>
-      }
-    >
-      <View className="px-4 pt-4 pb-3 gap-3">
-        {isLoading ? (
+    <HomeSection title="事项" flush>
+      <View className="px-4 pt-3 pb-3 gap-3">
+        {isPending ? (
           <Skeleton className="h-16 w-full" />
-        ) : error ? (
-          <View className="gap-3">
-            <Text className="text-sm text-destructive">
-              任务进度加载失败：{" "}
-              {error instanceof Error ? error.message : "未知错误"}
-            </Text>
-            <Button variant="outline" onPress={() => refetch()}>
-              <Text>重试</Text>
-            </Button>
-          </View>
-        ) : totals.total === 0 ? (
-          <Text className="text-sm text-muted-foreground">
-            近 {days} 天暂无已结束的任务。
+        ) : barTotal === 0 ? (
+          <Text className="text-[13px] text-muted-foreground">
+            还没有事项。从首页派单或新建后会出现在这里。
           </Text>
         ) : (
           <>
-            <View className="flex-row items-baseline gap-2">
-              <Text className="text-[12px] text-muted-foreground">窗口内任务分布</Text>
+            <View className="flex-row items-center">
+              <ColorStat
+                label="需介入"
+                value={stats.hitl}
+                color={t.destructive}
+              />
+              <View className="w-px self-stretch" style={{ backgroundColor: hairline }} />
+              <ColorStat
+                label="进行中"
+                value={stats.doing}
+                color={t.brand}
+              />
+              <View className="w-px self-stretch" style={{ backgroundColor: hairline }} />
+              <ColorStat
+                label="排队"
+                value={stats.queue}
+                color="#D97706"
+              />
+              <View className="w-px self-stretch" style={{ backgroundColor: hairline }} />
+              <ColorStat
+                label="已完成"
+                value={stats.done}
+                color={t.success}
+              />
             </View>
-            <View className="flex-row h-2 rounded-full overflow-hidden bg-muted">
-              {totals.succeeded > 0 ? (
+            <View className="flex-row h-1.5 rounded-full overflow-hidden bg-muted">
+              {stats.hitl > 0 ? (
                 <View
                   className="h-full"
-                  style={{ flex: totals.succeeded, backgroundColor: t.success }}
+                  style={{ flex: stats.hitl, backgroundColor: t.destructive }}
                 />
               ) : null}
-              {live.inProg > 0 ? (
+              {stats.doing > 0 ? (
                 <View
                   className="h-full"
-                  style={{ flex: live.inProg, backgroundColor: t.brand }}
+                  style={{ flex: stats.doing, backgroundColor: t.brand }}
                 />
               ) : null}
-              {live.blocked > 0 ? (
+              {stats.queue > 0 ? (
                 <View
                   className="h-full"
-                  style={{ flex: live.blocked, backgroundColor: t.priority }}
+                  style={{ flex: stats.queue, backgroundColor: "#D97706" }}
                 />
               ) : null}
-              {totals.failed > 0 ? (
+              {stats.done > 0 ? (
                 <View
                   className="h-full"
-                  style={{ flex: totals.failed, backgroundColor: t.destructive }}
+                  style={{ flex: stats.done, backgroundColor: t.success }}
                 />
               ) : null}
-            </View>
-            <View className="flex-row gap-2.5 flex-wrap">
-              <Legend color={t.success} label="完成" count={totals.succeeded} />
-              <Legend color={t.brand} label="进行" count={live.inProg} />
-              <Legend color={t.priority} label="受阻" count={live.blocked} />
-              <Legend color={t.destructive} label="失败" count={totals.failed} />
             </View>
           </>
         )}
       </View>
+
       {openIssues.length > 0 ? (
-        <View className="border-t border-border pt-2 pb-1">
-          <Text className="text-[11px] font-medium text-muted-foreground px-3 pb-1">
-            需关注
-          </Text>
+        <View className="border-t border-border px-2 pb-1">
           {openIssues.map((issue) => (
             <BoardIssueCard
               key={issue.id}
@@ -158,25 +142,6 @@ export function TaskProgress({
           ))}
         </View>
       ) : null}
-    </SectionGroup>
-  );
-}
-
-function Legend({
-  color,
-  label,
-  count,
-}: {
-  color: string;
-  label: string;
-  count: number;
-}) {
-  return (
-    <View className="flex-row items-center gap-1.5">
-      <View className="size-2 rounded-full" style={{ backgroundColor: color }} />
-      <Text className="text-xs text-muted-foreground">
-        {label} {count}
-      </Text>
-    </View>
+    </HomeSection>
   );
 }

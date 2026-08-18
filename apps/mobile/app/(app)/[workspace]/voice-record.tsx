@@ -1,157 +1,146 @@
 /**
- * 录音 page — meet-think 结构（纯 UI，无真实采集/ASR）。
- *
- * Reached from the central record button's bottom sheet (「录音」). Mirrors
- * the meet-think recording screen structure: a top capsule row (recording
- * status + display-mode + language), a live mock transcription list, and a
- * bottom Dock (waveform + timer + pause/stop orbs + tool row). No audio is
- * captured — the timer and transcript are simulated so the interaction can
- * be walked on device before real capture lands in a follow-up issue.
- *
- * The native Stack header (title「录音」+ back) is registered in
- * [workspace]/_layout.tsx; this body draws only the content below it.
+ * 录音页 — 接真实加密录音内核。转写内容在后端未就绪时走 Stub/示例。
+ * 长按中央按钮的 Overlay 路径不经过本页。
  */
 import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Icon, type AppIconName } from "@/components/ui/icon";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { router, useLocalSearchParams } from "expo-router";
 import { Text } from "@/components/ui/text";
-import { VoicePrototypeBanner } from "@/components/voice/voice-prototype-banner";
-import {
-  VOICE_RECORD_POOL,
-  VOICE_RECORD_SEED,
-  type VoiceTranscriptLine,
-} from "@/data/mocks/voice-record";
+import { SampleBadge } from "@/components/recording/sample-badge";
+import { useAudioRecording } from "@/hooks/useAudioRecording";
+import { useWorkspaceStore } from "@/data/workspace-store";
+import { USE_MOCK_RECORDING_CONTENT } from "@/data/mocks/recordings";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
-
-type TranscriptLine = VoiceTranscriptLine;
-
-const TRANSCRIPT_SEED = VOICE_RECORD_SEED;
-const TRANSCRIPT_POOL = VOICE_RECORD_POOL;
-
-// How often a new mock line lands in the live transcript (seconds).
-const APPEND_INTERVAL_S = 3;
-
-/** MM:SS under an hour, HH:MM:SS from an hour — mirrors meet-think's clock. */
-function formatClock(totalSeconds: number): string {
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-  const ss = String(s).padStart(2, "0");
-  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${ss}`;
-  return `${m}:${ss}`;
-}
+import * as Battery from "expo-battery";
+import { availableBytes } from "@/services/recording/recordingFs";
+import { captureRecordingPhoto } from "@/services/recording/captureRecordingPhoto";
 
 export default function VoiceRecordPage() {
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
   const insets = useSafeAreaInsets();
-
-  const [elapsed, setElapsed] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [stopped, setStopped] = useState(false);
-  const [lines, setLines] = useState<TranscriptLine[]>(TRANSCRIPT_SEED);
-
-  const elapsedRef = useRef(0);
-  const poolIndex = useRef(0);
+  const slug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
+  const params = useLocalSearchParams<{ intent?: string }>();
+  const showTranslation = params.intent === "translate";
+  const rec = useAudioRecording();
+  const started = useRef(false);
   const scrollRef = useRef<ScrollView | null>(null);
+  const [hw, setHw] = useState("硬件检测中…");
 
   useEffect(() => {
-    if (paused || stopped) return;
-    const id = setInterval(() => {
-      elapsedRef.current += 1;
-      setElapsed(elapsedRef.current);
-      if (elapsedRef.current % APPEND_INTERVAL_S === 0) {
-        const next =
-          TRANSCRIPT_POOL[poolIndex.current % TRANSCRIPT_POOL.length];
-        poolIndex.current += 1;
-        setLines((prev) => [
-          ...prev,
-          { ...next, time: formatClock(elapsedRef.current) },
-        ]);
-      }
-    }, 1000);
-    return () => clearInterval(id);
-  }, [paused, stopped]);
-
-  // Keep the newest line in view as the mock transcript grows.
-  useEffect(() => {
-    scrollRef.current?.scrollToEnd({ animated: true });
-  }, [lines]);
-
-  const onPauseResume = () => {
-    if (stopped) {
-      // Restart: reset the session and seed the transcript again.
-      setStopped(false);
-      setPaused(false);
-      elapsedRef.current = 0;
-      setElapsed(0);
-      setLines(TRANSCRIPT_SEED);
+    if (started.current) return;
+    if (rec.isActive) {
+      started.current = true;
       return;
     }
-    setPaused((p) => !p);
+    started.current = true;
+    void rec.start();
+  }, [rec]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollToEnd({ animated: true });
+  }, [rec.finals.length, rec.partial]);
+
+  useEffect(() => {
+    void (async () => {
+      const level = await Battery.getBatteryLevelAsync();
+      const pct = level >= 0 ? Math.round(level * 100) : null;
+      const freeGb = availableBytes() / (1024 * 1024 * 1024);
+      setHw(
+        `硬件：${pct != null ? `电量 ${pct}%` : "电量 —"} ｜ 存储 ${freeGb.toFixed(1)}GB 可用`,
+      );
+    })();
+  }, []);
+
+  const onPauseResume = () => {
+    if (rec.isPaused) void rec.resume();
+    else rec.pause();
   };
 
-  const onStop = () => {
-    setStopped(true);
-    setPaused(false);
-    elapsedRef.current = 0;
-    setElapsed(0);
-    setLines([]);
+  const onStop = async () => {
+    const id = await rec.stop();
+    if (id && slug) router.replace(`/${slug}/recordings/${id}`);
   };
 
-  const status = stopped ? "已停止" : paused ? "已暂停" : "转写中";
-  const dotColor = stopped ? t.mutedForeground : paused ? t.warning : t.brand;
-  const showPlay = paused || stopped;
+  const statusLabel =
+    rec.status === "stopping"
+      ? "正在保存"
+      : rec.isPaused
+        ? "已暂停"
+        : rec.status === "failed"
+          ? "出错"
+          : "转写中";
+  const dotColor =
+    rec.status === "failed"
+      ? t.destructive
+      : rec.isPaused
+        ? t.warning
+        : t.brand;
 
   return (
     <View className="flex-1 bg-background">
-      <VoicePrototypeBanner />
-      {/* 顶栏胶囊：状态 + 转写模式 + 语言 */}
+      {USE_MOCK_RECORDING_CONTENT ? (
+        <View className="mx-4 mt-2 mb-1 flex-row items-center justify-center gap-2">
+          <Text className="text-[11px] text-muted-foreground">
+            采集已接入本机加密录音 · 转写为示例
+          </Text>
+          <SampleBadge visible />
+        </View>
+      ) : null}
+
       <View className="flex-row items-center gap-2 px-4 pt-2 pb-3">
-        <Capsule label={status} dotColor={dotColor} />
+        <Capsule label={statusLabel} dotColor={dotColor} />
         <Capsule label="逐句" />
-        <Capsule label="中文→英文" />
+        <Capsule label={showTranslation ? "中文→英文" : "中文"} />
       </View>
 
-      {/* 实时转写列表 */}
       <ScrollView
         ref={scrollRef}
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
       >
-        {lines.length === 0 ? (
+        {rec.finals.length === 0 && !rec.partial ? (
           <View className="py-24 items-center gap-2">
-            <Text className="text-sm text-muted-foreground">录音已结束</Text>
-            <Text className="text-xs text-muted-foreground">
-              点击底部播放按钮重新开始
+            <Text className="text-sm text-muted-foreground">
+              {rec.status === "recording" ? "正在聆听…" : "暂无转写"}
             </Text>
           </View>
         ) : (
-          lines.map((line, i) => (
-            <View key={`${line.time}-${i}`} className="mb-4">
-              <View
-                className="self-start rounded-full px-2 py-0.5"
-                style={{ backgroundColor: t.secondary }}
-              >
-                <Text className="text-xs text-muted-foreground">
-                  {line.speaker} · {line.time}
+          <>
+            {rec.finals.map((line, i) => (
+              <View key={`${line.startMs}-${i}`} className="mb-4">
+                <View
+                  className="self-start rounded-full px-2 py-0.5"
+                  style={{ backgroundColor: t.secondary }}
+                >
+                  <Text className="text-xs text-muted-foreground">
+                    {line.speaker ?? "说话人"} ·{" "}
+                    {String(Math.floor(line.startMs / 1000)).padStart(2, "0")}s
+                  </Text>
+                </View>
+                <Text className="mt-1.5 text-base leading-6 text-foreground">
+                  {line.text}
                 </Text>
+                {showTranslation && line.translation ? (
+                  <Text className="mt-0.5 text-sm leading-5 text-muted-foreground">
+                    {line.translation}
+                  </Text>
+                ) : null}
               </View>
-              <Text className="mt-1.5 text-base leading-6 text-foreground">
-                {line.text}
+            ))}
+            {rec.partial ? (
+              <Text className="text-base leading-6 text-muted-foreground">
+                {rec.partial.text}
               </Text>
-              <Text className="mt-0.5 text-sm leading-5 text-muted-foreground">
-                {line.translation}
-              </Text>
-            </View>
-          ))
+            ) : null}
+          </>
         )}
       </ScrollView>
 
-      {/* 底部 Dock：波形 + 计时 + 暂停/停止圆钮 + 工具条 */}
       <View
         style={[
           styles.dock,
@@ -163,17 +152,17 @@ export default function VoiceRecordPage() {
         ]}
       >
         <View className="flex-row items-center gap-2 px-4 pt-3">
-          <Icon name="AudioLines" size={22} color={t.brand} />
+          <Waveform peaks={rec.peaks} color={t.brand} />
           <Text
             className="text-lg font-bold text-foreground"
             style={{ fontVariant: ["tabular-nums"] }}
           >
-            {formatClock(elapsed)}
+            {rec.clock}
           </Text>
           <View className="flex-1" />
           <Pressable
             onPress={onPauseResume}
-            accessibilityLabel={showPlay ? "继续" : "暂停"}
+            accessibilityLabel={rec.isPaused ? "继续" : "暂停"}
             style={[styles.orb, styles.orbShadow]}
           >
             <LinearGradient
@@ -183,7 +172,7 @@ export default function VoiceRecordPage() {
               style={styles.orbFill}
             >
               <Icon
-                name={showPlay ? "Play" : "Pause"}
+                name={rec.isPaused ? "Play" : "Pause"}
                 size={26}
                 color="#FFFFFF"
                 strokeWidth={2.4}
@@ -193,13 +182,15 @@ export default function VoiceRecordPage() {
           </Pressable>
           <View style={{ width: 12 }} />
           <Pressable
-            onPress={onStop}
+            onPress={() => void onStop()}
             accessibilityLabel="停止"
+            disabled={rec.stopping}
             style={[
               styles.orb,
               {
                 backgroundColor:
                   colorScheme === "dark" ? t.secondary : "#E8ECF4",
+                opacity: rec.stopping ? 0.5 : 1,
               },
             ]}
           >
@@ -214,16 +205,38 @@ export default function VoiceRecordPage() {
         </View>
 
         <View className="flex-row justify-around px-4 pt-4">
-          <Tool icon="Camera" label="拍照" onPress={() => {}} />
+          <Tool
+            icon="Camera"
+            label="拍照"
+            onPress={() => void captureRecordingPhoto()}
+          />
           <Tool icon="Paperclip" label="上传附件" onPress={() => {}} />
           <Tool icon="FileText" label="快速记录" onPress={() => {}} />
-          <Tool icon="ListChecks" label="记录要点" badge={3} onPress={() => {}} />
+          <Tool icon="ListChecks" label="记录要点" onPress={() => {}} />
         </View>
 
         <Text className="pt-4 text-center text-xs text-muted-foreground">
-          硬件：电量 87% ｜ 存储 32GB 可用
+          {hw}
         </Text>
       </View>
+    </View>
+  );
+}
+
+function Waveform({ peaks, color }: { peaks: number[]; color: string }) {
+  return (
+    <View className="flex-row items-end gap-[2px] h-6">
+      {peaks.slice(-16).map((p, i) => (
+        <View
+          key={i}
+          style={{
+            width: 2,
+            height: Math.max(4, p * 22),
+            backgroundColor: color,
+            borderRadius: 1,
+          }}
+        />
+      ))}
     </View>
   );
 }
@@ -254,12 +267,10 @@ function Capsule({ label, dotColor }: { label: string; dotColor?: string }) {
 function Tool({
   icon,
   label,
-  badge,
   onPress,
 }: {
   icon: AppIconName;
   label: string;
-  badge?: number;
   onPress: () => void;
 }) {
   const { colorScheme } = useColorScheme();
@@ -270,19 +281,7 @@ function Tool({
       className="items-center gap-1"
       accessibilityLabel={label}
     >
-      <View>
-        <Icon name={icon} size={22} color={t.foreground} />
-        {badge ? (
-          <View
-            className="absolute -right-2 -top-1 rounded-full px-1"
-            style={{ backgroundColor: t.destructive }}
-          >
-            <Text className="text-[10px] font-medium" style={{ color: "#FFFFFF" }}>
-              {badge}
-            </Text>
-          </View>
-        ) : null}
-      </View>
+      <Icon name={icon} size={22} color={t.foreground} />
       <Text className="text-xs text-muted-foreground">{label}</Text>
     </Pressable>
   );

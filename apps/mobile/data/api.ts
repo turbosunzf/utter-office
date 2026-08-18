@@ -1391,6 +1391,60 @@ class ApiClient {
     }
     return parsed.data;
   }
+
+  // --- Recordings (live HTTP; recordingApi.ts keeps a Stub until backend lands) ---
+  async createAppRecording(body: {
+    title?: string;
+    workspaceId?: string | null;
+  }): Promise<{ id: string; uploadUrl?: string }> {
+    return this.fetch("/app/recordings", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  async getRecordingUploadStatus(
+    recordingId: string,
+  ): Promise<{ uploadedChunks: number[]; totalChunks?: number }> {
+    return this.fetch(`/app/recordings/${recordingId}/upload-status`);
+  }
+
+  async uploadRecordingChunk(body: {
+    recordingId: string;
+    chunkIndex: number;
+    data: string;
+    hash: string;
+  }): Promise<void> {
+    await this.fetch(`/app/recordings/${body.recordingId}/upload`, {
+      method: "POST",
+      body: JSON.stringify({
+        chunkIndex: body.chunkIndex,
+        data: body.data,
+        hash: body.hash,
+      }),
+    });
+  }
+
+  async completeRecordingUpload(body: {
+    recordingId: string;
+    totalChunks: number;
+    fileSize: number;
+    hash: string;
+  }): Promise<void> {
+    await this.fetch(`/app/recordings/${body.recordingId}/upload-complete`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  async asrRealtimeHandshake(
+    recordingId: string,
+  ): Promise<{ wsUrl: string; token: string; sessionId: string }> {
+    return this.fetch("/app/asr/realtime/handshake", {
+      method: "POST",
+      body: JSON.stringify({ recordingId }),
+    });
+  }
 }
 
 export { MAX_FILE_SIZE };

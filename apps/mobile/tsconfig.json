@@ -12,5 +12,9 @@
     "**/*.ts",
     "**/*.tsx",
     "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "modules/encrypted-recording/android",
+    "modules/encrypted-recording/ios"
   ]
 }

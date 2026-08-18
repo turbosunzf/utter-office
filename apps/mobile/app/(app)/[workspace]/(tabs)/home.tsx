@@ -29,6 +29,7 @@ import { useAuthStore } from "@/data/auth-store";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useInboxUnreadCount } from "@/lib/unread-counts";
 import { BlockingNoticeBar } from "@/components/shared/blocking-notice-bar";
+import { listMockTodos, isMockTodoId } from "@/data/mocks/todos";
 import { canAssignAgent } from "@/lib/can-assign-agent";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
@@ -108,15 +109,21 @@ export default function Home() {
       ).length
     : null;
 
-  const todos = useMemo(
+  const liveTodos = useMemo(
     () =>
       (myIssues ?? [])
         .filter((i) => OPEN_STATUSES.has(i.status))
         .sort(byDueThenPriority),
     [myIssues],
   );
+  const usingMockTodos = liveTodos.length === 0;
+  const todos = useMemo(
+    () => (usingMockTodos ? listMockTodos() : liveTodos),
+    [usingMockTodos, liveTodos],
+  );
 
   const openIssue = (issue: Issue) => {
+    if (isMockTodoId(issue.id)) return;
     if (wsSlug) router.push(`/${wsSlug}/issue/${issue.id}`);
   };
   const openAllTodos = () => {
@@ -171,7 +178,7 @@ export default function Home() {
         right={headerRight}
       />
       <BlockingNoticeBar />
-      <ScrollView contentContainerClassName="gap-3.5 pb-10 pt-2">
+      <ScrollView contentContainerClassName="gap-4 pb-10 pt-2">
         <HomeHero
           onDispatch={() => {
             if (!wsSlug) return;
@@ -199,6 +206,7 @@ export default function Home() {
             issues={todos}
             onPressIssue={openIssue}
             onPressAll={openAllTodos}
+            sample={usingMockTodos}
           />
         </View>
         <View className="px-4">

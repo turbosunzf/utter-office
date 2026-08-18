@@ -6,6 +6,7 @@ import { Pressable, ScrollView, View } from "react-native";
 import { router } from "expo-router";
 import Constants from "expo-constants";
 import { useQuery } from "@tanstack/react-query";
+import { LinearGradient } from "expo-linear-gradient";
 import { Header } from "@/components/ui/header";
 import { Icon, type AppIconName } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -19,7 +20,6 @@ import { useAuthStore } from "@/data/auth-store";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { useInboxUnreadCount } from "@/lib/unread-counts";
 import { ProUpsellCard } from "@/components/shared/pro-upsell-card";
-import { ElevatedSurface } from "@/components/ui/elevated-surface";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
 
@@ -109,6 +109,13 @@ export default function MinePage() {
         path: "/more/projects",
         tint: t.brand,
         soft: "rgba(59,111,255,0.1)",
+      },
+      {
+        label: "录音",
+        icon: "Mic",
+        path: "/recordings",
+        tint: t.brand,
+        soft: "rgba(59,111,255,0.12)",
       },
       {
         label: "数字员工",
@@ -235,42 +242,90 @@ export default function MinePage() {
     <View className="flex-1 bg-background">
       <Header title="我的" right={headerRight} />
       <ScrollView contentContainerClassName="px-4 py-3 gap-4 pb-10">
-        <ElevatedSurface className="border-0 overflow-hidden">
-          <Pressable
-            onPress={() => go("/more/settings/profile")}
-            className="flex-row items-center gap-3 px-4 py-4 active:opacity-80"
+        <Pressable
+          onPress={() => go("/more/settings/profile")}
+          className="overflow-hidden rounded-2xl active:opacity-90"
+        >
+          <LinearGradient
+            colors={["#2F62F0", "#3B6FFF", "#5B8AFF"]}
+            locations={[0, 0.5, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ paddingHorizontal: 16, paddingVertical: 18 }}
           >
-            <Avatar alt={user?.name ?? "User avatar"} className="size-14">
-              {user?.avatar_url ? (
-                <AvatarImage source={{ uri: user.avatar_url }} />
-              ) : null}
-              <AvatarFallback className="bg-brand/15">
-                {user?.name ? (
-                  <Text className="text-lg font-semibold text-brand">
-                    {initialsOf(user.name)}
-                  </Text>
-                ) : (
-                  <Icon name="UserRound" size={26} color={t.brand} />
-                )}
-              </AvatarFallback>
-            </Avatar>
-            <View className="flex-1 min-w-0">
-              <Text
-                className="text-[17px] font-bold text-foreground"
-                numberOfLines={1}
+            <View
+              pointerEvents="none"
+              style={{
+                position: "absolute",
+                right: -18,
+                top: -24,
+                width: 96,
+                height: 96,
+                borderRadius: 48,
+                backgroundColor: "rgba(255,255,255,0.14)",
+              }}
+            />
+            <View
+              pointerEvents="none"
+              style={{
+                position: "absolute",
+                left: -28,
+                bottom: -36,
+                width: 110,
+                height: 110,
+                borderRadius: 55,
+                backgroundColor: "rgba(6,182,212,0.22)",
+              }}
+            />
+            <View className="flex-row items-center gap-3.5">
+              <View
+                className="rounded-full p-[2px]"
+                style={{ backgroundColor: "rgba(255,255,255,0.85)" }}
               >
-                {user?.name ?? "加载中…"}
-              </Text>
-              <Text
-                className="text-[12px] text-muted-foreground mt-0.5"
-                numberOfLines={1}
-              >
-                {user?.email ?? "完善个人资料"}
-              </Text>
+                <Avatar alt={user?.name ?? "User avatar"} className="size-14">
+                  {user?.avatar_url ? (
+                    <AvatarImage source={{ uri: user.avatar_url }} />
+                  ) : null}
+                  <AvatarFallback className="bg-white">
+                    {user?.name ? (
+                      <Text className="text-lg font-semibold text-brand">
+                        {initialsOf(user.name)}
+                      </Text>
+                    ) : (
+                      <Icon name="UserRound" size={26} color={t.brand} />
+                    )}
+                  </AvatarFallback>
+                </Avatar>
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text
+                  className="text-[18px] font-bold text-white"
+                  numberOfLines={1}
+                >
+                  {user?.name ?? "加载中…"}
+                </Text>
+                <Text
+                  className="text-[12px] mt-0.5"
+                  style={{ color: "rgba(255,255,255,0.82)" }}
+                  numberOfLines={1}
+                >
+                  {user?.email ?? "完善个人资料"}
+                </Text>
+                {currentWorkspace?.name ? (
+                  <View
+                    className="self-start mt-2 rounded-full px-2 py-0.5"
+                    style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
+                  >
+                    <Text className="text-[10px] font-semibold text-white">
+                      {currentWorkspace.name}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+              <Icon name="ChevronRight" size={18} color="rgba(255,255,255,0.85)" />
             </View>
-            <Icon name="ChevronRight" size={18} color={t.mutedForeground} />
-          </Pressable>
-        </ElevatedSurface>
+          </LinearGradient>
+        </Pressable>
 
         <ProUpsellCard />
 

@@ -1,210 +1,213 @@
+/**
+ * 数字员工在岗与在手。Tokens / 时长不当前主指标。
+ */
 import { useMemo } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
+import type { AgentPresenceDetail } from "@multica/core/agents";
 import { Text } from "@/components/ui/text";
-import { Button } from "@/components/ui/button";
-import { SectionGroup } from "@/components/ui/section-group";
+import { HomeSection } from "@/components/home/home-section";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  dashboardAgentRunTimeOptions,
-  dashboardUsageByAgentOptions,
-  dashboardFailuresByAgentOptions,
-} from "@/data/queries/dashboard";
-import { useWorkspaceStore } from "@/data/workspace-store";
 import { ActorAvatar } from "@/components/ui/actor-avatar";
-import { useActorLookup } from "@/data/use-actor-name";
+import { ColorStat } from "@/components/board/color-stat";
+import { agentListOptions } from "@/data/queries/agents";
+import { agentTaskSnapshotOptions } from "@/data/queries/agent-task-snapshot";
+import { useWorkspacePresenceMap } from "@/lib/use-agent-presence";
+import { useWorkspaceStore } from "@/data/workspace-store";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { THEME } from "@/lib/theme";
-import { formatElapsedSecs } from "@/lib/format-elapsed";
-import { failureClassOf, type FailureClass } from "@/lib/failure-class";
-import { formatCompact } from "./format";
+import { cn } from "@/lib/utils";
 
-const TOP_N = 5;
+const ACTIVE = new Set([
+  "queued",
+  "dispatched",
+  "waiting_local_directory",
+  "running",
+]);
 
-const FAILURE_CLASS_LABEL: Record<FailureClass, string> = {
-  auth: "鉴权",
-  rate_limit: "限流",
-  timeout: "超时",
-  provider: "模型服务",
-  runtime: "运行时",
-  agent: "智能体",
-  other: "其他",
-};
+function isOnline(p: AgentPresenceDetail): boolean {
+  return (
+    p.availability === "online" ||
+    p.workload === "working" ||
+    p.workload === "queued"
+  );
+}
 
-/**
- * 智能体运行数据 — per-agent bars over the selected window. `task_count`
- * bars come from `DashboardAgentRunTime`; the per-agent token total folds
- * `DashboardUsageByAgent` (which buckets by `(agent, model)`, so rows must
- * be summed by `agent_id`); the 失败分布 list folds `DashboardFailureByAgent`
- * through `failureClassOf` (excluding the empty-string *succeeded* bucket).
- *
- * Names resolve through `useActorLookup()` so a row shows the agent's real
- * name rather than a bare id.
- */
-export function AgentUsage({
-  days,
-  tz,
-}: {
-  days: number;
-  tz: string;
-}) {
+function workloadLabel(p: AgentPresenceDetail): {
+  label: string;
+  color: string;
+  bg: string;
+} {
+  if (p.workload === "working") {
+    return { label: "工作中", color: "#3B6FFF", bg: "rgba(59,111,255,0.12)" };
+  }
+  if (p.workload === "queued") {
+    return { label: "排队中", color: "#D97706", bg: "rgba(217,119,6,0.12)" };
+  }
+  if (p.availability === "online") {
+    return { label: "在岗", color: "#16A34A", bg: "rgba(22,163,74,0.12)" };
+  }
+  return { label: "离线", color: "#64748B", bg: "rgba(100,116,139,0.12)" };
+}
+
+export function AgentUsage() {
   const wsId = useWorkspaceStore((s) => s.currentWorkspaceId);
+  const wsSlug = useWorkspaceStore((s) => s.currentWorkspaceSlug);
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
-  const { getName } = useActorLookup();
-
+  const hairline = colorScheme === "dark" ? t.border : "#ECEEF3";
+  const { data: agents = [], isPending: agentsPending } = useQuery(
+    agentListOptions(wsId),
+  );
+  const { byAgent, loading: presenceLoading } = useWorkspacePresenceMap(wsId);
   const {
-    data: runtimes = [],
-    isLoading,
-    error: runtimesError,
-    refetch: refetchRuntimes,
-  } = useQuery(dashboardAgentRunTimeOptions(wsId, days, null, tz));
-  const {
-    data: usage = [],
-    error: usageError,
-    refetch: refetchUsage,
-  } = useQuery(dashboardUsageByAgentOptions(wsId, days, null, tz));
-  const {
-    data: failures = [],
-    error: failuresError,
-    refetch: refetchFailures,
-  } = useQuery(dashboardFailuresByAgentOptions(wsId, days, null, tz));
+    data: snapshot,
+    isError: snapshotErr,
+    isFetched: snapshotFetched,
+  } = useQuery(agentTaskSnapshotOptions(wsId));
 
-  // 任一 rollup 失败即渲染错误 + 重试，而不是把失败伪装成「暂无」空态。
-  const agentError = runtimesError ?? usageError ?? failuresError;
-  const retryAgentUsage = () => {
-    void refetchRuntimes();
-    void refetchUsage();
-    void refetchFailures();
-  };
+  const visible = useMemo(
+    () => agents.filter((a) => !a.archived_at),
+    [agents],
+  );
 
-  const tokensByAgent = useMemo(() => {
+  const hands = useMemo(() => {
+    if (snapshotErr || !snapshotFetched) return null;
     const m = new Map<string, number>();
-    for (const u of usage) {
-      const tokens =
-        u.input_tokens + u.output_tokens + u.cache_read_tokens + u.cache_write_tokens;
-      m.set(u.agent_id, (m.get(u.agent_id) ?? 0) + tokens);
+    for (const task of snapshot ?? []) {
+      if (!ACTIVE.has(task.status)) continue;
+      m.set(task.agent_id, (m.get(task.agent_id) ?? 0) + 1);
     }
     return m;
-  }, [usage]);
+  }, [snapshot, snapshotErr, snapshotFetched]);
 
-  const failureClasses = useMemo(() => {
-    const m = new Map<FailureClass, number>();
-    for (const f of failures) {
-      if (f.failure_reason === "") continue; // succeeded bucket, not a failure
-      const cls = failureClassOf(f.failure_reason);
-      m.set(cls, (m.get(cls) ?? 0) + f.task_count);
+  const summary = useMemo(() => {
+    let online = 0;
+    let working = 0;
+    for (const a of visible) {
+      const p = byAgent.get(a.id);
+      if (!p) continue;
+      if (isOnline(p)) online += 1;
+      if (p.workload === "working" || p.workload === "queued") working += 1;
     }
-    return [...m.entries()]
-      .map(([cls, count]) => ({ cls, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3);
-  }, [failures]);
+    let inHand = 0;
+    if (hands) {
+      for (const n of hands.values()) inHand += n;
+    }
+    return { online, working, inHand };
+  }, [visible, byAgent, hands]);
 
   const rows = useMemo(() => {
-    const ranked = [...runtimes].sort((a, b) => b.task_count - a.task_count);
-    return ranked.slice(0, TOP_N).map((r) => ({
-      id: r.agent_id,
-      name: getName("agent", r.agent_id),
-      taskCount: r.task_count,
-      seconds: r.total_seconds,
-      failed: r.failed_count,
-      tokens: tokensByAgent.get(r.agent_id) ?? 0,
-    }));
-  }, [runtimes, tokensByAgent, getName]);
+    return visible
+      .map((a) => {
+        const p = byAgent.get(a.id);
+        const inHand = hands?.get(a.id) ?? 0;
+        return { agent: a, presence: p, inHand };
+      })
+      .sort((a, b) => {
+        const wa = a.presence?.workload === "working" ? 0 : a.inHand > 0 ? 1 : 2;
+        const wb = b.presence?.workload === "working" ? 0 : b.inHand > 0 ? 1 : 2;
+        if (wa !== wb) return wa - wb;
+        return b.inHand - a.inHand;
+      })
+      .slice(0, 6);
+  }, [visible, byAgent, hands]);
 
-  const maxTasks = rows.length ? Math.max(...rows.map((r) => r.taskCount)) : 0;
-  const maxFailures = failureClasses.length
-    ? Math.max(...failureClasses.map((f) => f.count))
-    : 0;
+  const loading = agentsPending || presenceLoading;
 
   return (
-    <SectionGroup title="员工用量">
-      <View className="px-4 pt-4 pb-4 gap-4">
-        {isLoading ? (
-          <Skeleton className="h-24 w-full" />
-        ) : agentError ? (
-          <View className="gap-3">
-            <Text className="text-sm text-destructive">
-              运行数据加载失败：{" "}
-              {agentError instanceof Error ? agentError.message : "未知错误"}
-            </Text>
-            <Button variant="outline" onPress={retryAgentUsage}>
-              <Text>重试</Text>
-            </Button>
-          </View>
-        ) : rows.length === 0 ? (
-          <Text className="text-sm text-muted-foreground">
-            近 {days} 天暂无员工运行记录。
+    <HomeSection title="数字员工" flush>
+      {loading ? (
+        <View className="px-4 py-3">
+          <Skeleton className="h-16 w-full" />
+        </View>
+      ) : visible.length === 0 ? (
+        <View className="px-4 py-3">
+          <Text className="text-[13px] text-muted-foreground">
+            还没有数字员工。请先在 Web 端创建。
           </Text>
-        ) : (
-          <View className="gap-3.5">
-            <Text className="text-[11px] text-muted-foreground">
-              {runtimes.length} 名员工 · 近 {days} 天任务量 Top {rows.length}
-            </Text>
-            {rows.map((row, idx) => (
-              <View
-                key={row.id}
-                className="flex-row items-center gap-2 py-1.5"
-                style={
-                  idx > 0
-                    ? { borderTopWidth: 1, borderTopColor: "rgba(220,224,232,0.65)" }
-                    : undefined
-                }
-              >
-                <ActorAvatar type="agent" id={row.id} size={26} />
-                <View className="flex-1 min-w-0">
-                  <Text className="text-[13px] font-bold text-foreground" numberOfLines={1}>
-                    {row.name}
-                  </Text>
-                  <Text className="text-[10px] text-muted-foreground">
-                    {formatElapsedSecs(row.seconds)} · 失败 {row.failed}
-                  </Text>
-                  <View className="h-1 rounded-sm overflow-hidden bg-muted mt-1">
-                    <View
-                      className="h-full rounded-sm"
-                      style={{
-                        width: `${maxTasks ? (row.taskCount / maxTasks) * 100 : 0}%`,
-                        backgroundColor: t.brand,
-                      }}
-                    />
-                  </View>
-                </View>
-                <Text className="text-[11px] font-bold text-muted-foreground">
-                  {formatCompact(row.tokens)}
-                </Text>
-              </View>
-            ))}
+        </View>
+      ) : (
+        <>
+          <View className="flex-row items-center px-2 py-3">
+            <ColorStat
+              label="在岗"
+              value={summary.online}
+              color="#16A34A"
+            />
+            <View className="w-px self-stretch" style={{ backgroundColor: hairline }} />
+            <ColorStat
+              label="工作中"
+              value={summary.working}
+              color={t.brand}
+            />
+            <View className="w-px self-stretch" style={{ backgroundColor: hairline }} />
+            <ColorStat
+              label="在手"
+              value={hands == null ? "—" : summary.inHand}
+              color="#D97706"
+            />
           </View>
-        )}
 
-        {failureClasses.length > 0 ? (
-          <View className="gap-2.5 pt-1 border-t border-border">
-            <Text className="text-[11px] font-medium text-muted-foreground pt-3">
-              失败分布
-            </Text>
-            {failureClasses.map((f) => (
-              <View key={f.cls} className="flex-row items-center gap-2">
-                <Text className="text-[12px] text-foreground w-16">
-                  {FAILURE_CLASS_LABEL[f.cls]}
-                </Text>
-                <View className="h-2 flex-1 rounded-full overflow-hidden bg-muted">
-                  <View
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${(f.count / maxFailures) * 100}%`,
-                      backgroundColor: t.destructive,
-                    }}
+          <View className="border-t border-border px-4">
+            {rows.map((row, idx) => {
+              const badge = row.presence
+                ? workloadLabel(row.presence)
+                : {
+                    label: "—",
+                    color: t.mutedForeground,
+                    bg: t.secondary,
+                  };
+              return (
+                <Pressable
+                  key={row.agent.id}
+                  onPress={() => {
+                    if (wsSlug) router.push(`/${wsSlug}/staff/${row.agent.id}`);
+                  }}
+                  accessibilityLabel={`${row.agent.name}，${badge.label}`}
+                  className={cn(
+                    "flex-row items-center gap-3 py-3 active:opacity-80",
+                    idx > 0 && "border-t border-border/70",
+                  )}
+                >
+                  <ActorAvatar
+                    type="agent"
+                    id={row.agent.id}
+                    size={32}
+                    showPresence
                   />
-                </View>
-                <Text className="text-[11px] text-muted-foreground w-8 text-right">
-                  {f.count}
-                </Text>
-              </View>
-            ))}
+                  <View className="flex-1 min-w-0">
+                    <Text
+                      className="text-[14px] font-semibold text-foreground"
+                      numberOfLines={1}
+                    >
+                      {row.agent.name}
+                    </Text>
+                  </View>
+                  <View
+                    className="rounded-full px-2 py-0.5"
+                    style={{ backgroundColor: badge.bg }}
+                  >
+                    <Text
+                      className="text-[11px] font-semibold"
+                      style={{ color: badge.color }}
+                    >
+                      {badge.label}
+                    </Text>
+                  </View>
+                  <Text
+                    className="text-[13px] font-semibold text-foreground"
+                    style={{ minWidth: 20, textAlign: "right" }}
+                  >
+                    {hands == null ? "—" : `${row.inHand}`}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
-        ) : null}
-      </View>
-    </SectionGroup>
+        </>
+      )}
+    </HomeSection>
   );
 }

@@ -1,0 +1,27 @@
+/** Native encrypted-recording constants — must match RecordingCryptoConstants. */
+export const SAMPLE_RATE = 22050;
+export const CHANNELS = 1;
+export const BITRATE = 32000;
+export const SEGMENT_DURATION_MS = 30_000;
+export const NONCE_SIZE = 16;
+export const INDEX_BYTES = 4;
+export const HMAC_BYTES = 32;
+export const PCM_SAMPLE_RATE = 16_000;
+export const PCM_CHUNK_BYTES = 6400;
+export const PCM_BATCH_CHUNKS = 4;
+export const ASR_FRAME_BYTES = 3200;
+export const MAX_RECORDING_SECONDS = 6 * 3600;
+export const MIN_BATTERY_PERCENT = 5;
+export const MIN_FREE_STORAGE = 300 * 1024 * 1024;
+export const RUNTIME_LOW_STORAGE = 50 * 1024 * 1024;
+export const STOP_JOIN_MS = 8_000;
+export const STOP_TOTAL_TIMEOUT_MS = 90_000;
+export const EXPORT_TIMEOUT_MS = 120_000;
+export const ASR_STOP_MS = 1_500;
+export const INTERRUPT_POLL_MS = 60_000;
+export const UPLOAD_CHUNK_SIZE = 2 * 1024 * 1024;
+export const UPLOAD_CONCURRENCY = 2;
+export const UPLOAD_RETRY_BACKOFF = [1000, 2000, 4000] as const;
+export const MERGE_VOLUME_MS = 10 * 60 * 1000;
+export const MERGE_VOLUME_SEGMENTS = MERGE_VOLUME_MS / SEGMENT_DURATION_MS;
+export const REC_DIR_NAME = "rec";

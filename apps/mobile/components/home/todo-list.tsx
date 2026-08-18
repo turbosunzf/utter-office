@@ -55,10 +55,12 @@ export function TodoList({
   issues,
   onPressIssue,
   onPressAll,
+  sample,
 }: {
   issues: Issue[];
   onPressIssue: (issue: Issue) => void;
   onPressAll: () => void;
+  sample?: boolean;
 }) {
   const { colorScheme } = useColorScheme();
   const t = THEME[colorScheme];
@@ -70,23 +72,10 @@ export function TodoList({
   return (
     <HomeSection
       title="待办事项"
-      meta={
-        <>
-          <Text className="text-[11px] text-muted-foreground">
-            介入{" "}
-            <Text className="font-bold" style={{ color: t.destructive }}>
-              {intervene.length}
-            </Text>
-          </Text>
-          <Text className="text-[11px] text-muted-foreground">
-            · 推进{" "}
-            <Text className="font-bold text-foreground">{advancing.length}</Text>
-          </Text>
-        </>
-      }
+      badge={sample ? "示例" : undefined}
       right={
-        <Pressable onPress={onPressAll} hitSlop={8}>
-          <Text className="text-[11px] font-medium text-brand">
+        <Pressable onPress={onPressAll} hitSlop={8} accessibilityLabel="查看全部待办">
+          <Text className="text-[12px] font-medium text-brand">
             全部 ({issues.length}) ›
           </Text>
         </Pressable>
@@ -129,7 +118,7 @@ export function TodoList({
                   className="rounded px-1.5 py-1"
                   style={{ backgroundColor: t.destructive }}
                 >
-                  <Text className="text-[9px] font-extrabold text-white text-center leading-[1.15]">
+                  <Text className="text-[11px] font-bold text-white text-center leading-[1.2]">
                     {issue.status === "in_review" ? "评审" : "受阻"}
                     {"\n"}
                     {days}天
@@ -137,13 +126,13 @@ export function TodoList({
                 </View>
                 <View className="flex-1 min-w-0">
                   <Text
-                    className="text-[13px] font-bold text-foreground"
+                    className="text-[14px] font-semibold text-foreground"
                     numberOfLines={1}
                   >
                     {issue.title}
                   </Text>
                   <View className="flex-row items-center gap-1.5 mt-0.5">
-                    <Text className="text-[10px] font-bold text-brand">
+                    <Text className="text-[12px] font-semibold text-brand">
                       {issue.identifier}
                     </Text>
                     {issue.assignee_id ? (
@@ -154,13 +143,13 @@ export function TodoList({
                       />
                     ) : null}
                     {due ? (
-                      <Text className="text-[10px] text-muted-foreground">
+                      <Text className="text-[12px] text-muted-foreground">
                         {due.label}
                       </Text>
                     ) : null}
                   </View>
                 </View>
-                <Text className="text-[11px] font-bold" style={{ color: t.destructive }}>
+                <Text className="text-[12px] font-semibold" style={{ color: t.destructive }}>
                   处理 ›
                 </Text>
               </Pressable>
@@ -169,9 +158,8 @@ export function TodoList({
 
           {push.length > 0 ? (
             <View>
-              <Text className="text-[10px] font-bold text-muted-foreground px-0.5 pb-1">
-                员工在推进 ·{" "}
-                <Text className="text-foreground">{advancing.length}</Text>
+              <Text className="text-[12px] font-semibold text-muted-foreground px-0.5 pb-2">
+                员工在推进
               </Text>
               {push.map((issue, idx) => {
                 const due = dueChip(issue.due_date);
@@ -186,7 +174,7 @@ export function TodoList({
                     )}
                   >
                     <Text
-                      className="w-7 text-[10px] font-bold"
+                      className="w-8 text-[12px] font-semibold"
                       style={{
                         color: due?.today ? t.brand : t.mutedForeground,
                       }}
@@ -195,17 +183,16 @@ export function TodoList({
                     </Text>
                     <View className="flex-1 min-w-0">
                       <Text
-                        className="text-[13px] font-semibold text-foreground"
+                        className="text-[14px] font-medium text-foreground"
                         numberOfLines={1}
                       >
                         {issue.identifier} · {issue.title}
                       </Text>
                       <View
-                        className="mt-1 h-[3px] rounded-sm overflow-hidden"
-                        style={{ backgroundColor: "#E8ECF4" }}
+                        className="mt-1.5 h-1.5 rounded-full overflow-hidden bg-muted"
                       >
                         <View
-                          className="h-full rounded-sm"
+                          className="h-full rounded-full"
                           style={{
                             width: `${hint.pct * 100}%`,
                             backgroundColor:
@@ -226,7 +213,7 @@ export function TodoList({
                       ) : (
                         <View className="size-[18px]" />
                       )}
-                      <Text className="text-[9px] font-semibold text-muted-foreground">
+                      <Text className="text-[11px] font-medium text-muted-foreground">
                         {hint.label}
                       </Text>
                     </View>

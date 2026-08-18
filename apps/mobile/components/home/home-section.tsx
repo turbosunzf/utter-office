@@ -37,7 +37,7 @@ export function HomeSection({
       }}
     >
       <View
-        className="flex-row items-center justify-between gap-2 px-3.5 py-2.5"
+        className="flex-row items-center justify-between gap-2 px-4 py-3"
         style={{
           backgroundColor: barBg,
           borderBottomWidth: 1,
@@ -45,7 +45,7 @@ export function HomeSection({
             colorScheme === "dark" ? t.border : "rgba(220,224,232,0.85)",
         }}
       >
-        <View className="flex-row items-center gap-2 flex-1 min-w-0 flex-wrap">
+        <View className="flex-row items-center gap-2 flex-1 min-w-0">
           <View
             className="w-[3px] h-3.5 rounded-sm"
             style={{ backgroundColor: t.brand }}
@@ -55,14 +55,14 @@ export function HomeSection({
           </Text>
           {meta}
           {badge ? (
-            <View className="rounded border border-border px-1.5 py-0.5">
-              <Text className="text-[10px] text-muted-foreground">{badge}</Text>
+            <View className="rounded-full border border-border px-2 py-0.5">
+              <Text className="text-[11px] text-muted-foreground">{badge}</Text>
             </View>
           ) : null}
         </View>
         {right}
       </View>
-      <View className={flush ? "" : "px-3 py-3"}>{children}</View>
+      <View className={flush ? "" : "px-4 py-3"}>{children}</View>
     </ElevatedSurface>
   );
 }

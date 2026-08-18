@@ -2,9 +2,9 @@
  * Profile edit subscreen — name + avatar.
  *
  * Avatar tap opens an iOS native ActionSheet (Choose from Library / Remove).
- * Camera is intentionally NOT offered — app.config.ts sets
- * `cameraPermission: false` (product rule: avatars come only from the photo
- * library). Mirrors the avatar upload flow in
+ * Camera is not offered here — avatars come only from the photo library.
+ * Recording-page「拍照」is a separate `launchCameraAsync` flow.
+ * Mirrors the avatar upload flow in
  * packages/views/settings/components/account-tab.tsx but the picker uses
  * native APIs per CLAUDE.md "iOS native > RNR > discuss" waterfall.
  *

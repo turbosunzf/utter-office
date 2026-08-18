@@ -20,7 +20,7 @@ export function SectionGroup({
       {title || right ? (
         <View className="flex-row items-center justify-between px-1">
           {title ? (
-            <Text className="text-[13px] font-semibold text-muted-foreground tracking-wide">
+            <Text className="text-[15px] font-extrabold text-foreground">
               {title}
             </Text>
           ) : (

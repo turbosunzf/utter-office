@@ -26,8 +26,10 @@ import { useAssistantStore } from "@/data/stores/assistant-store";
 import { VOICE_PROTOTYPE_TOAST } from "@/data/mocks/voice";
 
 const CANCEL_THRESHOLD = -80;
-const BUTTON_SIZE = 58;
-const BUTTON_RADIUS = 18;
+/** Meet Think 栏内录音键：宽大于高，不凸出底栏 */
+const BUTTON_WIDTH = 64;
+const BUTTON_HEIGHT = 46;
+const BUTTON_RADIUS = 16;
 const EQ_BAR_COUNT = 4;
 
 export function RecordButton() {
@@ -204,7 +206,7 @@ export function RecordButton() {
     >
       <Animated.View style={[styles.shadow, { transform: [{ scale }] }]}>
         <LinearGradient
-          colors={["#2F62F0", "#3B6FFF", "#5B8AFF"]}
+          colors={["#3B6FFF", "#6B9BFF"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.button}
@@ -232,7 +234,7 @@ export function RecordButton() {
               ))}
             </View>
           ) : (
-            <Icon name="Mic" size={26} color="#FFFFFF" strokeWidth={2.2} />
+            <Icon name="Mic" size={28} color="#FFFFFF" strokeWidth={2.2} />
           )}
           {pressed ? <View style={styles.pressedScrim} /> : null}
         </LinearGradient>
@@ -246,21 +248,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: BUTTON_SIZE,
-    paddingVertical: 4,
     backgroundColor: "transparent",
   },
   shadow: {
     borderRadius: BUTTON_RADIUS,
-    shadowColor: "rgb(59,111,255)",
-    shadowOpacity: 0.35,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+    shadowColor: "#3B6FFF",
+    shadowOpacity: 0.28,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   button: {
-    width: BUTTON_SIZE,
-    height: BUTTON_SIZE,
+    width: BUTTON_WIDTH,
+    height: BUTTON_HEIGHT,
     borderRadius: BUTTON_RADIUS,
     alignItems: "center",
     justifyContent: "center",
@@ -268,16 +268,16 @@ const styles = StyleSheet.create({
   },
   eqContainer: {
     flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 3,
+    alignItems: "center",
+    gap: 3.5,
     height: 24,
   },
   eqBar: {
-    width: 3,
+    width: 3.5,
     height: 24,
-    borderRadius: 1.5,
+    borderRadius: 99,
     backgroundColor: "#FFFFFF",
-    transformOrigin: "bottom",
+    transformOrigin: "center",
   },
   pressedScrim: {
     ...StyleSheet.absoluteFillObject,

@@ -14,6 +14,7 @@ import {
 } from "@/lib/unread-counts";
 import { RecordButton } from "@/components/voice/record-button";
 import { VoiceOverlay } from "@/components/voice/voice-overlay";
+import { RecordingInProgressBar } from "@/components/recording/recording-in-progress-bar";
 import { Icon, type AppIconName } from "@/components/ui/icon";
 
 const BADGE_STYLE = {
@@ -33,7 +34,7 @@ const BADGE_STYLE = {
     : { textAlignVertical: "center" as const, includeFontPadding: false }),
 };
 
-const TAB_BAR_CONTENT_HEIGHT = 64;
+const TAB_BAR_CONTENT_HEIGHT = 56;
 
 function TabGlyph({
   name,
@@ -93,6 +94,7 @@ export default function TabsLayout() {
 
   return (
     <View style={{ flex: 1 }}>
+      <RecordingInProgressBar />
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -101,7 +103,8 @@ export default function TabsLayout() {
           tabBarStyle: {
             backgroundColor: barBg,
             height: TAB_BAR_CONTENT_HEIGHT + insets.bottom,
-            paddingTop: 6,
+            paddingTop: 4,
+            paddingBottom: insets.bottom,
             borderTopWidth: 1,
             borderTopColor: hairline,
             elevation: 0,
@@ -158,6 +161,7 @@ export default function TabsLayout() {
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "center",
+                    overflow: "visible",
                   },
                 ]}
                 pointerEvents="box-none"

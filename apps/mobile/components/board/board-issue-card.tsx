@@ -39,12 +39,12 @@ export function BoardIssueCard({
       onPress={onPress}
       onLongPress={onLongPress}
       delayLongPress={350}
-      className="flex-row items-center gap-2 py-2.5 px-1 active:opacity-80"
+      className="flex-row items-center gap-2 py-3 px-2 active:opacity-80"
       accessibilityLabel={`${issue.identifier} ${issue.title}`}
     >
       <StatusIcon status={issue.status} size={10} />
       <View className="flex-1 min-w-0">
-        <Text className="text-[13px] font-semibold text-foreground" numberOfLines={1}>
+        <Text className="text-[14px] font-semibold text-foreground" numberOfLines={1}>
           <Text className="font-bold text-brand">{issue.identifier}</Text>
           {" · "}
           {issue.title}
@@ -67,14 +67,14 @@ export function BoardIssueCard({
               hitSlop={8}
               className="rounded px-1.5 py-0.5 bg-brand/15"
             >
-              <Text className="text-[9px] font-bold text-brand">需介入</Text>
+              <Text className="text-[11px] font-bold text-brand">需介入</Text>
             </Pressable>
           ) : null}
           {issue.status === "blocked" ? (
             <Tag bg="rgba(239,68,68,0.1)" color={t.destructive} label="受阻" />
           ) : null}
           {projectTitle ? (
-            <Text className="text-[10px] text-muted-foreground" numberOfLines={1}>
+            <Text className="text-[12px] text-muted-foreground" numberOfLines={1}>
               {projectTitle}
             </Text>
           ) : null}
@@ -105,7 +105,7 @@ function Tag({
 }) {
   return (
     <View className="rounded px-1.5 py-0.5" style={{ backgroundColor: bg }}>
-      <Text className="text-[9px] font-bold" style={{ color }}>
+      <Text className="text-[11px] font-semibold" style={{ color }}>
         {label}
       </Text>
     </View>

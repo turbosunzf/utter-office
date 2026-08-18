@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { workspaceListOptions } from "@/data/queries/workspaces";
 import { useWorkspaceStore } from "@/data/workspace-store";
 import { RealtimeProvider } from "@/data/realtime/realtime-provider";
+import { RecordingSessionProvider } from "@/contexts/RecordingSessionContext";
+import { RecordingRecoveryHost } from "@/components/recording/recording-recovery-host";
 import { useInboxRealtime } from "@/data/realtime/use-inbox-realtime";
 import { useIssuesRealtime } from "@/data/realtime/use-issues-realtime";
 import { useMyIssuesRealtime } from "@/data/realtime/use-my-issues-realtime";
@@ -133,8 +135,10 @@ export default function WorkspaceLayout() {
   // iOS Stack header with the standard back button + swipe-to-dismiss.
   return (
     <RealtimeProvider>
-      <RealtimeSubscriptions />
-      <Stack>
+      <RecordingSessionProvider>
+        <RecordingRecoveryHost />
+        <RealtimeSubscriptions />
+        <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="issue/[id]"
@@ -394,6 +398,10 @@ export default function WorkspaceLayout() {
           name="brief/[id]"
           options={{ title: "简报", headerBackTitle: "返回" }}
         />
+        <Stack.Screen
+          name="briefs/index"
+          options={{ title: "行业简报", headerBackTitle: "返回" }}
+        />
         {/* Voice MVP entry routes — pushed from the Voice tab popover. */}
         <Stack.Screen
           name="voice-record"
@@ -406,6 +414,14 @@ export default function WorkspaceLayout() {
         <Stack.Screen
           name="voice-talk"
           options={{ title: "发语音", headerBackTitle: "返回" }}
+        />
+        <Stack.Screen
+          name="recordings/index"
+          options={{ title: "录音", headerBackTitle: "返回" }}
+        />
+        <Stack.Screen
+          name="recordings/[id]"
+          options={{ title: "录音详情", headerBackTitle: "返回" }}
         />
         <Stack.Screen
           name="new-issue"
@@ -423,7 +439,8 @@ export default function WorkspaceLayout() {
             headerLeft: () => <ModalCloseButton />,
           }}
         />
-      </Stack>
+        </Stack>
+      </RecordingSessionProvider>
     </RealtimeProvider>
   );
 }

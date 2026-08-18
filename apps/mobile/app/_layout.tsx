@@ -18,6 +18,7 @@ import { useWorkspaceStore } from "@/data/workspace-store";
 import { LightboxProvider, prewarmHighlighter } from "@/lib/markdown";
 import { NAV_THEME } from "@/lib/theme";
 import { useColorScheme } from "@/lib/use-color-scheme";
+import { FirstLaunchConsentHost } from "@/components/first-launch/first-launch-consent-host";
 
 /** iOS: paint portals above react-native-screens native layers. */
 const WindowOverlay = Platform.OS === "ios" ? FullWindowOverlay : Fragment;
@@ -81,6 +82,7 @@ export default function RootLayout() {
                   <WindowOverlay>
                     <PortalHost />
                   </WindowOverlay>
+                  <FirstLaunchConsentHost />
                 </LightboxProvider>
               </AuthInitializer>
             </ThemeProvider>

@@ -2,7 +2,7 @@
  * Home hero — asymmetric capture entry inspired by meet-think CaptureHero.
  * Primary: 派单 (brand gradient). Secondary: glass-tinted 新建 / 语音下达.
  */
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Text } from "@/components/ui/text";
 import { Icon } from "@/components/ui/icon";
@@ -40,25 +40,33 @@ function GlassMiniCard({
   const rim =
     colorScheme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(59,111,255,0.12)";
 
+  const fill =
+    colorScheme === "dark" ? "rgba(255,255,255,0.06)" : "#EEF3FF";
+
   return (
     <Pressable onPress={onPress} className="flex-1 active:opacity-90">
       <View
         className="flex-1 overflow-hidden rounded-[14px] px-3 justify-center"
         style={{
+          backgroundColor: fill,
           borderWidth: 1,
           borderColor: rim,
-          shadowColor: accent,
-          shadowOpacity: 0.06,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 2 },
-          elevation: 1,
+          ...Platform.select({
+            ios: {
+              shadowColor: accent,
+              shadowOpacity: 0.06,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 2 },
+            },
+            default: {},
+          }),
         }}
       >
         <LinearGradient
           colors={[softTop, softBottom]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
+          style={StyleSheet.absoluteFill}
         />
         <View
           pointerEvents="none"
