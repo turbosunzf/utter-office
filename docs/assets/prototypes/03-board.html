@@ -7,10 +7,9 @@
 <script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
 <link rel="stylesheet" href="_shared.css">
 <style>
-.board-toolbar{padding:8px 16px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-.progress-hint{font-size:11px;color:var(--muted-fg);padding:0 2px}
-.project-chip{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:12px;font-size:13px;font-weight:500;width:100%;box-sizing:border-box;cursor:pointer;font:inherit;color:inherit;text-align:left}
-.project-chip .pi{width:28px;height:28px;border-radius:8px;background:rgba(59,111,255,.12);color:var(--brand-hex);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.board-toolbar{padding:12px 16px 8px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.project-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#fff;border:1px solid var(--border);border-radius:999px;font-size:12px;font-weight:500;width:auto;max-width:100%;box-sizing:border-box;cursor:pointer;font:inherit;color:inherit;text-align:left;align-self:flex-start}
+.project-chip .pi{width:auto;height:auto;border-radius:0;background:transparent;color:var(--brand-hex);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .project-chip .sw{margin-left:auto;font-size:11px;color:var(--muted-fg);font-weight:400;flex-shrink:0}
 .project-chip .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .asheet-scrim{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:50;display:none;align-items:flex-end;padding:8px;box-sizing:border-box}
@@ -131,11 +130,29 @@
 .bsec .body{padding:12px}
 .bsec .body.flush{padding:0}
 .board-range{margin-bottom:10px}
-.kpi-hero{
-  display:flex;align-items:flex-end;justify-content:space-between;gap:10px;
-  padding:12px 14px;border-radius:12px;margin-bottom:8px;
-  background:linear-gradient(135deg,#EEF3FF,#F7F9FF);
-}
+.kpi-strip{display:flex;align-items:center}
+.kpi-strip .c{flex:1;text-align:center;padding:4px 0}
+.kpi-strip .n{font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.1}
+.kpi-strip .n.brand{color:var(--brand-hex)}
+.kpi-strip .n.danger{color:var(--destructive)}
+.kpi-strip .n.warn{color:#D97706}
+.kpi-strip .n.ok{color:#16A34A}
+.kpi-strip .t{font-size:11px;color:var(--muted-fg);margin-top:4px}
+.kpi-strip > i{width:1px;align-self:stretch;background:#ECEEF3}
+.range-txt{display:flex;align-items:center;gap:12px}
+.range-txt button{border:none;background:transparent;font-size:12px;font-weight:500;color:var(--muted-fg);cursor:pointer;padding:0}
+.range-txt button.on{font-weight:800;color:var(--foreground)}
+.spark-row{display:flex;align-items:flex-end;gap:6px;height:40px;margin-top:14px}
+.spark-row i{flex:1;border-radius:3px;background:#EEF1F8;min-height:10%}
+.spark-row i.on{background:var(--brand-hex)}
+.spark-cap{font-size:11px;color:var(--muted-fg);margin-top:8px}
+.badge-st{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;flex-shrink:0}
+.badge-st.work{color:#3B6FFF;background:rgba(59,111,255,.12)}
+.badge-st.on{color:#16A34A;background:rgba(22,163,74,.12)}
+.ag-list{padding:0 16px}
+.ag-list .ag{border-top:1px solid rgba(220,224,232,.7)}
+.ag .track{display:none}
+.ag .meta{display:none}
 .kpi-hero .v{font-size:32px;font-weight:800;letter-spacing:-.8px;line-height:1}
 .kpi-hero .l{font-size:11px;color:var(--muted-fg);margin-top:4px;font-weight:600}
 .kpi-hero .spark{display:flex;align-items:flex-end;gap:3px;height:36px;width:72px}
@@ -219,17 +236,16 @@
       <span>⚠️</span><span style="flex:1">有员工工位未绑定，任务可能无法执行</span>
       <a class="act" href="08-staff-profile.html#cap">去绑定 ›</a>
     </div>
+    <div class="mode-seg" data-mode-seg>
+      <button type="button" class="on" data-mode="progress">整盘</button>
+      <button type="button" data-mode="columns">按状态</button>
+      <button type="button" data-mode="swimlanes">按人</button>
+    </div>
     <div class="board-toolbar">
-      <div class="mode-seg" data-mode-seg>
-        <button type="button" class="on" data-mode="progress">整盘</button>
-        <button type="button" data-mode="columns">按状态</button>
-        <button type="button" data-mode="swimlanes">按人</button>
-      </div>
-      <div class="progress-hint" data-progress-hint>工作区整盘 · 近 7 / 30 / 90 天</div>
       <button type="button" class="project-chip hidden" data-project-chip aria-label="项目：全部项目">
-        <div class="pi"><svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9l-.81-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
+        <div class="pi"><svg class="ic" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9l-.81-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
         <span class="label" data-project-label>全部项目</span>
-        <span class="sw">切换 ▾</span>
+        <span class="sw">▾</span>
       </button>
     </div>
 
@@ -238,50 +254,49 @@
       <div data-mode-panel="progress" class="board-scroll">
         <div class="elevated bsec">
           <div class="sec-bar">
-            <div class="tit">整盘概况 <span class="meta">工作区 · 近 7 天</span></div>
+            <div class="tit">概况</div>
+            <div class="range-txt" id="range-seg">
+              <button type="button" class="on">7天</button>
+              <button type="button">30天</button>
+              <button type="button">90天</button>
+            </div>
           </div>
           <div class="body">
-            <div class="ios-seg board-range" id="range-seg">
-              <button type="button" class="on">近 7 天</button>
-              <button type="button">近 30 天</button>
-              <button type="button">近 90 天</button>
+            <div class="kpi-strip">
+              <div class="c"><div class="n brand">8</div><div class="t">7 天完成</div></div>
+              <i></i>
+              <div class="c"><div class="n">12</div><div class="t">未完成</div></div>
+              <i></i>
+              <div class="c"><div class="n">40%</div><div class="t">完成率</div></div>
             </div>
-            <div class="kpi-hero">
-              <div>
-                <div class="v">8</div>
-                <div class="l">完成任务</div>
-              </div>
-              <div class="spark" aria-hidden="true">
-                <i style="height:35%"></i><i style="height:48%"></i><i style="height:40%"></i>
-                <i style="height:62%"></i><i style="height:55%"></i><i class="on" style="height:92%"></i>
-              </div>
+            <div class="spark-row" aria-hidden="true">
+              <i style="height:35%"></i><i style="height:48%"></i><i style="height:40%"></i>
+              <i style="height:62%"></i><i style="height:55%"></i><i class="on" style="height:92%"></i><i style="height:28%"></i>
             </div>
-            <div class="kpi-tri">
-              <div class="c"><div class="n">6h 42m</div><div class="t">运行时长</div></div>
-              <div class="c"><div class="n">2.4M</div><div class="t">Tokens</div></div>
-              <div class="c"><div class="n">3</div><div class="t">失败</div></div>
-            </div>
+            <div class="spark-cap">近 7 天每天完成</div>
           </div>
         </div>
 
         <div class="elevated bsec">
           <div class="sec-bar">
-            <div class="tit">进行中 <span class="meta"><b>3</b> 条需关注</span></div>
-            <a class="link-brand" href="#" onclick="document.querySelector('[data-mode=columns]').click();return false">按状态 ›</a>
+            <div class="tit">事项</div>
           </div>
           <div class="body flush">
-            <div style="padding:10px 12px 0">
-              <div class="mix">
-                <b style="width:62%;background:var(--success)"></b>
-                <b style="width:23%;background:var(--brand-hex)"></b>
-                <b style="width:10%;background:var(--priority)"></b>
-                <b style="width:5%;background:var(--destructive)"></b>
+            <div style="padding:12px 8px 10px">
+              <div class="kpi-strip">
+                <div class="c"><div class="n danger">1</div><div class="t">需介入</div></div>
+                <i></i>
+                <div class="c"><div class="n brand">5</div><div class="t">进行中</div></div>
+                <i></i>
+                <div class="c"><div class="n warn">8</div><div class="t">排队</div></div>
+                <i></i>
+                <div class="c"><div class="n ok">8</div><div class="t">已完成</div></div>
               </div>
-              <div class="mix-leg">
-                <span><i style="background:var(--success)"></i>完成 8</span>
-                <span><i style="background:var(--brand-hex)"></i>进行 5</span>
-                <span><i style="background:var(--priority)"></i>受阻 1</span>
-                <span><i style="background:var(--destructive)"></i>失败 3</span>
+              <div class="mix" style="margin:10px 8px 0">
+                <b style="flex:1;background:var(--destructive)"></b>
+                <b style="flex:5;background:var(--brand-hex)"></b>
+                <b style="flex:8;background:#D97706"></b>
+                <b style="flex:8;background:var(--success)"></b>
               </div>
             </div>
             <a class="iss" href="05-workbench.html">
@@ -313,40 +328,44 @@
 
         <div class="elevated bsec">
           <div class="sec-bar">
-            <div class="tit">员工用量 <span class="meta">本周</span></div>
+            <div class="tit">数字员工</div>
           </div>
-          <div class="body">
+          <div class="body flush">
+            <div style="padding:12px 8px 4px">
+              <div class="kpi-strip">
+                <div class="c"><div class="n ok">3</div><div class="t">在岗</div></div>
+                <i></i>
+                <div class="c"><div class="n brand">2</div><div class="t">工作中</div></div>
+                <i></i>
+                <div class="c"><div class="n warn">4</div><div class="t">在手</div></div>
+              </div>
+            </div>
+            <div class="ag-list">
             <div class="ag">
-              <span class="av" style="background:#60A5FA">c</span>
+              <span class="av" style="background:#60A5FA">C</span>
               <div class="mid">
                 <div class="nm">codex</div>
-                <div class="meta">3h 05m · 失败 1</div>
-                <div class="track"><i style="width:78%"></i></div>
               </div>
-              <span class="tok">1.1M</span>
+              <span class="badge-st work">工作中</span>
+              <span class="tok">2</span>
             </div>
             <div class="ag">
-              <span class="av" style="background:#F87171">m</span>
+              <span class="av" style="background:#F87171">M</span>
               <div class="mid">
                 <div class="nm">mika</div>
-                <div class="meta">2h 18m · 失败 1</div>
-                <div class="track"><i style="width:58%"></i></div>
               </div>
-              <span class="tok">980K</span>
+              <span class="badge-st work">工作中</span>
+              <span class="tok">1</span>
             </div>
             <div class="ag">
-              <span class="av" style="background:#A78BFA">k</span>
+              <span class="av" style="background:#A78BFA">K</span>
               <div class="mid">
                 <div class="nm">kimi</div>
-                <div class="meta">1h 19m · 失败 1</div>
-                <div class="track"><i style="width:28%"></i></div>
               </div>
-              <span class="tok">320K</span>
+              <span class="badge-st on">在岗</span>
+              <span class="tok">1</span>
             </div>
-            <div style="font-size:11px;font-weight:700;margin:10px 0 4px;color:var(--muted-fg)">失败分布</div>
-            <div class="fail-row"><span>鉴权</span><div class="w"><i style="width:55%"></i></div><span class="n">2</span></div>
-            <div class="fail-row"><span>超时</span><div class="w"><i style="width:30%"></i></div><span class="n">1</span></div>
-            <div class="fail-row"><span>限流</span><div class="w"><i style="width:18%"></i></div><span class="n">1</span></div>
+            </div>
           </div>
         </div>
       </div>

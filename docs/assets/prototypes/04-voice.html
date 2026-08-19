@@ -34,15 +34,13 @@
       <div class="demo">
         <p>短按中央按钮打开 Sheet；以下三项分别进入三个独立页面（与 App 路由一致）。</p>
         <div class="links">
-          <a href="13-voice-record.html">
+          <a href="13-voice-record.html" data-need-mic>
             <div class="icw" style="background:rgba(59,111,255,.12);color:var(--brand-hex)"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
             <div><div class="t">录音</div><div class="s">边录边转写 · /voice-record</div></div>
-            <span class="tag">原型</span>
           </a>
           <a href="14-voice-translate.html">
             <div class="icw" style="background:rgba(13,148,136,.12);color:var(--teal)"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
             <div><div class="t">翻译</div><div class="s">实时双语 · /voice-translate</div></div>
-            <span class="tag">原型</span>
           </a>
           <a href="12-voice-talk.html">
             <div class="icw" style="background:rgba(245,158,11,.14);color:var(--priority)"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></div>
@@ -70,17 +68,17 @@
         <div class="grabber"></div>
         <div style="font-size:13px;font-weight:500;color:var(--muted-fg);text-align:center;padding:4px 0 12px">选择语音方式</div>
         <div style="display:flex;gap:10px;margin-bottom:12px">
-          <a href="13-voice-record.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
+          <a href="13-voice-record.html" data-need-mic style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
             <div style="width:48px;height:48px;border-radius:16px;background:rgba(59,111,255,.12);color:var(--brand-hex);display:flex;align-items:center;justify-content:center;margin:0 auto 8px"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
             <div style="font-size:14px;font-weight:700">录音</div>
             <div style="font-size:10px;color:var(--muted-fg);margin-top:2px">边录边转写</div>
-            <div style="font-size:9px;color:var(--muted-fg);background:var(--secondary);display:inline-block;margin-top:6px;padding:2px 6px;border-radius:4px">原型</div>
+            <div style="height:18px;margin-top:6px"></div>
           </a>
           <a href="14-voice-translate.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
             <div style="width:48px;height:48px;border-radius:16px;background:rgba(13,148,136,.12);color:var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 8px"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
             <div style="font-size:14px;font-weight:700">翻译</div>
             <div style="font-size:10px;color:var(--muted-fg);margin-top:2px">实时双语</div>
-            <div style="font-size:9px;color:var(--muted-fg);background:var(--secondary);display:inline-block;margin-top:6px;padding:2px 6px;border-radius:4px">原型</div>
+            <div style="height:18px;margin-top:6px"></div>
           </a>
           <a href="12-voice-talk.html" style="flex:1;background:#F7F8FC;border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;text-decoration:none;color:inherit">
             <div style="width:48px;height:48px;border-radius:16px;background:rgba(245,158,11,.14);color:var(--priority);display:flex;align-items:center;justify-content:center;margin:0 auto 8px"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></div>

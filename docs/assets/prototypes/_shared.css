@@ -26,7 +26,7 @@
   --phone-w: 390px;
   --phone-h: 844px;
   --safe-bottom: 34px;
-  --tab-h: 64px;
+  --tab-h: 56px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -173,12 +173,13 @@ body {
 .scroll::-webkit-scrollbar { display: none; }
 
 /* —— Tab bar ——
- * 对齐 tabs/_layout.tsx：内容区高 64 + safeBottom；
- * 中央 RecordButton 58×58 在栏内与其它 Tab 同一行，无负 margin、不浮出栏顶。
+ * 对齐 tabs/_layout.tsx：内容区高 56 + safeBottom；
+ * 中央录音键 64×46、圆角 16，栏内居中不凸出。
  */
 .tabbar {
   height: calc(var(--tab-h) + var(--safe-bottom));
-  padding: 6px 4px var(--safe-bottom);
+  padding: 4px 4px 0;
+  padding-bottom: var(--safe-bottom);
   background: #fff;
   border-top: 1px solid var(--hairline);
   display: flex;
@@ -232,19 +233,20 @@ body {
 /* 与两侧 Tab 顶对齐，落在同一行内容区（非凸起 FAB） */
 .tab-center-slot {
   flex: 1;
-  max-width: 72px;
+  max-width: 80px;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  height: var(--tab-h);
   padding-top: 0;
   margin: 0;
   align-self: flex-start;
 }
 .record-btn {
-  width: 58px;
-  height: 58px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #2F62F0, #3B6FFF 55%, #5B8AFF);
+  width: 64px;
+  height: 46px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #3B6FFF, #6B9BFF);
   box-shadow: 0 2px 8px rgba(59,111,255,.28);
   display: flex;
   align-items: center;
@@ -256,11 +258,12 @@ body {
   transition: transform .12s ease;
   flex-shrink: 0;
 }
+.record-btn .mic { width: 28px; height: 28px; }
 .record-btn:active { transform: scale(.92); }
 .record-btn .eq {
   display: none;
-  align-items: flex-end;
-  gap: 3px;
+  align-items: center;
+  gap: 3.5px;
   height: 24px;
 }
 .record-btn.recording .mic { display: none; }
@@ -413,30 +416,35 @@ body {
   color: #fff;
 }
 
-/* 看板整盘/按状态/按人：圆角轨 #EEF1F8 + brand 选中块（对齐 board.tsx） */
+/* 看板整盘/按状态/按人：下划线 Tab（对齐 board.tsx） */
 .mode-seg {
   display: flex;
-  background: #EEF1F8;
-  border-radius: 16px;
-  padding: 4px;
-  gap: 0;
+  align-items: flex-end;
+  gap: 24px;
+  background: transparent;
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 16px;
 }
 .mode-seg button {
-  flex: 1;
+  flex: 0 0 auto;
   border: none;
   background: transparent;
-  padding: 10px 0;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 10px 0 8px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--muted-fg);
   cursor: pointer;
   line-height: 1.2;
+  margin-bottom: -1px;
 }
 .mode-seg button.on {
-  background: var(--brand-hex);
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(59,111,255,.22);
+  background: transparent;
+  color: var(--foreground);
+  font-weight: 800;
+  border-bottom-color: var(--foreground);
+  box-shadow: none;
 }
 
 /* 看板近 7/30/90 天：对齐 SegmentedControl（tint=brand） */
@@ -530,3 +538,16 @@ html.embed body > .phone {
   position: fixed;
   inset: 0;
 }
+
+/* 设置页 iOS 开关 */
+.ios-switch {
+  width: 46px; height: 28px; border-radius: 14px;
+  background: #E5E7EB; position: relative; flex-shrink: 0; border: none; cursor: pointer;
+}
+.ios-switch::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 24px; height: 24px; border-radius: 12px; background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: left .15s;
+}
+.ios-switch.on { background: var(--brand-hex); }
+.ios-switch.on::after { left: 20px; }

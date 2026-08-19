@@ -39,6 +39,9 @@
     "14-voice-translate.html": "翻译",
     "15-inbox.html": "收件箱",
     "16-projects.html": "项目",
+    "17-settings.html": "设置",
+    "18-briefs.html": "行业简报",
+    "19-recordings.html": "录音",
   };
 
   function currentFile() {
@@ -205,6 +208,14 @@
         return;
       }
       e.preventDefault();
+      if (parsed.file === "13-voice-record.html") {
+        if (sessionStorage.getItem("proto-mic") !== "1") {
+          if (!window.confirm("Utter Office 需要麦克风来录制会议。允许吗？")) {
+            return;
+          }
+          sessionStorage.setItem("proto-mic", "1");
+        }
+      }
       navigateProto(parsed.file, parsed.hash, { action: "push" });
     },
     true,
@@ -255,6 +266,17 @@
             window.__protoColsGo(window.__protoColsIdx || 0, false);
           });
         }
+      });
+    });
+  });
+
+  var range = $("#range-seg");
+  if (range) {
+    $$("button", range).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        $$("button", range).forEach(function (b) {
+          b.classList.toggle("on", b === btn);
+        });
       });
     });
   });

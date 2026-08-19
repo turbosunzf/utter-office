@@ -78,7 +78,7 @@
           </button>
         </div>
         <div class="tools">
-          <button type="button" class="tool"><svg class="ic" style="width:22px;height:22px;color:var(--foreground)" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>拍照</button>
+          <button type="button" class="tool" id="btn-photo"><svg class="ic" style="width:22px;height:22px;color:var(--foreground)" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>拍照</button>
           <button type="button" class="tool"><svg class="ic" style="width:22px;height:22px;color:var(--foreground)" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>上传附件</button>
           <button type="button" class="tool"><svg class="ic" style="width:22px;height:22px;color:var(--foreground)" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>快速记录</button>
           <button type="button" class="tool"><svg class="ic" style="width:22px;height:22px;color:var(--foreground)" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg><span class="badge">3</span>记录要点</button>
@@ -153,6 +153,19 @@
     lines.innerHTML = '<div class="empty"><div style="font-size:14px;margin-bottom:4px">录音已结束</div><div style="font-size:12px">点击底部播放按钮重新开始</div></div>';
     setStatus();
   });
+  var photo = document.getElementById("btn-photo");
+  if (photo) {
+    photo.addEventListener("click", function () {
+      if (sessionStorage.getItem("proto-cam") === "1") {
+        alert("已保存：照片已附到本次录音。");
+        return;
+      }
+      if (confirm("拍照需要使用相机和相册。允许吗？")) {
+        sessionStorage.setItem("proto-cam", "1");
+        alert("已保存：照片已附到本次录音。");
+      }
+    });
+  }
 })();
 </script>
 <script src="_shared.js"></script>
