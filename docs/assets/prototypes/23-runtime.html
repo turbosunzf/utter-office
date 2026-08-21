@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>23 Runtime · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.back{display:flex;align-items:center;color:var(--brand-hex);text-decoration:none;padding:8px}
+.item{background:#fff;border-radius:14px;padding:14px;margin:0 16px 10px;border:1px solid rgba(15,23,42,.06)}
+.item .top{display:flex;align-items:center;justify-content:space-between}
+.item .t{font-size:15px;font-weight:700}
+.item .s{font-size:12px;color:var(--muted-fg);margin-top:6px}
+.stats{display:flex;gap:12px;margin-top:10px;font-size:11px;color:var(--muted-fg)}
+.stats b{color:var(--foreground)}
+</style>
+</head>
+<body>
+<p class="stage-note"><b>Runtime</b> · <a href="00-index.html">目录</a></p>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <a class="back" href="06-mine.html" data-back data-back-fallback="06-mine.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">Runtime</div></div>
+      <div style="width:44px"></div>
+    </div>
+    <div class="scroll" style="padding:12px 0 28px">
+      <div class="item">
+        <div class="top"><div class="t">MacBook Pro</div><span class="runtime-pill"><i></i>online</span></div>
+        <div class="s">arm64 / macOS · Cursor · Claude Code 已检测</div>
+        <div class="stats"><span>In <b>2.2M</b></span><span>Out <b>1.1M</b></span><span>今日 <b>$4.2</b></span></div>
+      </div>
+      <div class="item">
+        <div class="top"><div class="t">Cloud (Anthropic)</div><span class="runtime-pill"><i></i>online</span></div>
+        <div class="s">云端并发 · 适合长任务过夜跑</div>
+        <div class="stats"><span>队列 <b>1</b></span><span>并发 <b>3</b></span></div>
+      </div>
+      <div class="item">
+        <div class="top"><div class="t">Linux Server</div><span class="runtime-pill off"><i></i>offline</span></div>
+        <div class="s">上次在线 2 天前 · 建议检查 daemon</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="_shared.js"></script>
+</body>
+</html>

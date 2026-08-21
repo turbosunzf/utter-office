@@ -1,6 +1,7 @@
 /**
  * 首页 — PRD §4 Today shell:
- *   greeting → hero → 组织在岗 → 工作成果(24h) → 待办 → 简报
+ *   greeting → hero → 组织在岗 → 待办 → 简报
+ *   （工作成果已迁至看板 · 整盘）
  */
 import { useMemo } from "react";
 import { Pressable, ScrollView, View } from "react-native";
@@ -13,7 +14,6 @@ import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { QuickActions } from "@/components/home/quick-actions";
 import { HomeHero } from "@/components/home/home-hero";
-import { OutcomeFeed } from "@/components/home/outcome-feed";
 import { TodoList } from "@/components/home/todo-list";
 import { BriefList } from "@/components/home/brief-list";
 import { useVoiceStore } from "@/data/stores/voice-store";
@@ -200,7 +200,6 @@ export default function Home() {
           onPressInbox={() => go("/inbox")}
           onPressStaff={() => go("/staff")}
         />
-        <OutcomeFeed />
         <View className="px-4">
           <TodoList
             issues={todos}

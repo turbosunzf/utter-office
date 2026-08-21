@@ -3,105 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>行业简报列表 · utter-office</title>
+<title>18 新闻简报 · utter-office</title>
 <script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
 <link rel="stylesheet" href="_shared.css">
 <style>
-.brief-tabs {
-  display: flex; gap: 18px; overflow-x: auto; padding: 10px 16px 6px;
-  background: #fff; border-bottom: 1px solid var(--hairline); scrollbar-width: none;
-}
-.brief-tabs::-webkit-scrollbar { display: none; }
-.brief-tabs button {
-  border: none; background: transparent; padding: 0 0 4px;
-  border-bottom: 2px solid transparent; font-size: 14px; font-weight: 500;
-  color: #5C5C5C; cursor: pointer;
-}
-.brief-tabs button.on { font-weight: 800; color: #111; border-bottom-color: #111; }
-.brief-row {
-  display: flex; align-items: flex-start; gap: 8px;
-  padding: 10px 16px; text-decoration: none; color: inherit;
-  border-bottom: 1px solid rgba(15,23,42,.08); background: #fff;
-}
-.rank { width: 22px; height: 22px; text-align: center; font-size: 14px; font-weight: 700; line-height: 22px; color: #9CA3AF; flex-shrink: 0; }
-.rank.hot { border-radius: 11px; background: #E53935; color: #fff; font-size: 13px; }
-.ttl { font-size: 16px; font-weight: 700; line-height: 22px; }
-.meta { margin-top: 6px; font-size: 12px; color: var(--muted-fg); display: flex; align-items: center; }
-.hit { margin-left: auto; background: #F5F5F5; border-radius: 3px; padding: 2px 6px; }
-.hit .n { color: #E53935; font-weight: 600; margin-left: 4px; }
+.back{display:flex;align-items:center;gap:4px;color:var(--brand-hex);text-decoration:none;font-size:17px;padding:8px}
+.feed{margin:8px 16px 24px;background:var(--surface-2);border-radius:var(--radius-card);border:1px solid var(--hairline);overflow:hidden;box-shadow:var(--shadow-card)}
+.news-card{display:block;padding:10px 12px;text-decoration:none;color:inherit;border-bottom:1px solid var(--hairline)}
+.news-card:last-child{border-bottom:none}
+.news-card .meta{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-tertiary);margin-bottom:4px}
+.news-card .meta .topic{font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;background:var(--well)}
+.news-card .hl{font-size:13px;font-weight:750;line-height:1.35}
+.news-card .advice{margin-top:4px;font-size:11px;color:var(--brand-deep);font-weight:650;line-height:1.35;display:flex;gap:4px;align-items:flex-start}
+.news-card .advice::before{content:"建";flex-shrink:0;font-size:9px;font-weight:800;background:var(--accent-well);color:var(--brand-hex);border-radius:3px;padding:1px 4px;margin-top:1px}
 </style>
 </head>
 <body>
-<p class="stage-note"><b>简报列表</b> · 对齐 <code>briefs/index.tsx</code> · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>新闻简报</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
-    <div class="app-header" style="min-height:44px;padding:0 4px">
-      <a class="back" href="02-home.html" data-back data-back-fallback="02-home.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
-      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">行业简报</div></div>
-      <div style="width:44px"></div>
+    <div class="app-header">
+      <a class="back" href="02-home.html" data-back data-back-fallback="02-home.html" data-back-fallback-label="首页">
+        <svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        <span data-back-label>首页</span>
+      </a>
+      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">新闻简报</div></div>
+      <a href="26-watch-topics.html" style="font-size:12px;font-weight:700;color:var(--brand-hex);text-decoration:none;padding:8px">类别</a>
     </div>
-    <div class="brief-tabs" data-brief-tabs>
-      <button type="button" class="on" data-tab="all">全部</button>
-      <button type="button" data-tab="infra">AI Infra</button>
-      <button type="button" data-tab="comp">竞品</button>
-      <button type="button" data-tab="pol">政策</button>
-      <button type="button" data-tab="fund">融资</button>
+    <div class="mode-seg" data-mode-seg style="margin-bottom:4px">
+      <button type="button" class="on" data-mode="all">全部</button>
+      <button type="button" data-mode="compete">竞品</button>
+      <button type="button" data-mode="client">客户</button>
+      <button type="button" data-mode="runtime">Runtime</button>
+      <button type="button" data-mode="promise">承诺</button>
+      <button type="button" data-mode="scope">口径</button>
     </div>
-    <div class="scroll" style="background:#fff">
-      <a class="brief-row" data-cat="infra" href="11-brief-detail.html">
-        <div class="rank hot">1</div>
-        <div class="flex-1">
-          <div class="ttl">某推理框架发布新版本，推理成本下降约 40%</div>
-          <div class="meta">36Kr 2小时前 <span class="hit"><span>成本</span><span class="n">↓40%</span></span></div>
-        </div>
-      </a>
-      <a class="brief-row" data-cat="comp" href="11-brief-detail.html">
-        <div class="rank hot">2</div>
-        <div class="flex-1">
-          <div class="ttl">竞品上线「数字员工工位绑定」，强调本地 runtime</div>
-          <div class="meta">TechNode 5小时前 <span class="hit"><span>能力</span><span class="n">新</span></span></div>
-        </div>
-      </a>
-      <a class="brief-row" data-cat="fund" href="11-brief-detail.html">
-        <div class="rank hot">3</div>
-        <div class="flex-1">
-          <div class="ttl">垂直 Agent 平台完成 A 轮，估值报 3 亿美元</div>
-          <div class="meta">36Kr 8小时前 <span class="hit"><span>估值</span><span class="n">$3亿</span></span></div>
-        </div>
-      </a>
-      <a class="brief-row" data-cat="infra" href="11-brief-detail.html">
-        <div class="rank">4</div>
-        <div class="flex-1">
-          <div class="ttl">开源向量库发布增量索引，长上下文检索延迟腰斩</div>
-          <div class="meta">Hacker News 12小时前</div>
-        </div>
-      </a>
-      <a class="brief-row" data-cat="pol" href="11-brief-detail.html">
-        <div class="rank">5</div>
-        <div class="flex-1">
-          <div class="ttl">生成式 AI 服务备案指引更新（摘要）</div>
-          <div class="meta">政策摘要 昨天</div>
-        </div>
-      </a>
+    <div class="scroll">
+      <div class="feed" data-mode-panel="all">
+        <a class="news-card" href="11-brief-detail.html#runtime">
+          <div class="meta"><span>今天 16:40</span><span class="topic" style="background:#FEF2F2;color:#B91C1C">Runtime</span></div>
+          <div class="hl">三件事项今晚将撞上同一 Runtime</div>
+          <div class="advice">错峰排程或临时扩容</div>
+        </a>
+        <a class="news-card" href="11-brief-detail.html">
+          <div class="meta"><span>今天 14:12</span><span class="topic" style="background:#ECFDF5;color:#047857">竞品</span></div>
+          <div class="hl">竞品本周开放「小队模板」试用</div>
+          <div class="advice">出一页对照：能力 / 定价 / 迁移</div>
+        </a>
+        <a class="news-card" href="11-brief-detail.html#client">
+          <div class="meta"><span>今天 11:05</span><span class="topic" style="background:#EFF6FF;color:#1D4ED8">客户</span></div>
+          <div class="hl">客户再问「数字员工席位包」报价</div>
+          <div class="advice">先出报价一页 + 试点 SLA</div>
+        </a>
+        <a class="news-card" href="11-brief-detail.html#promise">
+          <div class="meta"><span>昨天 17:20</span><span class="topic" style="background:#FFF7ED;color:#C2410C">承诺</span></div>
+          <div class="hl">「周五前出试点名单」仍未落成事项</div>
+          <div class="advice">立刻建项并指派 nova 跟踪</div>
+        </a>
+        <a class="news-card" href="11-brief-detail.html#scope">
+          <div class="meta"><span>昨天 10:08</span><span class="topic">口径</span></div>
+          <div class="hl">「零信任内控」与三件事项口径对不上</div>
+          <div class="advice">验收前先开口径对齐会</div>
+        </a>
+      </div>
+      <div class="feed hidden" data-mode-panel="compete">
+        <a class="news-card" href="11-brief-detail.html">
+          <div class="meta"><span>今天 14:12</span><span class="topic" style="background:#ECFDF5;color:#047857">竞品</span></div>
+          <div class="hl">竞品本周开放「小队模板」试用</div>
+          <div class="advice">出一页对照：能力 / 定价 / 迁移</div>
+        </a>
+      </div>
+      <div class="feed hidden" data-mode-panel="client">
+        <a class="news-card" href="11-brief-detail.html#client">
+          <div class="meta"><span>今天 11:05</span><span class="topic" style="background:#EFF6FF;color:#1D4ED8">客户</span></div>
+          <div class="hl">客户再问「数字员工席位包」报价</div>
+          <div class="advice">先出报价一页 + 试点 SLA</div>
+        </a>
+      </div>
+      <div class="feed hidden" data-mode-panel="runtime">
+        <a class="news-card" href="11-brief-detail.html#runtime">
+          <div class="meta"><span>今天 16:40</span><span class="topic" style="background:#FEF2F2;color:#B91C1C">Runtime</span></div>
+          <div class="hl">三件事项今晚将撞上同一 Runtime</div>
+          <div class="advice">错峰排程或临时扩容</div>
+        </a>
+      </div>
+      <div class="feed hidden" data-mode-panel="promise">
+        <a class="news-card" href="11-brief-detail.html#promise">
+          <div class="meta"><span>昨天 17:20</span><span class="topic" style="background:#FFF7ED;color:#C2410C">承诺</span></div>
+          <div class="hl">「周五前出试点名单」仍未落成事项</div>
+          <div class="advice">立刻建项并指派 nova 跟踪</div>
+        </a>
+      </div>
+      <div class="feed hidden" data-mode-panel="scope">
+        <a class="news-card" href="11-brief-detail.html#scope">
+          <div class="meta"><span>昨天 10:08</span><span class="topic">口径</span></div>
+          <div class="hl">「零信任内控」与三件事项口径对不上</div>
+          <div class="advice">验收前先开口径对齐会</div>
+        </a>
+      </div>
     </div>
   </div>
 </div>
 <script src="_shared.js"></script>
-<script>
-(function () {
-  var tabs = document.querySelectorAll("[data-tab]");
-  var rows = document.querySelectorAll("[data-cat]");
-  tabs.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      tabs.forEach(function (b) { b.classList.toggle("on", b === btn); });
-      var cat = btn.getAttribute("data-tab");
-      rows.forEach(function (row) {
-        row.style.display = cat === "all" || row.getAttribute("data-cat") === cat ? "flex" : "none";
-      });
-    });
-  });
-})();
-</script>
 </body>
 </html>

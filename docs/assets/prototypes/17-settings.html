@@ -17,7 +17,7 @@
 </style>
 </head>
 <body>
-<p class="stage-note"><b>设置</b> · 对齐 <code>more/settings.tsx</code> · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>设置</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
@@ -49,7 +49,7 @@
           </div>
         </div>
       </div>
-      <button type="button" class="signout">退出登录</button>
+      <button type="button" class="signout" id="signout">退出登录</button>
     </div>
   </div>
 </div>
@@ -57,19 +57,31 @@
 <script>
 (function () {
   var sw = document.getElementById("overlay-sw");
-  if (!sw) return;
-  if (sessionStorage.getItem("proto-overlay") === "1") sw.classList.add("on");
-  sw.addEventListener("click", function () {
-    if (sw.classList.contains("on")) {
-      sw.classList.remove("on");
-      sessionStorage.setItem("proto-overlay", "0");
-      return;
-    }
-    if (confirm("录制中可在其他 App 上方显示计时条。前往系统设置开启「显示在其他应用的上层」？")) {
-      sw.classList.add("on");
-      sessionStorage.setItem("proto-overlay", "1");
-    }
-  });
+  if (sw) {
+    if (sessionStorage.getItem("proto-overlay") === "1") sw.classList.add("on");
+    sw.addEventListener("click", function () {
+      if (sw.classList.contains("on")) {
+        sw.classList.remove("on");
+        sessionStorage.setItem("proto-overlay", "0");
+        return;
+      }
+      if (confirm("录制中可在其他 App 上方显示计时条。前往系统设置开启「显示在其他应用的上层」？")) {
+        sw.classList.add("on");
+        sessionStorage.setItem("proto-overlay", "1");
+      }
+    });
+  }
+  var out = document.getElementById("signout");
+  if (out) {
+    out.addEventListener("click", function () {
+      if (!confirm("退出当前工作区？")) return;
+      if (window.__protoToast) window.__protoToast("已退出");
+      setTimeout(function () {
+        if (window.__protoGo) window.__protoGo("02-home.html");
+        else location.href = "02-home.html";
+      }, 400);
+    });
+  }
 })();
 </script>
 </body>

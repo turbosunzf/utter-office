@@ -8,40 +8,39 @@
 <link rel="stylesheet" href="_shared.css">
 <style>
 .back{display:flex;align-items:center;color:var(--brand-hex);text-decoration:none;padding:8px}
-.head{background:#fff;border-bottom:1px solid var(--border);padding:14px 16px 16px}
+.head{background:var(--surface-2);border-bottom:1px solid var(--hairline);padding:14px 16px 16px}
 .head-row{display:flex;gap:12px;align-items:flex-start}
-.head .domain{font-size:20px;font-weight:700;letter-spacing:-.2px}
-.head .title{font-size:13px;color:var(--muted-fg);margin-top:2px}
-.head .st{font-size:12px;color:var(--muted-fg);margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.head .domain{font-size:20px;font-weight:800;letter-spacing:-.2px}
+.head .title{font-size:13px;color:var(--text-secondary);margin-top:2px}
+.head .st{font-size:12px;color:var(--text-secondary);margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .head .st .dot-live{width:6px;height:6px;border-radius:999px;background:var(--brand-hex)}
-.head .desc{font-size:13px;margin-top:12px;line-height:1.55;color:var(--foreground)}
+.head .desc{font-size:13px;margin-top:12px;line-height:1.55;color:var(--text-primary)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .chips span{
-  font-size:11px;font-weight:600;padding:4px 9px;border-radius:8px;
-  background:#F3F4F6;color:var(--foreground);
+  font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;
+  background:var(--well);color:var(--text-primary);
 }
 .btns{display:flex;gap:8px;margin-top:14px}
-.btns a{flex:1;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;text-decoration:none}
+.btns a{flex:1;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;text-decoration:none}
 .btns .p{background:var(--brand-hex);color:#fff}
-.btns .s{background:rgba(59,111,255,.12);color:var(--brand-hex)}
-
-.tabs{display:flex;background:#fff;border-bottom:1px solid var(--border)}
-.tabs button{flex:1;border:none;background:transparent;padding:12px 0;font-size:13px;color:var(--muted-fg);border-bottom:2px solid transparent;cursor:pointer}
-.tabs button.on{color:var(--brand-hex);font-weight:600;border-bottom-color:var(--brand-hex)}
+.btns .s{background:var(--accent-well);color:var(--brand-hex);border:1px solid rgba(59,111,255,.25)}
+.tabs{display:flex;background:var(--surface-2);border-bottom:1px solid var(--hairline)}
+.tabs button{flex:1;border:none;background:transparent;padding:12px 0;font-size:13px;color:var(--text-secondary);border-bottom:2px solid transparent;cursor:pointer}
+.tabs button.on{color:var(--brand-hex);font-weight:800;border-bottom-color:var(--brand-hex)}
 .panel{padding:12px 16px 28px}
 
 .perf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.perf .cell{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+.perf .cell{background:var(--surface-2);border:1px solid var(--hairline);border-radius:10px;padding:12px;text-align:center}
 .perf .cell.good{background:#ECFDF5;border-color:#D1FAE5}
 .perf .cell.bad{background:#FEF2F2;border-color:#FECACA}
-.perf .v{font-size:20px;font-weight:700;line-height:1.15}
+.perf .v{font-size:20px;font-weight:800;line-height:1.15;font-family:var(--mono)}
 .perf .cell.good .v{color:#059669}
 .perf .cell.bad .v{color:#DC2626}
-.perf .l{font-size:11px;color:var(--muted-fg);margin-top:4px}
+.perf .l{font-size:11px;color:var(--text-secondary);margin-top:4px;font-weight:650}
 
-.block{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
-.block .bt{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.block .bt .more{font-size:12px;font-weight:500;color:var(--brand-hex);text-decoration:none}
+.block{background:var(--surface-2);border:1px solid var(--hairline);border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:var(--shadow-card)}
+.block .bt{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.block .bt .more{font-size:12px;font-weight:700;color:var(--brand-hex);text-decoration:none}
 
 /* 今日活动轴 · StaffDeck 24h 的手机简化 */
 .act-bar{display:flex;align-items:flex-end;gap:3px;height:56px;margin:4px 0 8px}
@@ -106,7 +105,7 @@
 </style>
 </head>
 <body>
-<p class="stage-note"><b>员工档案</b> · 对齐 StaffDeck 详情页优点 · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>档案</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
@@ -128,25 +127,25 @@
         </div>
         <div class="desc">熟悉需求澄清、拆单与进度回报；能独立催办在手事项。遇到跨项目冲突或权限不足时，把上下文交还给负责人。</div>
         <div class="chips">
-          <span>6 技能</span><span>12 工具</span><span>2 在手</span><span style="color:var(--muted-fg)">— 定时</span>
+          <span>6 技能</span><span>2 SOP</span><span>12 知识</span><span>2 在手</span>
         </div>
         <div class="btns">
-          <a class="p" href="05-workbench.html">去对话</a>
-          <a class="s" href="09-staff-picker.html#dispatch">派单给他</a>
+          <a class="p" href="05-workbench.html?labor=mika&tab=doing">看队列</a>
+          <a class="s" href="09-staff-picker.html?issue=UO-33#dispatch">派活给他</a>
         </div>
       </div>
 
       <div class="tabs" data-profile-tabs>
         <button type="button" class="on" data-tab="work">工作记录</button>
-        <button type="button" data-tab="cap" id="cap-tab">能力</button>
-        <button type="button" data-tab="sess">会话</button>
+        <button type="button" data-tab="cap" id="cap-tab">能力资产</button>
+        <button type="button" data-tab="sess">Trace</button>
       </div>
 
       <!-- 工作记录 -->
       <div class="panel" data-profile-panel="work">
         <div class="perf">
-          <div class="cell"><div class="v">12</div><div class="l">今日对话</div></div>
-          <div class="cell"><div class="v">86</div><div class="l">累计对话</div></div>
+          <div class="cell"><div class="v">5</div><div class="l">今日交付</div></div>
+          <div class="cell"><div class="v">86</div><div class="l">累计事项</div></div>
           <div class="cell good"><div class="v">92%</div><div class="l">好评率</div></div>
           <div class="cell bad"><div class="v">3%</div><div class="l">差评率</div></div>
         </div>
@@ -171,9 +170,9 @@
             <div class="nm">重构鉴权中间件</div>
             <div class="st">running · 已跑 12 步</div>
             <div class="hitl">
-              <a href="#">看运行</a>
-              <a href="#">评论</a>
-              <a href="#">取消</a>
+              <a href="05-workbench.html?issue=UO-24">看运行</a>
+              <a href="05-workbench.html?issue=UO-24">下达</a>
+              <a href="05-workbench.html?issue=UO-24">打开</a>
             </div>
           </div>
           <div class="task">

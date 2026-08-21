@@ -1,9 +1,12 @@
 # utter-office 移动端 App 完整分析报告
 
-> 最后更新：2026-08-18
-> 分析对象：`apps/mobile`（@multica/mobile）+ `packages/core`（@multica/core）
-> 文档性质：结构 / 内容 / 原型现状全面分析，供后续开发（语音、BLE、StaffDeck 整合等）作为基础参照。
-> **StaffDeck 整合**：现行以 `docs/staffdeck-analysis.md` + `docs/app-prd.md` v1.8 + `docs/assets/prototypes/` 为准。
+> 最后更新：2026-08-21  
+> 分析对象：`apps/mobile`（@multica/mobile）+ `packages/core`（@multica/core）  
+> 文档性质：结构 / 内容 / 代码现状分析，供开发参照。  
+> **产品叙事真源（2026-08-21 起）**：[`product-blueprint-v2.md`](./product-blueprint-v2.md) + [`app-prd.md`](./app-prd.md) **v2**（数字员工 · Context 作战台）。  
+> **交互真源**：[`assets/prototypes/00-index.html`](./assets/prototypes/00-index.html)（已按数字员工模式改版；App 代码尚未跟随）。  
+> **旧 PRD**：[`app-prd-v1.8-archive.md`](./app-prd-v1.8-archive.md)（AI 秘书叙事，仅归档）。  
+> StaffDeck 专项：[`staffdeck-analysis.md`](./staffdeck-analysis.md)。
 
 ---
 
@@ -30,14 +33,39 @@
 
 ## 1. 产品定位与概念
 
-utter-office（AI 秘书）是从 Multica 独立出来的 **移动端优先的 AI 助手 App**，核心假设：
+### 1.1 v2 定位（现行）
 
-> **语音 + BLE 硬件** 是需求 / 任务的首选输入源 —— 用户开口（或按硬件按钮）说出需求，App 转写后派发为 issue / 任务，其余沿用 Multica 后端（web / 桌面 / 后端不改）。
+utter-office 是从 Multica 长出的 **移动端优先小队作战台**，不是陪聊型「AI 秘书」。
 
-当前仓库为**最小可构建骨架**（issue COD-13），只含移动端 + 通信层，尚未接入语音 / BLE / ASR。
+> **开口或按一下，上下文进小队；数字员工在 Runtime 上推进；你只拿成果、看进度、做审批。**
 
-- 移动端是「手机上的客户端的产物」，UI 与交互允许与 web/桌面不同，但**产品语义必须一致**（见 `apps/mobile/CLAUDE.md` §Behavioral parity）。
-- 本质上是一个 issue 项目管理客户端：issue / project / comment / chat / inbox / agent / squad 是核心概念，voice 是差异化入口。
+| 层 | 职责 | 底栏 |
+|----|------|------|
+| Context 入口 | 语音等低摩擦喂养 Agent | 中央 ●录 |
+| 成果 / HITL | 拿结果、处理阻塞与验收 | 首页 |
+| 进度 | Multica 生命周期可见 | 看板 |
+| 编排 | 派活、组队；聊天仅下达通道 | 工作台 |
+| 配置 | 员工 / 技能 / Runtime / 交接 | 我的 |
+
+执行内核仍是 **Multica**（issue / agent / squad / runtime）；治理表达借鉴 **StaffDeck**；Context 入口语义对齐 **OpenClaw / C·ONE 范式**（详见蓝图）。
+
+### 1.2 代码现状 vs 文档（重要）
+
+| 维度 | 文档 / 原型 | `apps/mobile`（截至本文） |
+|------|-------------|---------------------------|
+| 产品叙事 | Context 作战台 · 数字员工小队 | 仍大量「秘书 / 会话频道」实现 |
+| 首页 | 拿成果 + 待我处理 + 洞察 | 旧决策台结构为主 |
+| 工作台 | 编排台默认 | 聊天 / StaffRail 会话为主 |
+| 录音 | Context 入口 + 加密采集方案 | 短按录音内核已接；转写/事项管道未接 |
+
+**纪律：** 先完成原型再对齐计划 → 再按 PRD v2 改 App。本文 §2 起仍描述**代码真实结构**，勿与 v2 目标态混淆。
+
+### 1.3 历史表述（归档）
+
+旧分析曾写：「语音 + BLE 是首选输入，秘书派活」。该句作为 **入口假设** 仍成立，但产品主舞台已从「秘书聊天」改为「成果 / 进度 / 编排」。BLE / 通知 Context 属远期（PRD M5）。
+
+- 移动端 UI 可与 web 不同，**产品语义必须一致**（`apps/mobile/CLAUDE.md` §Behavioral parity）。
+- 领域核心仍是：issue / project / comment / agent / squad / inbox / runtime；voice 是差异化 **Context 入口**。
 
 ---
 
@@ -514,30 +542,43 @@ pnpm ios:device:prod:release   # 独立 Release 装到 iPhone
 
 | 路径 | 内容 |
 |---|---|
-| `README.md`（根） | 产品定位、仓库结构、快速开始、真机运行 |
-| `apps/mobile/README.md` | 移动端脚本表、真机两步走（Dev / Release） |
-| `apps/mobile/CLAUDE.md` | 技术基线 + 全部移动端规则（必读） |
-| `docs/api-interfaces.md` | **API 全量清单**（状态图例 + 来源文件行号） |
-| `apps/mobile/docs/rnr-migration.md` | RNR 迁移计划（三档分类 + 阶段） |
+| [`docs/product-blueprint-v2.md`](./product-blueprint-v2.md) | **产品规划蓝图 v2**（战略、架构、分期） |
+| [`docs/app-prd.md`](./app-prd.md) | **PRD v2**（屏级规格与验收） |
+| [`docs/app-prd-v1.8-archive.md`](./app-prd-v1.8-archive.md) | 旧 PRD 归档（AI 秘书叙事） |
+| [`docs/assets/prototypes/00-index.html`](./assets/prototypes/00-index.html) | 交互原型讲解壳（数字员工模式） |
+| [`docs/录音实现方案.md`](./录音实现方案.md) | 加密录音技术专册 |
+| [`docs/staffdeck-analysis.md`](./staffdeck-analysis.md) | StaffDeck 借鉴边界 |
+| [`docs/api-interfaces.md`](./api-interfaces.md) | API 全量清单 |
+| `README.md`（根） | 仓库结构、快速开始 |
+| `apps/mobile/README.md` | 移动端脚本、真机 |
+| `apps/mobile/CLAUDE.md` | 技术基线 + 移动端规则（必读） |
+| `apps/mobile/docs/rnr-migration.md` | RNR 迁移 |
 | `apps/mobile/docs/markdown-rendering-adr.md` | Markdown 渲染 ADR |
-| `apps/mobile/docs/markdown-renderer-research.md` | Markdown 渲染器调研 |
 
 ---
 
 ## 15. 当前状态与待办缺口
 
+### 文档 / 原型（2026-08-21）
+
+- [x] 产品蓝图 v2、PRD v2 已定稿  
+- [x] 数字员工模式原型已大改（四主 Tab + 子页）  
+- [ ] **下一步：** 按 PRD v2 再开「原型对齐」计划（查缺补漏）  
+- [ ] 再后：按 PRD M1+ 改 App（本期不动代码）
+
 ### 已验证（骨架交付时）
+
 - `pnpm install` / `typecheck` / `lint` / `test` / `build`（expo export android）通过。
 - `expo start` 可启动，Metro 8081 正常。
 
-### 待办（README + 代码注释汇总）
-1. **语音**：录音采集 / ASR 转写 / 翻译接口（voice-record / voice-translate 目前占位）。
-2. **BLE 硬件接入**：硬件按钮作为需求输入（现状只有 hold-to-talk 模拟）。
-3. **后端真实联调**：`.env.staging` / `.env.production` 是占位 host；当前 `dev` 变体临时指向 `api.multica.ai` 做对等验证，待 utter-office 自有后端就绪后替换。
-4. **B 线功能状态**：首页 Today 壳（Hero/Pulse/成果热力/待办决策队列/简报 Tab）；看板三视图（整盘密排、无报告占位）；专业版卡在「我的」；中央长按保持 Overlay+Toast。dashboard 6 端点需服务端上线并加入 API mirror 白名单。语音三项子页仍为原型 UI。
-5. **core 发布**为内部 npm 包（方案 B）。
-6. **建远端仓库**。
-7. RNR 迁移剩余工作（见 `apps/mobile/docs/rnr-migration.md`）。
+### 待办（代码侧，对齐 PRD v2 后执行）
+
+1. **首页 / 看板 / 工作台 / 我的** 按 PRD v2 实装（M1–M2）。  
+2. **Context→行动信号**：录音转写 → 事项候选（M3）；ASR 生产引擎分期。  
+3. **BLE / 通知 Context**：M5，另开 PRD。  
+4. **后端**：Outcome / HITL / 进度聚合等见 PRD §12；只登记不改直至专项。  
+5. **环境**：演示专用 workspace；自有后端就绪后切换 env。  
+6. RNR 迁移剩余工作（见 `apps/mobile/docs/rnr-migration.md`）。
 
 ---
 
@@ -546,9 +587,11 @@ pnpm ios:device:prod:release   # 独立 Release 装到 iPhone
 > ⚠️ **本节已过期（2026-08-17）**。下文仍保留历史草稿，**不得再当作现行整合方案**。
 >
 > 现行依据：
+> - 战略与架构：[`docs/product-blueprint-v2.md`](./product-blueprint-v2.md)
 > - 借鉴边界与 A/B/C 分级：[`docs/staffdeck-analysis.md`](./staffdeck-analysis.md) §10–§11
-> - 移动端落地与分期：[`docs/app-prd.md`](./app-prd.md) v1.8（§2.1 / §2.5 / §7 / M4）
+> - 移动端落地与分期：[`docs/app-prd.md`](./app-prd.md) **v2**（§2 / §7–§8 / §13）
 > - 可点击原型：[`docs/assets/prototypes/00-index.html`](./assets/prototypes/00-index.html)
+> - 旧细则存档：[`docs/app-prd-v1.8-archive.md`](./app-prd-v1.8-archive.md)
 >
 > **明确废止的切入点**（与现行 C 级 / PRD §2.1 冲突）：看板加「竞价中」列、移植 OKF、竞标 arena、员工市场/安装带 SOP 的模板。本期只借治理层表达（员工即上下文、能力计数、档案分层、阻断提示、HITL），不移植 SOP 状态机 / OKF / 广场 / 竞标。
 
@@ -567,13 +610,13 @@ StaffDeck（面壁智能 / OpenBMB，2026-07-16 开源）是「企业数字员�
 | 进化闭环（负面反馈→SOP 修复） | 评论/回复/状态/实时 WS | 反馈自动分类→修复工单（仍可远期评估，非本期） |
 | 数字员工市场 | 项目新建/选择流程 | 登记 B-7，非本期 |
 
-**三个最自然的切入点**（历史草稿；现行以 PRD M4 为准）：
+**三个最自然的切入点**（历史草稿；现行以 PRD v2 §7–§9 / §13 为准）：
 
-1. **Agents 标签页**（`more/agents.tsx` 占位）→ 数字员工名册（工号/岗位/在手任务/KPI）。**仍有效，见 PRD §7.5。**
-2. ~~**语音输入 → 秘书派单 → 竞价**~~：**废止竞价**；保留语音 → 默认员工 / 派单。
-3. ~~**看板加「竞价中」列**~~：**废止**；`IssueStatus` 扩展需跨端评审，见 PRD §14.2。
+1. **Agents 标签页**（`more/agents.tsx` 占位）→ 数字员工名册（工号/岗位/在手任务/KPI）。**仍有效，见 PRD v2 §9 名册/档案。**
+2. ~~**语音输入 → 秘书派单 → 竞价**~~：**废止竞价**；保留语音 → Context 入口 / 派活。
+3. ~~**看板加「竞价中」列**~~：**废止**；`IssueStatus` 扩展需跨端评审。
 
-**落地路径**（历史）：P1 身份层 → … → P5 市场。**现行**：按 PRD M1–M4；后端缺口只登记 §10.2。
+**落地路径**（历史）：P1 身份层 → … → P5 市场。**现行**：按 PRD v2 D1→M1–M4；后端缺口只登记 §12。
 
 **硬约束与风险**：
 - **行为语义一致性**（CLAUDE.md 铁律）：数字员工模型必须先进后端（`packages/core` + Multica 服务端），移动端只是渲染层，不能做成移动端独有覆盖层。

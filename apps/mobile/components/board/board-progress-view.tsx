@@ -8,6 +8,7 @@ import { Pressable, ScrollView, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Text } from "@/components/ui/text";
 import { HomeSection } from "@/components/home/home-section";
+import { OutcomeFeed } from "@/components/home/outcome-feed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ColorStat } from "@/components/board/color-stat";
 import { TaskProgress } from "@/components/board/task-progress";
@@ -69,6 +70,8 @@ export function BoardProgressView() {
       contentContainerClassName="px-4 py-3 gap-3 pb-8"
       showsVerticalScrollIndicator={false}
     >
+      <OutcomeFeed />
+
       <HomeSection
         title="概况"
         right={

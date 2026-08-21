@@ -24,39 +24,56 @@
 </style>
 </head>
 <body>
-<p class="stage-note"><b>底栏 IA</b> · 2+1+2 · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>底栏</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
     <div class="app-header">
-      <div class="title-wrap"><div class="title">信息架构</div><div class="subtitle">对齐 tabs/_layout.tsx</div></div>
+      <div class="title-wrap"><div class="title">信息架构</div><div class="subtitle">数字员工模式 · 2+1+2</div></div>
     </div>
     <div class="scroll">
       <div class="ia">
-        <p>底栏为 <b>首页 / 看板 / ●录 / 工作台 / 我的</b>。中央录音在栏内与其它 Tab <b>同一行</b>（宽 64 × 高 46，圆角 16，含底部安全区，非凸起 FAB）。短按 Sheet、长按 Overlay，不 push 路由。</p>
+        <p>底栏保留 <b>首页 / 看板 / ●录 / 工作台 / 我的</b>。职责改为：拿成果 · 看小队 · 语音采集 · 安排活 · 配置。</p>
         <div class="diagram">┌──────────────────────────────────┐
 │  首页    看板   [🎙]   工作台  我的 │
-│  Home  Board  Voice  Work  Mine │
-│   🔔3         栏内横条    💬2      │
+│ 成果   进度   Voice   派活   配置 │
+│  🔔3         栏内横条     2       │
 └──────────────────────────────────┘
-        中央 64×46 · 圆角 16 · 栏内居中
-        不是凸出底栏的中间大圆钮</div>
-        <h2>进入各屏</h2>
+  人像管同事一样管数字员工
+  聊天只是下达通道，不是主舞台</div>
+        <h2>五屏职责</h2>
         <div class="links">
-          <a href="02-home.html">首页 <span>Today · Hero · 报告</span></a>
-          <a href="03-board.html">看板 <span>整盘 / 按状态 / 按人</span></a>
-          <a href="04-voice.html">录音 <span>Sheet + Overlay</span></a>
-          <a href="05-workbench.html">工作台 <span>Rail + HITL</span></a>
-          <a href="06-mine.html">我的 <span>分区菜单</span></a>
+          <a href="02-home.html">首页 <span>小队成果 + 待我处理直达</span></a>
+          <a href="03-board.html">看板 <span>按小队总览 + 成员泳道</span></a>
+          <a href="04-voice.html">语音 <span>录音 / 翻译 / 发语音（内部暂不动）</span></a>
+          <a href="05-workbench.html">工作台 <span>编排台派活，非 IM</span></a>
+          <a href="06-mine.html">我的 <span>员工·SOP·知识·Runtime</span></a>
         </div>
       </div>
     </div>
     <nav class="tabbar">
-      <a class="tab" href="02-home.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>首页</a>
-      <a class="tab" href="03-board.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>看板</a>
-      <div class="tab-center-slot"><button type="button" class="record-btn" id="record-btn" aria-label="录音"><svg class="ic mic" style="width:26px;height:26px;color:#fff" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg><span class="eq"><i></i><i></i><i></i><i></i></span></button></div>
-      <a class="tab" href="05-workbench.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>工作台</a>
-      <a class="tab" href="06-mine.html"><div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>我的</a>
+      <a class="tab" href="02-home.html">
+        <div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        首页
+      </a>
+      <a class="tab" href="03-board.html">
+        <div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>
+        看板
+      </a>
+      <div class="tab-center-slot">
+        <button type="button" class="record-btn" id="record-btn" aria-label="Context">
+          <svg class="ic mic" style="width:26px;height:26px;color:#fff" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+          <span class="eq"><i></i><i></i><i></i><i></i></span>
+        </button>
+      </div>
+      <a class="tab" href="05-workbench.html">
+        <div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>
+        工作台
+      </a>
+      <a class="tab" href="06-mine.html">
+        <div class="glyph"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        我的
+      </a>
     </nav>
   </div>
 </div>

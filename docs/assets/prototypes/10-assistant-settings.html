@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>10 秘书设置 · utter-office</title>
+<title>10 助理与自动化 · utter-office</title>
 <script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
 <link rel="stylesheet" href="_shared.css">
 <style>
@@ -27,28 +27,51 @@
 </style>
 </head>
 <body>
-<p class="stage-note"><b>秘书设置</b> · 对齐 <code>assistant.tsx</code> · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>助理</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
     <div class="app-header" style="min-height:44px;padding:0 4px">
       <a class="back" href="06-mine.html" data-back data-back-fallback="06-mine.html" data-back-fallback-label="我的"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
-      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">秘书设置</div></div>
+      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">助理与自动化</div></div>
       <div style="width:44px"></div>
     </div>
     <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:20px">
       <div>
-        <div class="sec-h">默认数字员工</div>
+        <div class="sec-h">默认指派</div>
         <div class="card">
           <a class="row" href="09-staff-picker.html#default">
-            <span class="t">默认员工</span>
-            <span class="val">mika</span>
+            <span class="t">默认数字员工</span>
+            <span class="val" data-default-staff>mika</span>
+            <span style="color:var(--muted-fg)">›</span>
+          </a>
+          <a class="row" href="25-squads.html#default">
+            <span class="t">默认小队</span>
+            <span class="val" data-default-squad>产品小队</span>
             <span style="color:var(--muted-fg)">›</span>
           </a>
         </div>
       </div>
       <div>
-        <div class="sec-h">语音</div>
+        <div class="sec-h">新闻简报</div>
+        <div class="card">
+          <a class="row" href="26-watch-topics.html">
+            <span class="t">关注类别</span>
+            <span class="val" data-topic-count>5 个启用中</span>
+            <span style="color:var(--muted-fg)">›</span>
+          </a>
+          <div class="block">
+            <div class="t">推送时段</div>
+            <div class="seg" id="push-seg">
+              <button type="button" class="on">早间</button>
+              <button type="button">午间</button>
+              <button type="button">实时</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-h">语音下达偏好</div>
         <div class="card">
           <div class="block">
             <div class="t">长按录音阈值</div>
@@ -58,11 +81,6 @@
               <button type="button" class="on">2s</button>
             </div>
           </div>
-          <div class="switch-row">
-            <span class="t" style="flex:1;font-size:14px">松手后自动跳工作台</span>
-            <div class="switch"></div>
-          </div>
-          <div class="placeholder" style="padding:0 16px 12px;font-size:11px;color:var(--muted-fg)">预留开关。中央长按仍按现网：松手 Toast，不跳转、不发送。</div>
           <div class="block">
             <div class="t">语音入口默认项</div>
             <div class="seg" id="entry-seg">
@@ -74,21 +92,37 @@
         </div>
       </div>
       <div>
-        <div class="sec-h">简报推送</div>
+        <div class="sec-h">定时任务</div>
         <div class="card">
-          <div class="placeholder">分类与推送时间待后端 `/api/briefs` 契约（B-2）后开放。</div>
+          <div class="row"><span class="t">每日 Runtime 用量摘要</span><span class="val">08:30</span></div>
+          <div class="row"><span class="t">周五试点名单催办</span><span class="val">已开</span></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 <script>
-  document.querySelectorAll("#hold-seg button, #entry-seg button").forEach(function (btn) {
+  document.querySelectorAll("#hold-seg button, #entry-seg button, #push-seg button").forEach(function (btn) {
     btn.addEventListener("click", function () {
       btn.parentElement.querySelectorAll("button").forEach(function (b) { b.classList.remove("on"); });
       btn.classList.add("on");
     });
   });
+  try {
+    var staff = sessionStorage.getItem("proto-default-staff");
+    var squad =
+      sessionStorage.getItem("proto-default-squad") ||
+      sessionStorage.getItem("proto-squad");
+    var sEl = document.querySelector("[data-default-staff]");
+    var qEl = document.querySelector("[data-default-squad]");
+    if (staff && sEl) sEl.textContent = staff;
+    if (squad && qEl) qEl.textContent = squad;
+    var topics = JSON.parse(sessionStorage.getItem("proto-watch-topics") || "null");
+    if (topics && topics.length && document.querySelector("[data-topic-count]")) {
+      var on = topics.filter(function (t) { return t.on !== false; }).length;
+      document.querySelector("[data-topic-count]").textContent = on + " 个启用中";
+    }
+  } catch (e) {}
 </script>
 <script src="_shared.js"></script>
 </body>

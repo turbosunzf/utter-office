@@ -7,115 +7,97 @@
 <script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
 <link rel="stylesheet" href="_shared.css">
 <style>
-.back { display:flex;align-items:center;gap:4px;color:var(--brand-hex);text-decoration:none;font-size:15px;padding:0 4px; }
-.filters { display:flex; gap:6px; overflow-x:auto; padding: 4px; background: #EEF1F8; border-radius: 16px; margin: 0 16px 12px; }
-.filters::-webkit-scrollbar { display: none; }
-.filters button {
-  border: none; background: transparent; border-radius: 12px; padding: 8px 12px;
-  font-size: 12px; font-weight: 600; color: var(--muted-fg); white-space: nowrap; cursor: pointer;
-  display: flex; align-items: center; gap: 6px;
-}
-.filters button.on { background: #fff; color: var(--foreground); box-shadow: 0 1px 3px rgba(15,23,42,.08); }
-.filters .cnt { font-size: 10px; background: var(--well); border-radius: 999px; padding: 1px 6px; color: var(--muted-fg); }
-.filters button.on .cnt { background: rgba(59,111,255,.12); color: var(--brand-hex); }
-
-/* 与 08 档案页头同构：域 → 职能 → 代号 → 职责 → chip → 工位 */
-.card {
-  display: block; background: #fff; border: 1px solid var(--border); border-radius: 16px;
-  padding: 14px; margin: 0 16px 10px; text-decoration: none; color: inherit;
-}
-.card-top { display: flex; gap: 12px; align-items: flex-start; }
-.card .domain { font-size: 11px; font-weight: 700; color: var(--brand-hex); }
-.card .role {
-  font-size: 16px; font-weight: 700; margin-top: 2px; letter-spacing: -.2px;
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-}
-.card .handle { font-size: 12px; color: var(--muted-fg); margin-top: 3px; }
-.badge-st { display: inline-flex; font-size: 10px; font-weight: 600; border-radius: 6px; padding: 2px 6px; }
-.badge-st.ok { background: rgba(52,199,89,.15); color: var(--success); }
-.badge-st.work { background: rgba(59,111,255,.15); color: var(--brand-hex); }
-.badge-st.off { background: var(--secondary); color: var(--muted-fg); }
-.card .desc {
-  font-size: 13px; color: var(--foreground); margin-top: 10px; line-height: 1.55;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.chips span {
-  font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 8px;
-  background: #F3F4F6; color: var(--foreground);
-}
-.chips span.soft { color: var(--muted-fg); }
-.runtime {
-  margin-top: 10px; font-size: 11px; display: flex; align-items: center; gap: 6px;
-  padding: 7px 10px; border-radius: 8px; background: var(--well); color: var(--muted-fg);
-}
-.runtime.warn { background: rgba(245,158,11,.12); color: #8A6116; }
+.back{display:flex;align-items:center;gap:4px;color:var(--brand-hex);text-decoration:none;font-size:15px;padding:0 4px}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:4px;background:var(--well-2);border-radius:10px;margin:0 16px 12px}
+.filters::-webkit-scrollbar{display:none}
+.filters button{border:none;background:transparent;border-radius:12px;padding:8px 12px;font-size:12px;font-weight:600;color:var(--muted-fg);white-space:nowrap;cursor:pointer}
+.filters button.on{background:var(--surface-2);color:var(--text-primary);box-shadow:var(--shadow-card)}
+.card{display:block;background:var(--surface-2);border:1px solid var(--hairline);border-radius:var(--radius-card);padding:14px;margin:0 16px 10px;text-decoration:none;color:inherit;box-shadow:var(--shadow-card)}
+.card .domain{font-size:11px;font-weight:800;color:var(--brand-hex);letter-spacing:.04em}
+.card .role{font-size:16px;font-weight:800;margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card .handle{font-size:12px;color:var(--text-secondary);margin-top:3px}
+.badge-st{display:inline-flex;font-size:10px;font-weight:600;border-radius:6px;padding:2px 6px}
+.badge-st.ok{background:rgba(52,199,89,.15);color:var(--success)}
+.badge-st.work{background:rgba(59,111,255,.15);color:var(--brand-hex)}
+.badge-st.off{background:var(--secondary);color:var(--muted-fg)}
+.card .desc{font-size:13px;margin-top:10px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips span{font-size:11px;font-weight:600;padding:4px 9px;border-radius:8px;background:#F3F4F6}
+.load{margin-top:10px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted-fg)}
+.load .prog-track{flex:1}
 </style>
 </head>
 <body>
-<p class="stage-note"><b>数字员工名册</b> · 与档案页头同构 · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>数字员工</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
     <div class="app-header">
-      <a class="back" href="06-mine.html" data-back data-back-fallback="06-mine.html" data-back-fallback-label="我的"><svg class="ic" style="width:20px;height:20px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span data-back-label>我的</span></a>
+      <a class="back" href="06-mine.html" data-back data-back-fallback="06-mine.html" data-back-fallback-label="我的">
+        <svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        <span data-back-label>我的</span>
+      </a>
       <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">数字员工</div></div>
-      <div style="width:64px"></div>
+      <a class="icon-btn" href="09-staff-picker.html#dispatch" aria-label="派活"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg></a>
     </div>
     <div class="filters" data-filter-seg>
-      <button type="button" class="on" data-filter="all">全部 <span class="cnt">3</span></button>
-      <button type="button" data-filter="online">在岗 <span class="cnt">2</span></button>
-      <button type="button" data-filter="offline">离线 <span class="cnt">1</span></button>
-      <button type="button" data-filter="unbound">未绑定 <span class="cnt">1</span></button>
-      <button type="button" data-filter="squad">战队 <span class="cnt">1</span></button>
+      <button type="button" class="on" data-filter="all">全部</button>
+      <button type="button" data-filter="online">可派发</button>
+      <button type="button" data-filter="busy">忙碌</button>
+      <button type="button" data-filter="warn">未绑定</button>
     </div>
     <div class="scroll" style="padding-bottom:24px">
-      <a class="card" href="08-staff-profile.html" data-staff-card data-tags="online unbound">
-        <div class="card-top">
-          <div class="avatar lg" style="background:#F87171">m<span class="dot work"></span></div>
-          <div class="flex-1" style="min-width:0">
-            <div class="domain">调度</div>
-            <div class="role">需求派单助理 <span class="badge-st work">工作中</span></div>
-            <div class="handle">mika · EMP-4F2A</div>
+      <a class="card" href="08-staff-profile.html" data-staff-card data-tags="all online busy">
+        <div style="display:flex;gap:12px">
+          <div class="avatar lg" style="background:#F87171">m</div>
+          <div style="flex:1;min-width:0">
+            <div class="domain">调度域</div>
+            <div class="role">需求派单助理 <span class="badge-st work">执行中</span></div>
+            <div class="handle">@mika · 负载 2/3</div>
           </div>
         </div>
-        <div class="desc">熟悉需求澄清、拆单与进度回报；能独立催办在手事项。遇到跨项目冲突或权限不足时，把上下文交还给负责人。</div>
-        <div class="chips">
-          <span>6 技能</span><span>12 工具</span><span>2 在手</span><span class="soft">— 定时</span>
-        </div>
-        <div class="runtime warn">⚠️ 工位未绑定 · 任务无法执行</div>
+        <div class="desc">承接重复派单与验收催办；升级条件：连续阻塞 &gt;30m 转人工。</div>
+        <div class="chips"><span>技能 4</span><span>SOP 2</span><span>在手 2</span><span>定时 1</span></div>
+        <div class="load"><span class="runtime-pill"><i></i>Mac 绑定</span><div class="prog-track"><i class="prog-fill-brand" style="width:66%"></i></div><span>可派发</span></div>
       </a>
-
-      <a class="card" href="08-staff-profile.html" data-staff-card data-tags="online squad">
-        <div class="card-top">
-          <div class="avatar lg" style="background:#60A5FA">c<span class="dot ok"></span></div>
-          <div class="flex-1" style="min-width:0">
-            <div class="domain">研发</div>
-            <div class="role">代码交付工程师 <span class="badge-st ok">在岗</span></div>
-            <div class="handle">codex · EMP-91BC</div>
+      <a class="card" href="08-staff-profile.html" data-staff-card data-tags="all online">
+        <div style="display:flex;gap:12px">
+          <div class="avatar lg" style="background:#34D399">n</div>
+          <div style="flex:1;min-width:0">
+            <div class="domain">客户域</div>
+            <div class="role">客户跟进 <span class="badge-st ok">在岗</span></div>
+            <div class="handle">@nova · 负载 1/3</div>
           </div>
         </div>
-        <div class="desc">熟悉本仓库鉴权与支付模块，可独立完成接口改造、单测与 PR 草案。涉及数据库迁移或破坏性变更时，交回负责人确认。</div>
-        <div class="chips">
-          <span>9 技能</span><span>脱敏 工具</span><span>0 在手</span><span class="soft">— 定时</span>
-        </div>
-        <div class="runtime">✓ 工位已绑定 · local-daemon</div>
+        <div class="desc">把口头承诺落成事项并盯到交付。</div>
+        <div class="chips"><span>技能 3</span><span>SOP 1</span><span>在手 1</span></div>
+        <div class="load"><span class="runtime-pill"><i></i>云端</span><div class="prog-track"><i class="prog-fill-brand" style="width:33%"></i></div><span>可派发</span></div>
       </a>
-
-      <a class="card" href="08-staff-profile.html" data-staff-card data-tags="offline">
-        <div class="card-top">
-          <div class="avatar lg" style="background:#A78BFA">k<span class="dot off"></span></div>
-          <div class="flex-1" style="min-width:0">
-            <div class="domain">情报</div>
-            <div class="role">行业情报分析师 <span class="badge-st off">离线</span></div>
-            <div class="handle">kimi · EMP-2C7E</div>
+      <a class="card" href="08-staff-profile.html#cap" data-staff-card data-tags="all warn">
+        <div style="display:flex;gap:12px">
+          <div class="avatar lg" style="background:#A78BFA">k</div>
+          <div style="flex:1;min-width:0">
+            <div class="domain">分析域</div>
+            <div class="role">分析席 <span class="badge-st off">未绑定</span></div>
+            <div class="handle">@kai · 负载 0</div>
           </div>
         </div>
-        <div class="desc">负责长文精读、竞品对照与可引用摘要。涉及对外发布或敏感结论时，交还负责人审定。</div>
-        <div class="chips">
-          <span>4 技能</span><span class="soft">— 工具</span><span>1 在手</span><span class="soft">— 定时</span>
+        <div class="desc">对照分析与一页纸输出；需绑定工位后才能跑技能。</div>
+        <div class="chips"><span>技能 5</span><span>知识 12</span><span class="soft" style="color:var(--muted-fg)">工位未绑</span></div>
+        <div class="load"><span class="runtime-pill off"><i></i>未绑定</span><div class="prog-track"><i class="prog-fill-muted" style="width:0%"></i></div><span>不可派</span></div>
+      </a>
+      <a class="card" href="08-staff-profile.html" data-staff-card data-tags="all online">
+        <div style="display:flex;gap:12px">
+          <div class="avatar lg" style="background:#FBBF24;color:#78350F">t</div>
+          <div style="flex:1;min-width:0">
+            <div class="domain">质量域</div>
+            <div class="role">测试助理 <span class="badge-st ok">在岗</span></div>
+            <div class="handle">@tina · 负载 0/2</div>
+          </div>
         </div>
-        <div class="runtime">✓ 工位已绑定 · cloud</div>
+        <div class="desc">生成与校验测试；可挂 Skills「Write tests」。</div>
+        <div class="chips"><span>技能 2</span><span>在手 0</span></div>
+        <div class="load"><span class="runtime-pill"><i></i>Mac 绑定</span><div class="prog-track"><i class="prog-fill-ok" style="width:5%"></i></div><span>可派发</span></div>
       </a>
     </div>
   </div>

@@ -1,5 +1,5 @@
 /**
- * Home work outcomes — 24h range area chart (PRD §4.4).
+ * 工作成果 — 24h 区间面积曲线（看板 · 整盘；原首页 PRD §4.4）。
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
@@ -790,7 +790,7 @@ export function OutcomeFeed() {
   }, [visible, selectedId]);
 
   return (
-    <View className="px-4">
+    <View>
       <HomeSection
         title="工作成果"
         badge={USE_MOCK_OUTCOMES ? "示例" : undefined}

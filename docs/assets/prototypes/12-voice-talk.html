@@ -73,13 +73,13 @@
 .eq i:nth-child(3){animation-delay:.3s}.eq i:nth-child(4){animation-delay:.08s}
 @keyframes eqb { from { transform:scaleY(.33); } to { transform:scaleY(1); } }
 .hint {
-  width:100%; border-radius:16px; padding:12px 16px; background:var(--well);
-  font-size:12px; color:var(--muted-fg); text-align:center; line-height:1.5;
+  width:100%; border-radius:12px; padding:12px 16px; background:var(--well);
+  font-size:12px; color:var(--text-secondary); text-align:center; line-height:1.5; font-weight:550;
 }
 .toast {
   position:absolute; left:50%; bottom:48px; transform:translateX(-50%);
-  background:rgba(28,36,64,.92); color:#fff; font-size:13px; font-weight:500;
-  padding:10px 16px; border-radius:20px; white-space:nowrap; display:none; z-index:30;
+  background:rgba(11,18,32,.92); color:#fff; font-size:13px; font-weight:700;
+  padding:10px 16px; border-radius:10px; white-space:nowrap; display:none; z-index:30;
 }
 .toast.show { display:block; }
 .picker {
@@ -103,24 +103,20 @@
 </style>
 </head>
 <body>
-<p class="stage-note"><b>发语音</b> · 对齐 <code>voice-talk.tsx</code> · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>即时下达</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
     <div class="page">
       <div class="nav">
-        <a class="back" href="02-home.html" data-back data-back-fallback="02-home.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
-        <div class="title">发语音</div>
-      </div>
-      <div class="banner">
-        <span style="flex:1">原型演示 · 尚未接入真实录音与转写</span>
-        <span class="tag">原型</span>
+        <a class="back" href="04-voice.html" data-back data-back-fallback="04-voice.html" data-back-fallback-label="Context"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+        <div class="title">即时下达</div>
       </div>
       <div class="body">
         <div>
           <div class="sec-h">
-            <span class="l">发给谁</span>
-            <a href="#" id="open-picker">全部 <svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></a>
+            <span class="l">发给</span>
+            <button type="button" id="open-picker" style="border:none;background:none;padding:0;font-size:12px;font-weight:500;color:var(--brand-hex);display:flex;align-items:center;gap:2px;cursor:pointer">全部 <svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
           </div>
           <div class="rail" id="agent-rail">
             <button type="button" class="agent sel" data-id="mika" data-name="mika" data-st="工作中">
@@ -148,7 +144,7 @@
 
         <div class="center">
           <div class="h" id="talk-title">按住说话</div>
-          <div class="s" id="talk-sub">按住即可说话，松开结束</div>
+          <div class="s" id="talk-sub" style="display:none"></div>
           <div class="orb-wrap">
             <div class="halo" id="halo"></div>
             <button type="button" class="orb" id="orb" aria-label="按住说话">
@@ -156,19 +152,17 @@
               <span class="eq"><i></i><i></i><i></i><i></i></span>
             </button>
           </div>
-          <div class="hint" id="hint">原型演示 · 松开后仅提示，不会写入工作台对话。 当前目标：mika</div>
         </div>
       </div>
     </div>
 
-    <div class="toast" id="toast">原型示例 · 当前不会发送到对话</div>
+    <div class="toast" id="toast">已入队下达</div>
 
     <div class="picker" id="picker">
       <div class="picker-body" onclick="event.stopPropagation()">
         <div class="grabber"></div>
         <div class="picker-h">
-          <div class="t">选择接收员工</div>
-          <div class="s">与派单列表相同 · 选中后用于发语音目标</div>
+          <div class="t">选择接收人</div>
         </div>
         <div style="overflow-y:auto">
           <button type="button" class="prow sel" data-pick="mika" data-st="工作中" data-bound="0">
@@ -210,8 +204,6 @@
     var av = document.getElementById("recv-av");
     av.style.background = colors[name];
     av.childNodes[0].textContent = initials[name];
-    document.getElementById("hint").textContent =
-      "原型演示 · 松开后仅提示，不会写入工作台对话。 当前目标：" + name;
     document.querySelectorAll("[data-pick]").forEach(function (row) {
       var on = row.getAttribute("data-pick") === name;
       row.classList.toggle("sel", on);
@@ -256,8 +248,7 @@
     holding = true;
     orb.classList.add("rec");
     halo.classList.add("on");
-    title.textContent = "正在聆听…";
-    sub.textContent = "松开结束（原型不会真正发送）";
+    title.textContent = "聆听中";
   }
   function end() {
     if (!holding) return;
@@ -265,9 +256,20 @@
     orb.classList.remove("rec");
     halo.classList.remove("on");
     title.textContent = "按住说话";
-    sub.textContent = "按住即可说话，松开结束";
+    toast.textContent = "已入队";
     toast.classList.add("show");
-    setTimeout(function () { toast.classList.remove("show"); }, 2200);
+    setTimeout(function () {
+      toast.classList.remove("show");
+      var go = confirm("打开工作台？");
+      if (go) {
+        if (window.__protoGo) {
+          window.__protoGo("05-workbench.html", "tab=doing");
+        } else {
+          var embed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search) ? "&embed=1" : "";
+          location.href = "05-workbench.html?tab=doing" + embed;
+        }
+      }
+    }, 800);
   }
   orb.addEventListener("pointerdown", function (e) { e.preventDefault(); start(); });
   orb.addEventListener("pointerup", end);

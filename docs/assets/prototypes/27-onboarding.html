@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>27 启动设置 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.ob{display:flex;flex-direction:column;flex:1;min-height:0;padding:20px 20px 28px}
+.brand{font-size:13px;font-weight:800;color:var(--brand-hex);letter-spacing:.04em}
+.h{font-size:24px;font-weight:800;letter-spacing:-.4px;margin-top:28px;line-height:1.25}
+.s{font-size:14px;color:var(--text-secondary);margin-top:8px;line-height:1.45}
+.step{font-size:11px;font-weight:700;color:var(--text-tertiary);margin-top:20px}
+.grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{
+  border:1px solid var(--hairline);background:var(--surface-2);
+  border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;
+  color:var(--text-primary);cursor:pointer;font:inherit;
+}
+.chip.on{border-color:var(--brand-hex);background:var(--accent-well);color:var(--brand-hex)}
+.foot{margin-top:auto;padding-top:24px;display:flex;flex-direction:column;gap:10px}
+.btn{
+  height:48px;border:none;border-radius:12px;font-size:15px;font-weight:800;
+  cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;
+}
+.btn.pri{background:var(--brand-hex);color:#fff}
+.btn.ghost{background:var(--well);color:var(--text-primary)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.panel{display:none}.panel.on{display:block}
+</style>
+</head>
+<body>
+<p class="stage-note"><b>启动</b> · <a href="00-index.html">目录</a></p>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="ob">
+      <div class="brand">utter-office</div>
+      <div class="h" data-ob-title>你在哪个行业？</div>
+      <div class="s" data-ob-sub>用于初始化简报方向</div>
+      <div class="step" data-ob-step>1 / 2</div>
+
+      <div class="panel on" data-ob-panel="1">
+        <div class="grid" data-ob-industries>
+          <button type="button" class="chip" data-v="SaaS / 软件">SaaS / 软件</button>
+          <button type="button" class="chip" data-v="电商零售">电商零售</button>
+          <button type="button" class="chip" data-v="金融服务">金融服务</button>
+          <button type="button" class="chip" data-v="制造与供应链">制造与供应链</button>
+          <button type="button" class="chip" data-v="媒体内容">媒体内容</button>
+          <button type="button" class="chip" data-v="教育培训">教育培训</button>
+          <button type="button" class="chip" data-v="咨询与服务">咨询与服务</button>
+          <button type="button" class="chip" data-v="其他">其他</button>
+        </div>
+      </div>
+
+      <div class="panel" data-ob-panel="2">
+        <div class="grid" data-ob-focus>
+          <button type="button" class="chip" data-v="竞品动态">竞品动态</button>
+          <button type="button" class="chip" data-v="客户信号">客户信号</button>
+          <button type="button" class="chip" data-v="定价与商务">定价与商务</button>
+          <button type="button" class="chip" data-v="合规与口径">合规与口径</button>
+          <button type="button" class="chip" data-v="交付与 Runtime">交付与 Runtime</button>
+          <button type="button" class="chip" data-v="团队负荷">团队负荷</button>
+        </div>
+        <div class="s" style="margin-top:12px;display:none"></div>
+      </div>
+
+      <div class="foot">
+        <button type="button" class="btn pri" id="ob-next" disabled>下一步</button>
+        <button type="button" class="btn ghost" id="ob-skip">暂时跳过</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="_shared.js"></script>
+<script>
+(function () {
+  var step = 1;
+  var industry = "";
+  var focuses = [];
+  var title = document.querySelector("[data-ob-title]");
+  var sub = document.querySelector("[data-ob-sub]");
+  var stepEl = document.querySelector("[data-ob-step]");
+  var next = document.getElementById("ob-next");
+  var p1 = document.querySelector('[data-ob-panel="1"]');
+  var p2 = document.querySelector('[data-ob-panel="2"]');
+
+  function save() {
+    try {
+      sessionStorage.setItem(
+        "proto-onboard",
+        JSON.stringify({ industry: industry, focuses: focuses, done: true }),
+      );
+    } catch (e) {}
+  }
+
+  document.querySelectorAll("[data-ob-industries] .chip").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("[data-ob-industries] .chip").forEach(function (b) {
+        b.classList.remove("on");
+      });
+      btn.classList.add("on");
+      industry = btn.getAttribute("data-v");
+      next.disabled = !industry;
+    });
+  });
+
+  document.querySelectorAll("[data-ob-focus] .chip").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      btn.classList.toggle("on");
+      focuses = Array.prototype.slice
+        .call(document.querySelectorAll("[data-ob-focus] .chip.on"))
+        .map(function (b) {
+          return b.getAttribute("data-v");
+        });
+      next.disabled = focuses.length === 0;
+    });
+  });
+
+  next.addEventListener("click", function () {
+    if (step === 1) {
+      if (!industry) return;
+      step = 2;
+      title.textContent = "关注哪些方向？";
+      sub.textContent = industry;
+      stepEl.textContent = "2 / 2";
+      p1.classList.remove("on");
+      p2.classList.add("on");
+      next.textContent = "开始";
+      next.disabled = focuses.length === 0;
+      return;
+    }
+    save();
+    if (window.__protoToast) window.__protoToast("已设定 · " + industry);
+    if (window.__protoGo) {
+      window.__protoGo("02-home.html");
+    } else {
+      location.href = "02-home.html" + (/(?:^|[?&])embed=1(?:&|$)/.test(location.search) ? "?embed=1" : "");
+    }
+  });
+
+  document.getElementById("ob-skip").addEventListener("click", function () {
+    try {
+      sessionStorage.setItem(
+        "proto-onboard",
+        JSON.stringify({ industry: "", focuses: [], done: true, skipped: true }),
+      );
+    } catch (err) {}
+    if (window.__protoGo) window.__protoGo("02-home.html");
+    else location.href = "02-home.html";
+  });
+})();
+</script>
+</body>
+</html>

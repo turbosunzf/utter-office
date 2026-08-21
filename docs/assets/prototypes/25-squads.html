@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>25 切换小队 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.back{display:flex;align-items:center;color:var(--brand-hex);text-decoration:none;padding:8px}
+.hint{
+  margin:0 16px 12px;padding:10px 12px;border-radius:10px;
+  background:var(--surface-1);border:1px solid var(--hairline);
+  font-size:12px;color:var(--text-secondary);line-height:1.45;
+}
+.hint b{color:var(--text-primary);font-weight:800}
+.item{background:var(--surface-2);border-radius:14px;padding:14px;margin:0 16px 10px;border:1px solid var(--hairline);text-decoration:none;color:inherit;display:block;box-shadow:var(--shadow-card)}
+.item.on{border-color:rgba(59,111,255,.35);background:linear-gradient(90deg,rgba(59,111,255,.06),var(--surface-2))}
+.item .t{font-size:15px;font-weight:700}
+.item .s{font-size:12px;color:var(--muted-fg);margin-top:4px;line-height:1.4}
+.item .foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+</style>
+</head>
+<body>
+<p class="stage-note"><b>小队</b> · <a href="00-index.html">目录</a></p>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <a class="back" href="05-workbench.html" data-back data-back-fallback="05-workbench.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">切换小队</div></div>
+      <div style="width:44px"></div>
+    </div>
+    <div class="scroll" style="padding:8px 0 28px">
+<a class="item on" href="05-workbench.html" data-pick-squad="产品小队">
+        <div class="t">产品小队</div>
+        <div class="s">Alex + mika + nova + kai · 派活 / 验收 / 洞察落地</div>
+        <div class="foot">
+          <div class="squad-stack">
+            <span class="av" style="background:#60A5FA">A</span>
+            <span class="av" style="background:#F87171">m</span>
+            <span class="av" style="background:#34D399">n</span>
+            <span class="av" style="background:#A78BFA">k</span>
+          </div>
+          <span style="font-size:12px;font-weight:700;color:var(--brand-hex)">正在使用</span>
+        </div>
+      </a>
+      <a class="item" href="05-workbench.html" data-pick-squad="客户跟进小队">
+        <div class="t">客户跟进小队</div>
+        <div class="s">nova 主跑 · Alex 拍板 · 切过去看这组人的队列</div>
+        <div class="foot">
+          <div class="squad-stack">
+            <span class="av" style="background:#34D399">n</span>
+            <span class="av" style="background:#60A5FA">A</span>
+          </div>
+          <span style="font-size:12px;font-weight:700;color:var(--brand-hex)">选用 ›</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+<script src="_shared.js"></script>
+<script>
+(function () {
+  try {
+    var sp = new URLSearchParams(location.search);
+    var from = sp.get("from") || "";
+    var retTarget = "05-workbench.html";
+    var asDefault =
+      from === "10-assistant-settings.html" ||
+      from.indexOf("10-assistant") === 0 ||
+      location.hash === "#default";
+    if (asDefault) {
+      retTarget = from || "10-assistant-settings.html";
+      var title = document.querySelector(".app-header .title");
+      if (title) title.textContent = "默认小队";
+      var back = document.querySelector("[data-back]");
+      if (back) {
+        back.setAttribute("data-back-fallback", "10-assistant-settings.html");
+        back.setAttribute("href", "10-assistant-settings.html");
+      }
+    } else if (from) {
+      // 从哪来回哪去（看板切换 ≠ 进工作台）
+      retTarget = from;
+      var back2 = document.querySelector("[data-back]");
+      if (back2) {
+        back2.setAttribute("data-back-fallback", from);
+        back2.setAttribute("href", from);
+      }
+    }
+
+    var cur = sessionStorage.getItem("proto-squad") || "产品小队";
+    document.querySelectorAll("[data-pick-squad]").forEach(function (a) {
+      var name = a.getAttribute("data-pick-squad");
+      a.setAttribute("href", retTarget);
+      a.classList.toggle("on", name === cur);
+      var foot = a.querySelector(".foot span:last-child");
+      if (foot) {
+        if (asDefault) foot.textContent = name === cur ? "当前默认" : "设为默认 ›";
+        else foot.textContent = name === cur ? "正在使用" : "选用 ›";
+      }
+      a.addEventListener("click", function () {
+        try {
+          sessionStorage.setItem("proto-squad", name);
+          if (asDefault) {
+            sessionStorage.setItem("proto-default-squad", name);
+          }
+        } catch (e) {}
+        if (window.__protoToast) {
+          window.__protoToast(
+            asDefault ? "已设默认小队 · " + name : "已切换 · " + name,
+          );
+        }
+      });
+    });
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

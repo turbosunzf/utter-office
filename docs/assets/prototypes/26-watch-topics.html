@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>26 关注类别 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.back{display:flex;align-items:center;color:var(--brand-hex);text-decoration:none;padding:8px}
+.hint{
+  margin:0 16px 12px;padding:10px 12px;border-radius:10px;
+  background:var(--surface-1);border:1px solid var(--hairline);
+  font-size:12px;color:var(--text-secondary);line-height:1.45;
+}
+.hint b{color:var(--text-primary);font-weight:800}
+.create{
+  margin:0 16px 14px;padding:12px;border-radius:12px;
+  background:var(--surface-2);border:1px solid var(--hairline);box-shadow:var(--shadow-card);
+}
+.create .lab{font-size:12px;font-weight:800;margin-bottom:8px}
+.create .row{display:flex;gap:8px}
+.create input{
+  flex:1;height:40px;border-radius:10px;border:1px solid var(--hairline);
+  padding:0 12px;font-size:14px;background:var(--surface-1);outline:none;
+}
+.create input:focus{border-color:var(--brand-hex)}
+.create button{
+  height:40px;padding:0 14px;border:none;border-radius:10px;
+  background:var(--brand-hex);color:#fff;font-size:13px;font-weight:800;cursor:pointer;
+}
+.item{
+  margin:0 16px 8px;padding:12px 14px;border-radius:12px;
+  background:var(--surface-2);border:1px solid var(--hairline);
+  display:flex;align-items:flex-start;gap:10px;
+}
+.item .body{flex:1;min-width:0}
+.item .t{font-size:14px;font-weight:800}
+.item .s{font-size:11px;color:var(--text-secondary);margin-top:3px;line-height:1.4}
+.item .sw{
+  width:42px;height:26px;border-radius:13px;background:var(--brand-hex);
+  position:relative;flex-shrink:0;margin-top:2px;border:none;cursor:pointer;
+}
+.item .sw.off{background:#CBD5E1}
+.item .sw::after{
+  content:"";position:absolute;top:2px;right:2px;width:22px;height:22px;
+  border-radius:11px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15);
+}
+.item .sw.off::after{right:auto;left:2px}
+.del{
+  border:none;background:transparent;color:var(--text-tertiary);
+  font-size:12px;font-weight:700;cursor:pointer;padding:4px 0 0;
+}
+.sec{padding:8px 20px 4px;font-size:11px;font-weight:800;color:var(--text-tertiary);letter-spacing:.04em}
+.examples{display:flex;flex-wrap:wrap;gap:6px;margin:0 16px 20px}
+.examples button{
+  border:1px dashed rgba(59,111,255,.35);background:var(--accent-well);
+  color:var(--brand-hex);border-radius:999px;padding:6px 10px;
+  font-size:12px;font-weight:700;cursor:pointer;
+}
+</style>
+</head>
+<body>
+<p class="stage-note"><b>关注</b> · <a href="00-index.html">目录</a></p>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <a class="back" href="02-home.html" data-back data-back-fallback="02-home.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">关注类别</div></div>
+      <div style="width:44px"></div>
+    </div>
+    <div class="scroll" style="padding:8px 0 28px">
+<div class="create">
+        
+        <div class="row">
+          <input type="text" id="topic-input" placeholder="新类别" maxlength="20">
+          <button type="button" id="topic-add">添加</button>
+        </div>
+      </div>
+
+      <div class="sec">示例</div>
+      <div class="examples" id="topic-examples">
+        <button type="button" data-ex="定价变动">+ 定价变动</button>
+        <button type="button" data-ex="合规口径">+ 合规口径</button>
+        <button type="button" data-ex="招聘动态">+ 招聘动态</button>
+      </div>
+
+      <div class="sec">已启用 · 会进简报</div>
+      <div id="topic-list">
+        <div class="item" data-name="竞品动态">
+          <div class="body">
+            <div class="t">竞品动态</div>
+            <div class="s">外部情报 / 试用开放 / 功能对照</div>
+            <button type="button" class="del" data-del>删除</button>
+          </div>
+          <button type="button" class="sw" aria-label="开关"></button>
+        </div>
+        <div class="item" data-name="客户信号">
+          <div class="body">
+            <div class="t">客户信号</div>
+            <div class="s">询价、试点、投诉、续约意向</div>
+            <button type="button" class="del" data-del>删除</button>
+          </div>
+          <button type="button" class="sw" aria-label="开关"></button>
+        </div>
+        <div class="item" data-name="Runtime">
+          <div class="body">
+            <div class="t">Runtime</div>
+            <div class="s">挤兑、排队、工位未绑、扩容</div>
+            <button type="button" class="del" data-del>删除</button>
+          </div>
+          <button type="button" class="sw" aria-label="开关"></button>
+        </div>
+        <div class="item" data-name="口头承诺">
+          <div class="body">
+            <div class="t">口头承诺</div>
+            <div class="s">会议里说了但没落成事项</div>
+            <button type="button" class="del" data-del>删除</button>
+          </div>
+          <button type="button" class="sw" aria-label="开关"></button>
+        </div>
+        <div class="item" data-name="口径冲突">
+          <div class="body">
+            <div class="t">口径冲突</div>
+            <div class="s">目标 / 知识库 / 事项说法不一致</div>
+            <button type="button" class="del" data-del>删除</button>
+          </div>
+          <button type="button" class="sw" aria-label="开关"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="_shared.js"></script>
+<script>
+(function () {
+  var list = document.getElementById("topic-list");
+  var input = document.getElementById("topic-input");
+  var addBtn = document.getElementById("topic-add");
+
+  function toast(msg) {
+    if (window.__protoToast) window.__protoToast(msg);
+  }
+
+  function persist() {
+    var items = Array.prototype.slice.call(list.querySelectorAll(".item")).map(function (el) {
+      var sw = el.querySelector(".sw");
+      return {
+        name: el.getAttribute("data-name") || "",
+        desc: (el.querySelector(".s") && el.querySelector(".s").textContent) || "",
+        on: !(sw && sw.classList.contains("off")),
+      };
+    });
+    try {
+      sessionStorage.setItem("proto-watch-topics", JSON.stringify(items));
+    } catch (e) {}
+  }
+
+  function makeItem(name, desc, on) {
+    var el = document.createElement("div");
+    el.className = "item";
+    el.setAttribute("data-name", name);
+    el.innerHTML =
+      '<div class="body"><div class="t"></div><div class="s"></div>' +
+      '<button type="button" class="del" data-del>删除</button></div>' +
+      '<button type="button" class="sw" aria-label="开关"></button>';
+    el.querySelector(".t").textContent = name;
+    el.querySelector(".s").textContent = desc || "自建关注 · 命中后进新闻简报";
+    if (on === false) el.querySelector(".sw").classList.add("off");
+    wireItem(el);
+    return el;
+  }
+
+  function exists(name) {
+    return !!list.querySelector('[data-name="' + name.replace(/"/g, "") + '"]');
+  }
+
+  function addTopic(name) {
+    name = (name || "").trim();
+    if (!name) {
+      toast("先写一个类别名");
+      return;
+    }
+    if (exists(name)) {
+      toast("已有「" + name + "」");
+      return;
+    }
+    list.insertBefore(makeItem(name), list.firstChild);
+    persist();
+    toast("已添加「" + name + "」· 简报将开始识别");
+    input.value = "";
+  }
+
+  function wireItem(el) {
+    var sw = el.querySelector(".sw");
+    var del = el.querySelector("[data-del]");
+    if (sw) {
+      sw.addEventListener("click", function () {
+        sw.classList.toggle("off");
+        var on = !sw.classList.contains("off");
+        persist();
+        toast((on ? "已开启 · " : "已关闭 · ") + el.getAttribute("data-name"));
+      });
+    }
+    if (del) {
+      del.addEventListener("click", function () {
+        var n = el.getAttribute("data-name");
+        el.remove();
+        persist();
+        toast("已删除「" + n + "」");
+      });
+    }
+  }
+
+  // 恢复
+  try {
+    var saved = JSON.parse(sessionStorage.getItem("proto-watch-topics") || "null");
+    if (saved && saved.length) {
+      list.innerHTML = "";
+      saved.forEach(function (t) {
+        list.appendChild(makeItem(t.name, t.desc, t.on !== false));
+      });
+    } else {
+      Array.prototype.slice.call(list.querySelectorAll(".item")).forEach(wireItem);
+      persist();
+    }
+  } catch (e) {
+    Array.prototype.slice.call(list.querySelectorAll(".item")).forEach(wireItem);
+  }
+
+  addBtn.addEventListener("click", function () {
+    addTopic(input.value);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") addTopic(input.value);
+  });
+  document.querySelectorAll("#topic-examples [data-ex]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      addTopic(btn.getAttribute("data-ex"));
+    });
+  });
+})();
+</script>
+</body>
+</html>

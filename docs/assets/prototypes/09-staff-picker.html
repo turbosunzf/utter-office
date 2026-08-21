@@ -3,44 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>09 员工选择器 · utter-office</title>
+<title>09 指派 · utter-office</title>
 <script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
 <link rel="stylesheet" href="_shared.css">
 <style>
-.sheet-page {
-  position: absolute; inset: 0; background: rgba(0,0,0,.35);
-  display: flex; align-items: flex-end;
+.sheet-page{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end}
+.sheet-body{width:100%;height:78%;background:var(--surface-2);border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.sheet-h{padding:8px 16px 12px;border-bottom:1px solid var(--hairline);text-align:center;position:relative}
+.sheet-h .t{font-size:16px;font-weight:800}
+.sheet-h .s{font-size:12px;color:var(--text-secondary);margin-top:4px}
+.sheet-h .close{position:absolute;right:12px;top:28px;width:32px;height:32px;border:none;background:var(--secondary);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;color:inherit}
+.row{display:flex;align-items:center;gap:12px;padding:14px 16px;text-decoration:none;color:inherit;border-bottom:1px solid var(--hairline);cursor:pointer;background:transparent;width:100%;font:inherit;text-align:left}
+.row .name{font-size:15px;font-weight:700}
+.row .sub{font-size:12px;color:var(--text-secondary);margin-top:2px}
+.backdrop-phone{position:absolute;inset:0;filter:blur(2px);opacity:.45;pointer-events:none;background:var(--background)}
+.sec{padding:10px 16px 4px;font-size:11px;font-weight:800;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase}
+.target-box{
+  margin:10px 16px 0;padding:10px 12px;border-radius:10px;
+  background:var(--accent-well);border:1px solid rgba(59,111,255,.22);text-align:left;
 }
-.sheet-body {
-  width: 100%; height: 70%; background: #fff; border-radius: 20px 20px 0 0;
-  display: flex; flex-direction: column; overflow: hidden;
+.target-box .k{font-size:10px;font-weight:800;color:var(--brand-hex);letter-spacing:.04em}
+.target-box .v{font-size:14px;font-weight:800;margin-top:3px;line-height:1.3}
+.target-box .id{font-size:11px;color:var(--text-secondary);margin-top:2px;font-family:var(--mono)}
+.issue-chips{display:flex;gap:6px;overflow-x:auto;padding:8px 16px 4px;-webkit-overflow-scrolling:touch}
+.issue-chips::-webkit-scrollbar{display:none}
+.issue-chips button{
+  flex-shrink:0;border:1px solid var(--hairline);background:var(--surface-1);
+  border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;color:var(--text-secondary);cursor:pointer;
 }
-.sheet-h {
-  padding: 8px 16px 12px; border-bottom: 1px solid var(--hairline); text-align: center; position: relative;
-}
-.sheet-h .grabber { margin: 4px auto 10px; }
-.sheet-h .t { font-size: 16px; font-weight: 700; }
-.sheet-h .s { font-size: 12px; color: var(--muted-fg); margin-top: 4px; }
-.sheet-h .close {
-  position: absolute; right: 12px; top: 28px; width: 32px; height: 32px;
-  border: none; background: var(--secondary); border-radius: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.row {
-  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
-  text-decoration: none; color: inherit; border-bottom: 1px solid #F1F1F4;
-}
-.row .name { font-size: 16px; font-weight: 600; }
-.row .sub { font-size: 12px; color: var(--muted-fg); margin-top: 2px; }
-.row .st { width: 8px; height: 8px; border-radius: 4px; }
-.backdrop-phone {
-  position: absolute; inset: 0; filter: blur(2px); opacity: .5; pointer-events: none;
-  background: var(--background);
-}
+.issue-chips button.on{border-color:var(--brand-hex);color:var(--brand-hex);background:var(--accent-well)}
+.row.squad-row{background:linear-gradient(90deg,rgba(13,148,136,.08),transparent)}
 </style>
 </head>
 <body>
-<p class="stage-note"><b>员工选择器</b> · dispatch / default · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>指派</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="backdrop-phone"></div>
@@ -48,40 +44,223 @@
       <div class="sheet-body">
         <div class="sheet-h">
           <div class="grabber"></div>
-          <div class="t" id="picker-title">选择数字员工</div>
-          <div class="s" data-picker-intent>派单 · 选中后预填负责人并进入新建事项</div>
-          <a class="close" href="02-home.html" data-back data-back-fallback="02-home.html" aria-label="关闭"><svg class="ic" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></a>
+          <div class="t" id="picker-title">指派到事项</div>
+          <div class="s" data-picker-intent>选择接收人</div>
+          <a class="close" href="05-workbench.html" data-back data-back-fallback="05-workbench.html" aria-label="关闭">
+            <svg class="ic" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </a>
         </div>
-        <div class="scroll" style="flex:1">
-          <a class="row" href="02-home.html" onclick="if(location.hash==='#default'){location.href='10-assistant-settings.html';return false;}">
-            <div class="avatar lg" style="background:#F87171">m</div>
-            <div class="flex-1">
-              <div class="name">mika</div>
-              <div class="sub">工位未绑定 · 任务可能无法执行</div>
-            </div>
-            <span class="st" style="background:var(--brand-hex)"></span>
-          </a>
-          <a class="row" href="02-home.html" onclick="if(location.hash==='#default'){location.href='10-assistant-settings.html';return false;}">
-            <div class="avatar lg" style="background:#60A5FA">c</div>
-            <div class="flex-1">
-              <div class="name">codex</div>
-              <div class="sub">工位已绑定 · local-daemon</div>
-            </div>
-            <span class="st" style="background:var(--success)"></span>
-          </a>
-          <a class="row" href="08-staff-profile.html">
-            <div class="avatar lg" style="background:#A78BFA">k</div>
-            <div class="flex-1">
-              <div class="name">kimi</div>
-              <div class="sub">离线 · 工位已绑定</div>
-            </div>
-            <span class="st" style="background:#D1D1D6"></span>
-          </a>
+        <div class="scroll" style="flex:1" id="picker-body">
+          <!-- filled by script when shared ISSUE_DB available; fallback static below -->
+          <div class="target-box" data-target-box>
+            <div class="k">当前事项</div>
+            <div class="v" data-target-title>加载中…</div>
+            <div class="id" data-target-id>—</div>
+          </div>
+          <div class="issue-chips" data-issue-chips style="display:none"></div>
+
+          <div data-sec-squad>
+            <div class="sec">常用组合 · 一次交给多人</div>
+            <button type="button" class="row squad-row" data-pick="squad">
+              <div class="squad-stack" style="margin-right:4px">
+                <span class="av" style="background:#60A5FA">A</span>
+                <span class="av" style="background:#F87171">m</span>
+                <span class="av" style="background:#A78BFA">k</span>
+              </div>
+              <div style="flex:1"><div class="name">产品小队</div><div class="sub">Alex + mika + kai · 默认作战单位</div></div>
+              <span style="font-size:12px;font-weight:700;color:#0F766E">组队 ›</span>
+            </button>
+            <button type="button" class="row squad-row" data-pick="squad-customer">
+              <div class="squad-stack" style="margin-right:4px">
+                <span class="av" style="background:#34D399">n</span>
+                <span class="av" style="background:#60A5FA">A</span>
+              </div>
+              <div style="flex:1"><div class="name">客户跟进小队</div><div class="sub">nova 主跑 · Alex 拍板</div></div>
+              <span style="font-size:12px;font-weight:700;color:#0F766E">组队 ›</span>
+            </button>
+          </div>
+
+          <div data-sec-person>
+            <div class="sec">单人指派 · 人</div>
+            <button type="button" class="row" data-pick="Alex">
+              <div class="avatar md" style="background:#60A5FA">A</div>
+              <div style="flex:1"><div class="name">Alex <span class="pill pill-muted" style="margin-left:4px">人</span></div><div class="sub">1 在手 · 可参与评审</div></div>
+              <span class="runtime-pill"><i></i>在线</span>
+            </button>
+            <div class="sec">单人指派 · 数字员工</div>
+            <button type="button" class="row" data-pick="mika">
+              <div class="avatar md" style="background:#F87171">m</div>
+              <div style="flex:1"><div class="name">mika · 需求派单助理</div><div class="sub">负载 2 · Runtime 绑定 · 可派发</div></div>
+              <span class="runtime-pill"><i></i>忙</span>
+            </button>
+            <button type="button" class="row" data-pick="nova">
+              <div class="avatar md" style="background:#34D399">n</div>
+              <div style="flex:1"><div class="name">nova · 客户跟进</div><div class="sub">负载 1 · 可派发</div></div>
+              <span class="runtime-pill"><i></i>在线</span>
+            </button>
+            <a class="row" href="08-staff-profile.html#cap" style="box-sizing:border-box">
+              <div class="avatar md" style="background:#A78BFA">k</div>
+              <div style="flex:1"><div class="name">kai · 分析席</div><div class="sub">工位未绑定 · 部分技能不可跑</div></div>
+              <span class="runtime-pill off"><i></i>未绑</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 <script src="_shared.js"></script>
+<script>
+(function () {
+  var hash = (location.hash || "").replace(/^#/, "");
+  var sp = new URLSearchParams(location.search);
+  var mode = hash === "squad" ? "squad" : hash === "default" ? "default" : "dispatch";
+  try {
+    if (sessionStorage.getItem("proto-assign-mode") === "squad" && mode === "dispatch") {
+      mode = "squad";
+    }
+  } catch (e) {}
+
+  function readIssueId() {
+    var fromQs = sp.get("issue");
+    if (fromQs) return fromQs;
+    try {
+      return sessionStorage.getItem("proto-assign-issue") || "UO-33";
+    } catch (e) {
+      return "UO-33";
+    }
+  }
+
+  var issueId = readIssueId();
+  var fromSettings = mode === "default";
+  var title = document.getElementById("picker-title");
+  var intent = document.querySelector("[data-picker-intent]");
+  var targetTitle = document.querySelector("[data-target-title]");
+  var targetId = document.querySelector("[data-target-id]");
+  var chips = document.querySelector("[data-issue-chips]");
+  var secSquad = document.querySelector("[data-sec-squad]");
+  var secPerson = document.querySelector("[data-sec-person]");
+
+  function issueLabel(id) {
+    var iss = window.__protoGetIssue && window.__protoGetIssue(id);
+    return iss ? iss.title : id;
+  }
+
+  function setTarget(id) {
+    issueId = id;
+    try {
+      sessionStorage.setItem("proto-assign-issue", id);
+    } catch (e) {}
+    if (targetTitle) targetTitle.textContent = issueLabel(id);
+    if (targetId) targetId.textContent = id;
+    if (chips) {
+      chips.querySelectorAll("button").forEach(function (b) {
+        b.classList.toggle("on", b.getAttribute("data-issue") === id);
+      });
+    }
+    if (!fromSettings) {
+      if (title) title.textContent = mode === "squad" ? "组队接活" : "派活";
+      if (intent) {
+        intent.textContent =
+          mode === "squad"
+            ? "选组合 → 多人一起接活，写入「小队在跑」"
+            : "指派单人 → 写入「小队在跑」";
+      }
+    }
+  }
+
+  if (fromSettings) {
+    if (title) title.textContent = "设为默认员工";
+    if (intent) intent.textContent = "选择后写回设置页（mock）";
+    var box = document.querySelector("[data-target-box]");
+    if (box) box.style.display = "none";
+    if (secSquad) secSquad.style.display = "none";
+  } else {
+    setTarget(issueId);
+    // 待接活芯片：可切换目标事项
+    if (chips && window.__protoIssueDb) {
+      var db = window.__protoIssueDb();
+      var todos = Object.keys(db).filter(function (id) {
+        var st = db[id].status;
+        return st === "todo" || st === "queued";
+      });
+      if (todos.length) {
+        chips.style.display = "flex";
+        chips.innerHTML = todos
+          .map(function (id) {
+            return (
+              '<button type="button" data-issue="' +
+              id +
+              '"' +
+              (id === issueId ? ' class="on"' : "") +
+              ">" +
+              id +
+              "</button>"
+            );
+          })
+          .join("");
+        chips.querySelectorAll("button").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            setTarget(btn.getAttribute("data-issue"));
+          });
+        });
+      }
+    }
+    // 组队模式：小队区置顶（已是）；人区次之
+    if (mode === "squad" && secSquad && secPerson && secSquad.parentNode) {
+      secSquad.parentNode.insertBefore(secSquad, secPerson);
+    }
+  }
+
+  function goWb(assign) {
+    var qs =
+      "issue=" +
+      encodeURIComponent(issueId) +
+      "&assign=" +
+      encodeURIComponent(assign) +
+      "&tab=doing";
+    if (window.__protoGo) {
+      window.__protoGo("05-workbench.html", qs);
+      return;
+    }
+    var embed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search) ? "&embed=1" : "";
+    location.href = "05-workbench.html?" + qs + embed;
+  }
+
+  document.querySelectorAll("[data-pick]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var who = btn.getAttribute("data-pick");
+      if (fromSettings) {
+        if (window.__protoToast) window.__protoToast("已设为默认员工：" + who);
+        try {
+          sessionStorage.setItem("proto-default-staff", who);
+        } catch (e) {}
+        setTimeout(function () {
+          if (window.__protoNav) {
+            window.__protoNav("", "", {
+              action: "back",
+              fallback: "10-assistant-settings.html",
+            });
+            return;
+          }
+          var fallback = "10-assistant-settings.html";
+          try {
+            var from = new URLSearchParams(location.search).get("from");
+            if (from) fallback = from;
+          } catch (e) {}
+          var embed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search) ? "?embed=1" : "";
+          location.href = fallback + (embed || "");
+        }, 600);
+        return;
+      }
+      try {
+        sessionStorage.setItem("proto-assign-issue", issueId);
+        sessionStorage.removeItem("proto-assign-mode");
+      } catch (e) {}
+      goWb(who);
+    });
+  });
+})();
+</script>
 </body>
 </html>

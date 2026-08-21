@@ -34,23 +34,32 @@
 .tool{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--muted-fg);position:relative;border:none;background:none;cursor:pointer}
 .tool .badge{position:absolute;top:-4px;right:-8px;background:var(--destructive);color:#fff;font-size:10px;border-radius:999px;padding:0 4px;min-width:14px}
 .hw{text-align:center;font-size:12px;color:var(--muted-fg);padding-top:16px}
+.cand-sheet{position:absolute;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:40}
+.cand-sheet.show{display:flex}
+.cand-body{width:100%;background:var(--surface-2);border-radius:20px 20px 0 0;padding:12px 16px calc(var(--safe-bottom)+16px)}
+.cand-body .h{font-size:16px;font-weight:800;text-align:center;margin-bottom:4px;letter-spacing:-.2px}
+.cand-body .s{font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:12px}
+.cand{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--hairline);border-radius:10px;margin-bottom:8px;background:var(--well);border-left:3px solid var(--brand-hex)}
+.cand label{display:flex;gap:10px;align-items:flex-start;width:100%;cursor:pointer}
+.cand .t{font-size:14px;font-weight:700}
+.cand .m{font-size:11px;color:var(--text-secondary);margin-top:2px;font-family:var(--mono)}
+.cand-cta{width:100%;height:44px;border:none;border-radius:10px;background:var(--brand-hex);color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px}
+.cand-skip{width:100%;height:40px;border:none;border-radius:10px;background:var(--secondary);font-size:14px;font-weight:650;cursor:pointer;margin-top:8px;color:var(--text-primary)}
 </style>
 </head>
 <body>
-<p class="stage-note"><b>录音</b> · 对齐 <code>voice-record.tsx</code> · <a href="00-index.html">目录</a></p>
+<p class="stage-note"><b>录音捕捉</b> · <a href="00-index.html">目录</a></p>
 <div class="phone">
   <div class="screen">
     <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
     <div class="page">
       <div class="nav">
-        <a class="back" href="02-home.html" data-back data-back-fallback="02-home.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
-        <div class="title">录音</div>
+        <a class="back" href="04-voice.html" data-back data-back-fallback="04-voice.html" data-back-fallback-label="Context"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+        <div class="title">录音捕捉</div>
       </div>
-      <div class="banner"><span style="flex:1;text-align:center">采集已接入本机加密录音 · 转写为示例</span><span class="tag">示例</span></div>
       <div class="caps">
         <span class="cap"><i class="dot" id="status-dot"></i><span id="status-label">转写中</span></span>
-        <span class="cap">逐句</span>
-        <span class="cap">中文→英文</span>
+        <span class="cap">中 ↔ 英</span>
       </div>
       <div class="lines" id="lines">
         <div class="line">
@@ -83,7 +92,34 @@
           <button type="button" class="tool"><svg class="ic" style="width:22px;height:22px;color:var(--foreground)" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>快速记录</button>
           <button type="button" class="tool"><svg class="ic" style="width:22px;height:22px;color:var(--foreground)" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg><span class="badge">3</span>记录要点</button>
         </div>
-        <div class="hw">硬件：电量 87% ｜ 存储 32GB 可用</div>
+        <div class="hw" style="display:none"></div>
+      </div>
+    </div>
+    <div class="cand-sheet" id="cand-sheet">
+      <div class="cand-body" onclick="event.stopPropagation()">
+        <div class="grabber"></div>
+        <div class="h">事项候选</div>
+        <div class="s" style="display:none"></div>
+        <div class="cand">
+          <label>
+            <input type="checkbox" checked data-cand-id="UO-40" data-cand-title="整理周五试点名单并跟踪">
+            <div>
+              <div class="t">整理周五试点名单并跟踪</div>
+              <div class="m">UO-40 · 建议 nova</div>
+            </div>
+          </label>
+        </div>
+        <div class="cand">
+          <label>
+            <input type="checkbox" checked data-cand-id="UO-41" data-cand-title="对齐鉴权重构验收口径">
+            <div>
+              <div class="t">对齐鉴权重构验收口径</div>
+              <div class="m">UO-41 · 建议 mika</div>
+            </div>
+          </label>
+        </div>
+        <button type="button" class="cand-cta" id="cand-confirm">加入待接活</button>
+        <button type="button" class="cand-skip" id="cand-skip">跳过</button>
       </div>
     </div>
   </div>
@@ -91,10 +127,10 @@
 <script>
 (function () {
   var pool = [
-    { speaker: "说话人1", text: "对，底部 Dock 放波形、计时和暂停停止按钮。", translation: "Right, the dock holds the waveform, timer, and pause/stop buttons." },
-    { speaker: "说话人2", text: "翻译页做成左右对向气泡，按住说话松开出译。", translation: "Make the translate page bilateral bubbles with hold-to-speak / release-to-translate." },
-    { speaker: "说话人1", text: "深色模式也要正常，所有颜色走主题 token。", translation: "Dark mode must work too — all colours go through theme tokens." },
-    { speaker: "说话人2", text: "那这个版本先做纯 UI，真实转写后面再接。", translation: "Then this iteration is pure UI; real transcription comes later." }
+    { speaker: "说话人1", text: "周五前要把试点名单落下来，nova 盯一下。", translation: "Get the pilot list done by Friday; nova to track." },
+    { speaker: "说话人2", text: "鉴权重构的验收口径还要对齐一下。", translation: "We still need to align the auth refactor acceptance criteria." },
+    { speaker: "说话人1", text: "对，录音停了就直接进待接活。", translation: "Right — after stop, push candidates into the dispatch queue." },
+    { speaker: "说话人2", text: "翻译页内部流程先不动，壳保持一致。", translation: "Leave translate internals alone; keep the shell consistent." }
   ];
   var elapsed = 0, paused = false, stopped = false, poolIndex = 0;
   var clock = document.getElementById("clock");
@@ -103,6 +139,7 @@
   var statusDot = document.getElementById("status-dot");
   var pauseBtn = document.getElementById("btn-pause");
   var pauseIcon = document.getElementById("pause-icon");
+  var candSheet = document.getElementById("cand-sheet");
 
   function fmt(s) {
     var m = Math.floor(s / 60), sec = s % 60;
@@ -148,10 +185,37 @@
     setStatus();
   });
   document.getElementById("btn-stop").addEventListener("click", function () {
-    stopped = true; paused = false; elapsed = 0;
-    clock.textContent = "0:00";
-    lines.innerHTML = '<div class="empty"><div style="font-size:14px;margin-bottom:4px">录音已结束</div><div style="font-size:12px">点击底部播放按钮重新开始</div></div>';
+    stopped = true; paused = false;
     setStatus();
+    lines.innerHTML = '<div class="empty"><div style="font-size:14px;font-weight:700">已结束</div></div>';
+    if (candSheet) candSheet.classList.add("show");
+  });
+  document.getElementById("cand-skip").addEventListener("click", function () {
+    candSheet.classList.remove("show");
+  });
+  document.getElementById("cand-confirm").addEventListener("click", function () {
+    var list = [];
+    document.querySelectorAll("[data-cand-id]").forEach(function (inp) {
+      if (inp.checked) {
+        list.push({
+          id: inp.getAttribute("data-cand-id"),
+          title: inp.getAttribute("data-cand-title"),
+        });
+      }
+    });
+    if (!list.length) {
+      alert("请至少选一条候选");
+      return;
+    }
+    try {
+      sessionStorage.setItem("proto-voice-candidates", JSON.stringify(list));
+    } catch (e) {}
+    if (window.__protoGo) {
+      window.__protoGo("05-workbench.html", "fromVoice=1&tab=todo");
+    } else {
+      var embed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search) ? "&embed=1" : "";
+      location.href = "05-workbench.html?fromVoice=1&tab=todo" + embed;
+    }
   });
   var photo = document.getElementById("btn-photo");
   if (photo) {

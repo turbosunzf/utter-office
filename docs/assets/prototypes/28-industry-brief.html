@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>28 行业与简报 · utter-office</title>
+<script>if(/(?:^|[?&])embed=1(?:&|$)/.test(location.search)||(parent!==window))document.documentElement.classList.add("embed")</script>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.back{display:flex;align-items:center;color:var(--brand-hex);text-decoration:none;padding:8px}
+.card{margin:0 16px 12px;padding:14px;background:var(--surface-2);border:1px solid var(--hairline);border-radius:12px;box-shadow:var(--shadow-card)}
+.card .h{font-size:12px;font-weight:800;color:var(--text-tertiary);margin-bottom:8px}
+.card .v{font-size:16px;font-weight:800}
+.card .s{font-size:12px;color:var(--text-secondary);margin-top:4px;line-height:1.4}
+.grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{
+  border:1px solid var(--hairline);background:var(--surface-1);
+  border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;
+  color:var(--text-primary);cursor:pointer;font:inherit;
+}
+.chip.on{border-color:var(--brand-hex);background:var(--accent-well);color:var(--brand-hex)}
+.save{
+  margin:16px;height:46px;border:none;border-radius:12px;background:var(--brand-hex);
+  color:#fff;font-size:15px;font-weight:800;width:calc(100% - 32px);cursor:pointer;
+}
+</style>
+</head>
+<body>
+<p class="stage-note"><b>行业</b> · <a href="00-index.html">目录</a></p>
+<div class="phone">
+  <div class="screen">
+    <div class="status"><span>9:41</span><div class="right"><span>●●●</span><span>5G</span><span>🔋</span></div></div>
+    <div class="app-header">
+      <a class="back" href="06-mine.html" data-back data-back-fallback="06-mine.html"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+      <div class="title-wrap" style="text-align:center"><div class="title" style="font-size:17px">行业与简报</div></div>
+      <div style="width:44px"></div>
+    </div>
+    <div class="scroll" style="padding:8px 0 28px">
+      <div class="card">
+        <div class="h">当前行业</div>
+        <div class="v" id="cur-ind">未设置</div>
+        <div class="s">影响新闻简报的初始抓取方向</div>
+        <div class="grid" id="ind-grid">
+          <button type="button" class="chip" data-v="SaaS / 软件">SaaS / 软件</button>
+          <button type="button" class="chip" data-v="电商零售">电商零售</button>
+          <button type="button" class="chip" data-v="金融服务">金融服务</button>
+          <button type="button" class="chip" data-v="制造与供应链">制造与供应链</button>
+          <button type="button" class="chip" data-v="媒体内容">媒体内容</button>
+          <button type="button" class="chip" data-v="教育培训">教育培训</button>
+          <button type="button" class="chip" data-v="咨询与服务">咨询与服务</button>
+          <button type="button" class="chip" data-v="其他">其他</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="h">简报关注方向</div>
+        <div class="s">与首页「管理关注」互补：这里是行业级默认，关注类别可再细拆。</div>
+        <div class="grid" id="focus-grid">
+          <button type="button" class="chip" data-v="竞品动态">竞品动态</button>
+          <button type="button" class="chip" data-v="客户信号">客户信号</button>
+          <button type="button" class="chip" data-v="定价与商务">定价与商务</button>
+          <button type="button" class="chip" data-v="合规与口径">合规与口径</button>
+          <button type="button" class="chip" data-v="交付与 Runtime">交付与 Runtime</button>
+          <button type="button" class="chip" data-v="团队负荷">团队负荷</button>
+        </div>
+      </div>
+      <button type="button" class="save" id="save">保存</button>
+      <div style="text-align:center;padding:0 16px">
+        <a href="27-onboarding.html" style="font-size:13px;font-weight:700;color:var(--brand-hex);text-decoration:none">重新走一遍启动设置 ›</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="_shared.js"></script>
+<script>
+(function () {
+  var data = { industry: "", focuses: [] };
+  try {
+    data = JSON.parse(sessionStorage.getItem("proto-onboard") || "{}") || data;
+  } catch (e) {}
+
+  var cur = document.getElementById("cur-ind");
+  if (cur) cur.textContent = data.industry || "未设置";
+
+  function syncChips(sel, values, multi) {
+    document.querySelectorAll(sel + " .chip").forEach(function (btn) {
+      var v = btn.getAttribute("data-v");
+      var on = multi
+        ? (values || []).indexOf(v) >= 0
+        : v === values;
+      btn.classList.toggle("on", on);
+      btn.addEventListener("click", function () {
+        if (multi) {
+          btn.classList.toggle("on");
+        } else {
+          document.querySelectorAll(sel + " .chip").forEach(function (b) {
+            b.classList.remove("on");
+          });
+          btn.classList.add("on");
+          if (cur) cur.textContent = v;
+        }
+      });
+    });
+  }
+  syncChips("#ind-grid", data.industry, false);
+  syncChips("#focus-grid", data.focuses || [], true);
+
+  document.getElementById("save").addEventListener("click", function () {
+    var industry =
+      (document.querySelector("#ind-grid .chip.on") &&
+        document.querySelector("#ind-grid .chip.on").getAttribute("data-v")) ||
+      "";
+    var focuses = Array.prototype.slice
+      .call(document.querySelectorAll("#focus-grid .chip.on"))
+      .map(function (b) {
+        return b.getAttribute("data-v");
+      });
+    try {
+      sessionStorage.setItem(
+        "proto-onboard",
+        JSON.stringify({ industry: industry, focuses: focuses, done: true }),
+      );
+    } catch (e) {}
+    if (window.__protoToast) window.__protoToast("已保存简报方向");
+    setTimeout(function () {
+      if (window.__protoNav) {
+        window.__protoNav("", "", { action: "back", fallback: "06-mine.html" });
+      } else if (window.__protoGo) {
+        window.__protoGo("06-mine.html");
+      } else {
+        location.href = "06-mine.html";
+      }
+    }, 450);
+  });
+})();
+</script>
+</body>
+</html>
